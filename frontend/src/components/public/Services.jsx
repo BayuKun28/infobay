@@ -47,6 +47,7 @@ export default function Services({ services = [] }) {
                         alt={service.title}
                         className="w-full h-full object-contain"
                         onError={(e) => {
+                          e.target.onerror = null;
                           const title = service.title?.toLowerCase() || '';
                           if (title.includes('design')) e.target.src = '/icons/services/web-design.svg';
                           else if (title.includes('mobile')) e.target.src = '/icons/services/mobile-apps.svg';

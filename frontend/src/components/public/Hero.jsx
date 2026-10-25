@@ -162,6 +162,7 @@ export default function Hero({ biodata }) {
                   alt={biodata?.name || "Bayu Prastyo"}
                   className="w-full h-72 object-cover object-top border-2 border-black filter contrast-105 group-hover:scale-105 transition-transform duration-200"
                   onError={(e) => {
+                    e.target.onerror = null;
                     e.target.src = "/images/avatar.png";
                   }}
                 />
