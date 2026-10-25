@@ -128,12 +128,27 @@ class DatabaseSeeder extends Seeder
 
         // 6. Seed Education
         if (!empty($data['education'])) {
-            Education::truncate();
+            Education::query()->delete();
+            $hasUt = false;
             foreach ($data['education'] as $item) {
+                if (str_contains(strtoupper($item['title'] ?? ''), 'UNIVERSITAS TERBUKA')) {
+                    $hasUt = true;
+                }
                 Education::create([
                     'title' => $item['title'],
                     'period' => $item['period'] ?? null,
                     'description' => $item['description'] ?? null,
+                    'field' => $item['field'] ?? ($item['description'] ?? null),
+                    'badge' => $item['badge'] ?? null,
+                ]);
+            }
+            if (!$hasUt) {
+                Education::create([
+                    'title' => 'UNIVERSITAS TERBUKA',
+                    'period' => 'Sampai Sekarang',
+                    'description' => 'Program Studi Sistem Informasi / Ilmu Komputer',
+                    'field' => 'Program Studi Sistem Informasi / Ilmu Komputer',
+                    'badge' => null,
                 ]);
             }
         }

@@ -94,6 +94,13 @@ export const defaultProfileData = {
       field: "Teknik Komputer dan Jaringan / Rekayasa Perangkat Lunak",
       description: "Fokus pada dasar-dasar jaringan komputer, perakitan hardware, logika algoritma, dan dasar pemrograman web.",
       badge: "FORMAL EDUCATION"
+    },
+    {
+      title: "UNIVERSITAS TERBUKA",
+      period: "Sampai Sekarang",
+      field: "Program Studi Sistem Informasi / Ilmu Komputer",
+      description: "Pengembangan wawasan ilmu komputer, rekayasa perangkat lunak, sistem informasi, dan teknologi komputasi modern.",
+      badge: "HIGHER EDUCATION"
     }
   ],
   experience: [
