@@ -30,8 +30,8 @@ export default function AdminLogin({
   sessionExpiredMsg,
 }) {
   const theme = useTheme();
-  const [email, setEmail] = useState('admin@baydev.my.id');
-  const [password, setPassword] = useState('AdminBaydev2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -183,29 +183,6 @@ export default function AdminLogin({
                 disabled={loading}
                 size="medium"
               />
-
-              {/* Default Credential helper */}
-              <Box
-                sx={{
-                  mt: 2,
-                  mb: 2.5,
-                  p: 1.8,
-                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.1)' : 'rgba(67, 56, 202, 0.05)',
-                  borderRadius: 2.5,
-                  border: 1,
-                  borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.25)' : 'rgba(67, 56, 202, 0.2)',
-                }}
-              >
-                <Typography variant="caption" color="text.secondary" display="block" fontWeight="800">
-                  Kredensial Akses Administrator (PostgreSQL 17):
-                </Typography>
-                <Typography variant="caption" display="block" sx={{ fontFamily: 'monospace', mt: 0.5, color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#312E81', fontWeight: 600 }}>
-                  <strong>Email:</strong> admin@baydev.my.id
-                </Typography>
-                <Typography variant="caption" display="block" sx={{ fontFamily: 'monospace', color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#312E81', fontWeight: 600 }}>
-                  <strong>Password:</strong> AdminBaydev2026!
-                </Typography>
-              </Box>
 
               <Button
                 type="submit"

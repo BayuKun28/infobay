@@ -85,7 +85,7 @@ class ApiEndpointsTest extends TestCase
     {
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'admin@baydev.my.id',
-            'password' => 'AdminBaydev2026!',
+            'password' => '193328',
         ]);
 
         $response->assertStatus(200)
@@ -117,7 +117,7 @@ class ApiEndpointsTest extends TestCase
         // 1. Login to get token
         $loginRes = $this->postJson('/api/v1/auth/login', [
             'email' => 'admin@baydev.my.id',
-            'password' => 'AdminBaydev2026!',
+            'password' => '193328',
         ]);
         $token = $loginRes->json('data.token');
 

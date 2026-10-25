@@ -23,26 +23,28 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Seed Default Admin Users
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'admin@baydev.my.id'],
             [
                 'name' => 'Bayu Prastyo (Admin)',
-                'password' => Hash::make('AdminBaydev2026!'),
+                'password' => Hash::make('193328'),
             ]
         );
 
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'bayukundev@gmail.com'],
             [
                 'name' => 'Bayu Prastyo',
-                'password' => Hash::make('AdminBaydev2026!'),
+                'password' => Hash::make('193328'),
             ]
         );
 
         // 2. Read profile_seed_data.json
         $jsonPath = base_path('../profile_seed_data.json');
         if (!File::exists($jsonPath)) {
-            $jsonPath = '/home/bay/infobay/profile_seed_data.json';
+            $jsonPath = File::exists('/home/masbay/infobay/profile_seed_data.json')
+                ? '/home/masbay/infobay/profile_seed_data.json'
+                : '/home/bay/infobay/profile_seed_data.json';
         }
 
         if (!File::exists($jsonPath)) {

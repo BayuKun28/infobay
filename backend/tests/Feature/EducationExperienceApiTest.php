@@ -23,7 +23,7 @@ class EducationExperienceApiTest extends TestCase
     {
         $loginRes = $this->postJson('/api/v1/auth/login', [
             'email' => 'admin@baydev.my.id',
-            'password' => 'AdminBaydev2026!',
+            'password' => '193328',
         ]);
 
         return $loginRes->json('data.token');
