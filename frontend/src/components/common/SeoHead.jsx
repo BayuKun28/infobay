@@ -13,7 +13,8 @@ export default function SeoHead({ biodata }) {
     const nickname = biodata.nickname || 'baydev';
     const titleRole = biodata.title || biodata.role || 'Full-Stack Web & Mobile Engineer';
     const location = biodata.location || 'Yogyakarta / Karanganyar';
-    const avatar = biodata.avatar || 'https://baydev.my.id/assets/backend/images/about/1757684148.png';
+    const rawAvatar = biodata.avatar || '/images/avatar.png';
+    const avatar = rawAvatar.startsWith('http') ? rawAvatar : `${window.location.origin}${rawAvatar}`;
     const bioText =
       biodata.hero_subheadline ||
       biodata.about ||

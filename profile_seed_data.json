@@ -5,7 +5,7 @@
     "email": "bayukundev@gmail.com",
     "phone": "08991907216",
     "location": "Yogyakarta / Karanganyar",
-    "avatar": "https://baydev.my.id/assets/backend/images/about/1757684148.png",
+    "avatar": "/images/avatar.png",
     "about": "Hi there Bayu Prastyo Here👋 Selamat datang di website saya! Saya Bayu Prastyo, seorang Programmer dengan minat khusus di Pembuatan dan Pengembangan Aplikasi. Saya senang berbagi dan belajar bersama komunitas pengembang.",
     "socials": {
       "github": "https://github.com/BayuKun28",
@@ -17,23 +17,23 @@
   "services": [
     {
       "title": "Web Design",
-      "description": "",
-      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921026.png"
+      "description": "Desain antarmuka responsif dan estetis berbasis figma dan neubrutalisme modern.",
+      "icon": "/icons/services/web-design.svg"
     },
     {
       "title": "Web Development",
-      "description": "",
-      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921146.png"
+      "description": "Pengembangan aplikasi web modular menggunakan ekosistem modern Laravel, ReactJS, dan Vite.",
+      "icon": "/icons/services/web-development.svg"
     },
     {
       "title": "Mobile Apps",
-      "description": "",
-      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921268.png"
+      "description": "Pengembangan aplikasi lintas platform yang cepat, intuitif, dan responsif.",
+      "icon": "/icons/services/mobile-apps.svg"
     },
     {
       "title": "Backend",
-      "description": "",
-      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921584.png"
+      "description": "Perancangan RESTful API aman, manajemen database relasional, dan arsitektur server.",
+      "icon": "/icons/services/backend.svg"
     }
   ],
   "skills": [

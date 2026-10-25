@@ -129,7 +129,8 @@ class SeoController extends Controller
 
         $personName = $biodata->name ?? 'Bayu Prastyo';
         $personTitle = $biodata->title ?? 'Full-Stack Web Developer & Solutions Architect';
-        $avatarUrl = $biodata->avatar ?? 'https://baydev.my.id/assets/backend/images/about/1757684148.png';
+        $rawAvatar = $biodata->avatar ?? '/images/avatar.png';
+        $avatarUrl = str_starts_with($rawAvatar, 'http') ? $rawAvatar : "{$baseUrl}{$rawAvatar}";
         $aboutText = $biodata->about ?? 'Portofolio resmi Bayu Prastyo (baydev / bayukun / masbay). Senior Full-Stack Web Developer spesialis Laravel, PostgreSQL, React, dan arsitektur sistem performa tinggi.';
 
         $schemaGraph = [

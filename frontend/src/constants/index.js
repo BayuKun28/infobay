@@ -31,7 +31,6 @@ export const NEO_COLORS = {
   DARK: '#121212',
 };
 
-export const DEFAULT_AVATAR =
-  'https://baydev.my.id/assets/backend/images/about/1757684148.png';
+export const DEFAULT_AVATAR = '/images/avatar.png';
 export const DEFAULT_FALLBACK_AVATAR =
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';

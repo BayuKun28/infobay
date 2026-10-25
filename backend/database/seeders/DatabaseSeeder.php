@@ -64,13 +64,17 @@ class DatabaseSeeder extends Seeder
         if (isset($data['biodata'])) {
             $bio = $data['biodata'];
             Biodata::truncate();
+            $avatar = (!empty($bio['avatar']) && !str_contains($bio['avatar'], 'baydev.my.id/assets/backend/images/about'))
+                ? $bio['avatar']
+                : '/images/avatar.png';
+
             Biodata::create([
                 'name' => $bio['name'] ?? 'Bayu Prastyo',
                 'title' => $bio['title'] ?? 'Developer',
                 'email' => $bio['email'] ?? 'bayukundev@gmail.com',
                 'phone' => $bio['phone'] ?? null,
                 'location' => $bio['location'] ?? null,
-                'avatar' => $bio['avatar'] ?? null,
+                'avatar' => $avatar,
                 'about' => $bio['about'] ?? null,
                 'github' => $bio['socials']['github'] ?? null,
                 'facebook' => $bio['socials']['facebook'] ?? null,
@@ -89,10 +93,24 @@ class DatabaseSeeder extends Seeder
         if (!empty($data['services'])) {
             Service::truncate();
             foreach ($data['services'] as $item) {
+                $icon = $item['icon'] ?? null;
+                if (empty($icon) || str_contains($icon, 'baydev.my.id/assets/backend/images/whatimdoing')) {
+                    $t = strtolower($item['title'] ?? '');
+                    if (str_contains($t, 'design')) {
+                        $icon = '/icons/services/web-design.svg';
+                    } elseif (str_contains($t, 'mobile')) {
+                        $icon = '/icons/services/mobile-apps.svg';
+                    } elseif (str_contains($t, 'back') || str_contains($t, 'api') || str_contains($t, 'server')) {
+                        $icon = '/icons/services/backend.svg';
+                    } else {
+                        $icon = '/icons/services/web-development.svg';
+                    }
+                }
+
                 Service::create([
                     'title' => $item['title'],
                     'description' => $item['description'] ?? null,
-                    'icon' => $item['icon'] ?? null,
+                    'icon' => $icon,
                 ]);
             }
         }

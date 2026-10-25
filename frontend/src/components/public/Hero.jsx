@@ -158,11 +158,11 @@ export default function Hero({ biodata }) {
               {/* Avatar Frame with custom Neubrutalism background */}
               <div className="relative border-3 border-black bg-neo-mint p-2 mb-4 overflow-hidden group">
                 <img
-                  src={biodata?.avatar || "https://baydev.my.id/assets/backend/images/about/1757684148.png"}
+                  src={biodata?.avatar || "/images/avatar.png"}
                   alt={biodata?.name || "Bayu Prastyo"}
                   className="w-full h-72 object-cover object-top border-2 border-black filter contrast-105 group-hover:scale-105 transition-transform duration-200"
                   onError={(e) => {
-                    e.target.src = "https://images.unsplash.com/photo-1534972195531-a756b11269d5?w=600&auto=format&fit=crop&q=80";
+                    e.target.src = "/images/avatar.png";
                   }}
                 />
                 <div className="absolute bottom-4 left-4 bg-black text-white border-2 border-neo-yellow px-3 py-1 font-black text-xs uppercase shadow-neo-sm">

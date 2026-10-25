@@ -4,16 +4,11 @@ import { Palette, Code, Smartphone, Server, ArrowUpRight } from 'lucide-react';
 export default function Services({ services = [] }) {
   // Map icons if seed icon fails
   const getFallbackIcon = (title) => {
-    switch (title?.toLowerCase()) {
-      case 'web design':
-        return <Palette className="w-8 h-8 text-black" />;
-      case 'web development':
-        return <Code className="w-8 h-8 text-black" />;
-      case 'mobile apps':
-        return <Smartphone className="w-8 h-8 text-black" />;
-      default:
-        return <Server className="w-8 h-8 text-black" />;
-    }
+    const t = title?.toLowerCase() || '';
+    if (t.includes('design')) return <Palette className="w-8 h-8 text-black" />;
+    if (t.includes('mobile')) return <Smartphone className="w-8 h-8 text-black" />;
+    if (t.includes('back') || t.includes('api') || t.includes('server')) return <Server className="w-8 h-8 text-black" />;
+    return <Code className="w-8 h-8 text-black" />;
   };
 
   return (
@@ -52,7 +47,11 @@ export default function Services({ services = [] }) {
                         alt={service.title}
                         className="w-full h-full object-contain"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          const title = service.title?.toLowerCase() || '';
+                          if (title.includes('design')) e.target.src = '/icons/services/web-design.svg';
+                          else if (title.includes('mobile')) e.target.src = '/icons/services/mobile-apps.svg';
+                          else if (title.includes('back') || title.includes('api') || title.includes('server')) e.target.src = '/icons/services/backend.svg';
+                          else e.target.src = '/icons/services/web-development.svg';
                         }}
                       />
                     ) : (

@@ -8,7 +8,7 @@ export const defaultProfileData = {
     email: "bayukundev@gmail.com",
     phone: "08991907216",
     location: "Yogyakarta / Karanganyar, Indonesia",
-    avatar: "https://baydev.my.id/assets/backend/images/about/1757684148.png",
+    avatar: "/images/avatar.png",
     statusBadge: "Available for Work & Collaboration",
     experienceYears: "7+",
     completedProjects: "25+",
@@ -43,7 +43,7 @@ export const defaultProfileData = {
       title: "Web Design",
       category: "UI/UX & Prototypes",
       description: "Merancang antarmuka pengguna yang unik, intuitif, berkarakter kuat, dan responsif di seluruh perangkat dengan sentuhan modern.",
-      icon: "https://baydev.my.id/assets/backend/images/whatimdoing/1757921026.png",
+      icon: "/icons/services/web-design.svg",
       color: "bg-neo-yellow",
       tag: "CREATIVE & UI"
     },
@@ -52,7 +52,7 @@ export const defaultProfileData = {
       title: "Web Development",
       category: "Full-Stack Apps",
       description: "Membangun aplikasi web skala produksi yang cepat, modular, dan handal menggunakan React, Vite, Tailwind CSS, dan Laravel.",
-      icon: "https://baydev.my.id/assets/backend/images/whatimdoing/1757921146.png",
+      icon: "/icons/services/web-development.svg",
       color: "bg-neo-mint",
       tag: "CORE EXPERTISE"
     },
@@ -61,7 +61,7 @@ export const defaultProfileData = {
       title: "Mobile Apps",
       category: "Android & Cross-Platform",
       description: "Pengembangan aplikasi mobile fungsional dengan antarmuka yang bersih, sinkronisasi data real-time, dan performa mulus.",
-      icon: "https://baydev.my.id/assets/backend/images/whatimdoing/1757921268.png",
+      icon: "/icons/services/mobile-apps.svg",
       color: "bg-neo-pink",
       tag: "MOBILE DEV"
     },
@@ -70,7 +70,7 @@ export const defaultProfileData = {
       title: "Backend & Systems",
       category: "API & Databases",
       description: "Arsitektur RESTful API yang aman, optimasi query PostgreSQL, autentikasi Sanctum/JWT, dan integrasi server Linux.",
-      icon: "https://baydev.my.id/assets/backend/images/whatimdoing/1757921584.png",
+      icon: "/icons/services/backend.svg",
       color: "bg-neo-cyan",
       tag: "INFRA & DATA"
     }
