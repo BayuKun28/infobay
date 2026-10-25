@@ -37,6 +37,7 @@ export default function SeoHead({ biodata }) {
 
     // 2. Primary Meta Tags
     setMetaTag('name', 'title', pageTitle);
+    setMetaTag('name', 'google-site-verification', 'xj3wGMsk9mIsj3kZghL6qIHOLt9I4wbMaQgk-4B9JK8');
     setMetaTag(
       'name',
       'description',
