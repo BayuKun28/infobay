@@ -1,0 +1,73 @@
+import React from 'react';
+import { ArrowUp } from 'lucide-react';
+
+export default function Footer({ biodata }) {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <footer className="border-t-4 border-black bg-black text-white px-4 sm:px-8 py-12">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b-2 border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-neo-yellow border-2 border-white shadow-[2px_2px_0px_#fff] flex items-center justify-center font-black text-black text-lg">
+              IB
+            </div>
+            <div>
+              <span className="font-black text-xl tracking-tight text-white">INFOBAY</span>
+              <p className="text-xs font-bold text-gray-400">
+                Portofolio Resmi &bull; Bayu Prastyo (baydev / bayukun / masbay)
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs font-black">
+            <span className="bg-neo-pink text-black px-2.5 py-1 border border-white">
+              NEUBRUTALISM AUTHENTIC
+            </span>
+            <span className="bg-neo-mint text-black px-2.5 py-1 border border-white">
+              PRODUCTION READY
+            </span>
+            <button
+              onClick={scrollToTop}
+              className="p-2 bg-neo-yellow text-black border-2 border-white shadow-[2px_2px_0px_#fff] hover:translate-y-[-2px] transition-transform flex items-center gap-1.5 cursor-pointer"
+              aria-label="Kembali ke atas"
+            >
+              <ArrowUp className="w-4 h-4" />
+              <span className="hidden sm:inline">TOP</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SEO Semantic Tag Cloud & Aliases */}
+        <div className="py-6 border-b border-gray-800 text-xs">
+          <span className="text-gray-400 block font-bold mb-2 uppercase tracking-wider text-[11px]">
+            Indexing &amp; Search Keywords:
+          </span>
+          <div className="flex flex-wrap gap-2 text-xs font-bold text-gray-300">
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Bayu Prastyo</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">baydev</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">bayukun</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">masbay</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">BayuKun28</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Full-Stack Engineer</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Laravel 13 &amp; PostgreSQL 17</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">ReactJS &amp; Next.js</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Web Developer Yogyakarta</span>
+            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Programmer Karanganyar</span>
+          </div>
+        </div>
+
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-gray-400">
+          <div>
+            &copy; {new Date().getFullYear()} <strong>Bayu Prastyo (baydev / bayukun / masbay)</strong>. Seluruh Hak Cipta Dilindungi.
+          </div>
+          <div className="flex items-center gap-2 text-gray-400">
+            <span>Dirancang &amp; Direkayasa dengan Standar Kualitas, Aksesibilitas, dan Performa Tinggi.</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

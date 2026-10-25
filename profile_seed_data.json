@@ -1,0 +1,168 @@
+{
+  "biodata": {
+    "name": "Bayu Prastyo",
+    "title": "Developer / Web Programmer",
+    "email": "bayukundev@gmail.com",
+    "phone": "08991907216",
+    "location": "Yogyakarta / Karanganyar",
+    "avatar": "https://baydev.my.id/assets/backend/images/about/1757684148.png",
+    "about": "Hi there Bayu Prastyo Here👋 Selamat datang di website saya! Saya Bayu Prastyo, seorang Programmer dengan minat khusus di Pembuatan dan Pengembangan Aplikasi. Saya senang berbagi dan belajar bersama komunitas pengembang.",
+    "socials": {
+      "github": "https://github.com/BayuKun28",
+      "facebook": "https://www.facebook.com/bhayou.bluedevil/",
+      "twitter": "https://x.com/namedbay33",
+      "instagram": "https://www.instagram.com/bayukun_28/"
+    }
+  },
+  "services": [
+    {
+      "title": "Web Design",
+      "description": "",
+      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921026.png"
+    },
+    {
+      "title": "Web Development",
+      "description": "",
+      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921146.png"
+    },
+    {
+      "title": "Mobile Apps",
+      "description": "",
+      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921268.png"
+    },
+    {
+      "title": "Backend",
+      "description": "",
+      "icon": "https://baydev.my.id/assets/backend/images/whatimdoing/1757921584.png"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Web design",
+      "percentage": 85
+    },
+    {
+      "name": "Graphic design",
+      "percentage": 85
+    },
+    {
+      "name": "Web Application",
+      "percentage": 90
+    },
+    {
+      "name": "Mobile Application",
+      "percentage": 80
+    }
+  ],
+  "education": [
+    {
+      "title": "SMKN 02 KARANGANYAR",
+      "period": "2016 — 2019",
+      "description": ""
+    }
+  ],
+  "experience": [
+    {
+      "title": "ANALTA KOMPUTER",
+      "period": "2018 — 2018",
+      "description": "Posisi Teknisi"
+    },
+    {
+      "title": "PT GLOBAL INTERMEDIA NUSANTARA",
+      "period": "2019 — 2026",
+      "description": "Posisi Web Programmer"
+    }
+  ],
+  "portfolios": [
+    {
+      "title": "Jamkrida Jatim",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684189.png",
+      "link": "#"
+    },
+    {
+      "title": "Jamkrida Bali",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684201.png",
+      "link": "#"
+    },
+    {
+      "title": "GIS DESA PINTAR",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684297.png",
+      "link": "#"
+    },
+    {
+      "title": "CMS PORTAL",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684308.png",
+      "link": "#"
+    },
+    {
+      "title": "CMS SIKAP",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684320.png",
+      "link": "#"
+    },
+    {
+      "title": "E-SEWA",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684331.png",
+      "link": "#"
+    },
+    {
+      "title": "Login Management",
+      "category": "Mobile Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684343.png",
+      "link": "#"
+    },
+    {
+      "title": "KASKOS",
+      "category": "Mobile Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684352.png",
+      "link": "#"
+    },
+    {
+      "title": "Gallery App",
+      "category": "Mobile Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684363.png",
+      "link": "#"
+    },
+    {
+      "title": "To do task",
+      "category": "Mobile Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684373.png",
+      "link": "#"
+    },
+    {
+      "title": "Undangan Online",
+      "category": "Mobile Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921841.png",
+      "link": "#"
+    },
+    {
+      "title": "KASKOS WEB",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921680.png",
+      "link": "https://kaskos.bayukun.my.id/dashboard"
+    },
+    {
+      "title": "POS KELONTONG",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921852.png",
+      "link": "#"
+    },
+    {
+      "title": "E-TPQ WHATSAPP BLAST",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921861.png",
+      "link": "#"
+    },
+    {
+      "title": "E-PENSIUN",
+      "category": "Web Development",
+      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921947.png",
+      "link": "#"
+    }
+  ]
+}

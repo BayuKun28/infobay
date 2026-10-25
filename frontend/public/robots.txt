@@ -1,0 +1,42 @@
+# Robots.txt for Bayu Prastyo (baydev / bayukun / masbay) Portfolio
+# Website: https://baydev.my.id & https://info.baydev.my.id
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Dedicated Crawlers Allowed
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Slurp
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+User-agent: YandexBot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://baydev.my.id/sitemap.xml
+Sitemap: https://info.baydev.my.id/sitemap.xml

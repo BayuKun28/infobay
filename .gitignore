@@ -1,0 +1,69 @@
+# ==============================================================================
+# INFOBAY ENTERPRISE .GITIGNORE
+# Root .gitignore for Laravel 13 Backend, Vite React Frontend, and Homelab Infra
+# ==============================================================================
+
+# --- Secrets & Environment Configurations ---
+.env
+.env.*
+!.env.example
+*.env
+*.backup
+*.local
+
+# --- Dependency Directories ---
+node_modules/
+vendor/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Frontend Build Artifacts ---
+frontend/dist/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# --- Testing & Code Coverage ---
+.phpunit.cache/
+.phpunit.result.cache
+coverage/
+*.coverage
+
+# --- Laravel Storage & Logs ---
+backend/storage/*.key
+backend/storage/app/*
+!backend/storage/app/.gitignore
+!backend/storage/app/public/
+backend/storage/app/public/*
+!backend/storage/app/public/.gitignore
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitignore
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitignore
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+
+# --- OS & Editor Metadata ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Agentic Scratch & Temporary Dirs ---
+.system_generated/
+*.tmp
+
+# --- Explicit Whitelist: Must ALWAYS Be Tracked ---
+!profile_seed_data.json
+!RULES.md
+!baydev_raw.html

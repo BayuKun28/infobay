@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@layer utilities {
+  .neo-btn {
+    @apply font-bold border-2 border-black px-4 py-2 bg-neo-yellow shadow-neo transition-all duration-150 active:translate-x-1 active:translate-y-1 active:shadow-neo-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-neo-md;
+  }
+  
+  .neo-box {
+    @apply border-2 border-black bg-white shadow-neo;
+  }
+}
