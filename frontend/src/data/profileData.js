@@ -106,7 +106,7 @@ export const defaultProfileData = {
     },
     {
       title: "PT GLOBAL INTERMEDIA NUSANTARA",
-      period: "2019 — 2026",
+      period: "2019 — Sekarang",
       role: "Senior Web Programmer",
       description: "Memimpin dan mengembangkan beragam sistem informasi skala korporat & instansi pemerintahan daerah (Sistem Penjaminan Kredit Daerah, GIS Desa Pintar, CMS Portal Berita, E-Sewa, E-Pensiun). Mengoptimalkan arsitektur database relasional dan backend API handal.",
       badge: "7+ YEARS"
