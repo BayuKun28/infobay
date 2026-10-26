@@ -164,3 +164,31 @@ Data tersebut mencakup:
    - Seluruh teks, label input, placeholder, tombol aksi, dan ikon **WAJIB memiliki kontras tinggi yang jelas (high-visibility)** baik pada Mode Terang (Light Mode) maupun Mode Gelap (Dark Mode).
    - Dilarang keras menggunakan teks abu-abu pudar di atas background abu-abu gelap/terang yang menyulitkan pembacaan pengguna.
    - Tombol aksi (Edit, Hapus, Link, Tambah) harus memiliki affordance visual yang tegas (warna jelas, batas border / background tint yang mudah ditekan pada mobile & desktop).
+
+---
+
+## 8. Standar Deployment Server Produksi (Gold Standard Architecture)
+
+> [!IMPORTANT]
+> Seluruh lingkungan hosting Infobay (Server Utama 145 & Server Standby 146) wajib beroperasi mengikuti standar produksi berikut:
+
+1. **Penyajian Frontend Statis (Nginx):**
+   - Disajikan langsung dari direktori hasil build `frontend/dist/` di Port 80 dan Port 9000.
+   - Mengaktifkan kompresi Gzip dan *caching headers* (`1y immutable` untuk `/assets/`).
+   - Dev server (`npm run dev`) HANYA diizinkan menyala saat sprint kanban belum selesai. Sebelum penutupan sprint, wajib `npm run build` dan mematikan proses dev.
+
+2. **Backend API FastCGI (PHP-FPM Ondemand Pool):**
+   - API Laravel (`/api`) diproses langsung via soket Unix FastCGI PHP-FPM (`/run/php/php8.4-fpm-infobay.sock` di .145, `php8.3-fpm-infobay.sock` di .146).
+   - Pool berjalan di bawah user aplikasi (`bay` di .145, `masbay` di .146) dengan mode `pm = ondemand` (0 MB idle RAM saat tidak ada request).
+   - Dilarang menggunakan `php artisan serve` di lingkungan hosting web.
+
+3. **Penyajian Media Statis Direct Storage:**
+   - Berkas upload di `/storage/` disajikan langsung oleh Nginx dari direktori `backend/storage/app/public/` tanpa menyalakan interpreter PHP.
+
+4. **Hardening Lingkungan & Optimasi Cache:**
+   - File `.env` wajib berstatus `APP_ENV=production` dan `APP_DEBUG=false`.
+   - Nginx menerapkan header proteksi keamanan HTTP (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) dan menyembunyikan versi software (`server_tokens off`, sembunyikan `X-Powered-By`).
+   - Setelah setiap pembaruan kode atau database, wajib menjalankan: `php artisan config:cache && php artisan route:cache && php artisan view:cache` dan reload PHP-FPM.
+
+5. **Otomatisasi Backup Database:**
+   - Database PostgreSQL di-backup harian otomatis pada pukul 02:00 WIB via `/home/bay/scripts/backup_infobay_db.sh` dengan retensi rotasi 7 hari.
