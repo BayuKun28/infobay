@@ -9,7 +9,7 @@ import Portfolio from '../components/public/Portfolio';
 import Testimonials from '../components/public/Testimonials';
 import Certifications from '../components/public/Certifications';
 import Contact from '../components/public/Contact';
-import { SeoHead } from '../components/common';
+import { SeoHead, FloatingScrollTop } from '../components/common';
 import { getPublicProfile } from '../services';
 import { defaultProfileData } from '../data/profileData';
 
@@ -80,6 +80,9 @@ export default function PublicPortfolio() {
 
       {/* Footer */}
       <Footer biodata={data?.biodata} />
+
+      {/* Floating Scroll To Top Button */}
+      <FloatingScrollTop />
     </div>
   );
 }
