@@ -192,3 +192,20 @@ Data tersebut mencakup:
 
 5. **Otomatisasi Backup Database:**
    - Database PostgreSQL di-backup harian otomatis pada pukul 02:00 WIB via `/home/bay/scripts/backup_infobay_db.sh` dengan retensi rotasi 7 hari.
+
+---
+
+## 9. Protokol Efisiensi Multi-Agen & Fast-Track Delegation
+
+1. **Delegasi Cepat LUHUT (< 15 Detik)**:
+   - Saat menerima instruksi tugas baru dari Mas Bay, LUHUT WAJIB menyelesaikan pencatatan ke `kanban.json`, pengiriman sinyal `tmux send-keys` ke pelaksana, dan laporan ke Telegram dalam **maksimal 1–2 turn**.
+   - Dilarang mengaudit kode implementasi (`.jsx`, `.php`, dll.), dilarang membaca konfigurasi internal agen lain, dan dilarang monitoring loop terhadap agen lain sebelum delegasi.
+   - Segera masuk ke mode STANDBY PASIF setelah delegasi selesai.
+
+2. **Mode Standby Pasif untuk Pelaksana & QA (Anti-Active Polling)**:
+   - PRABOWO, JOKOWI, dan GIBRAN dilarang keras melakukan loop polling aktif (`sleep && tail kanban.json`, `tmux capture-pane`, dll.) saat idle.
+   - Saat startup dan saat tugas selesai, agen WAJIB menghentikan pemanggilan tool dan menunggu pasif di terminal hingga menerima teks instruksi berikutnya dari `tmux send-keys`.
+
+3. **Integritas Anti-Premature**:
+   - Status `Done` hanya boleh disematkan oleh GIBRAN setelah audit fungsionalitas, keamanan, dan kompilasi build lulus 100%.
+   - Sesi agen hanya boleh dinonaktifkan (auto-sleep) setelah seluruh tugas di `kanban.json` berstatus `Done` dan jeda aman (cooldown) minimal 3 menit terpenuhi tanpa tugas baru.
