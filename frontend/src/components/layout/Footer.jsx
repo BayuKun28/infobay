@@ -27,22 +27,20 @@ export default function Footer({ biodata }) {
           </div>
         </div>
 
-        {/* SEO Semantic Tag Cloud & Aliases */}
-        <div className="py-6 border-b border-gray-800 text-xs">
-          <span className="text-gray-400 block font-bold mb-2 uppercase tracking-wider text-[11px]">
-            Indexing &amp; Search Keywords:
-          </span>
-          <div className="flex flex-wrap gap-2 text-xs font-bold text-gray-300">
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Bayu Prastyo</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">baydev</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">bayukun</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">masbay</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">BayuKun28</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Full-Stack Engineer</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Laravel 13 &amp; PostgreSQL 17</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">ReactJS &amp; Next.js</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Web Developer Yogyakarta</span>
-            <span className="bg-gray-900 border border-gray-700 px-2 py-0.5">Programmer Karanganyar</span>
+        {/* SEO Semantic Tag Cloud & Aliases (Visually hidden with sr-only for clean UI while preserving search engine crawler indexing) */}
+        <div className="sr-only" aria-hidden="false">
+          <span>Indexing &amp; Search Keywords:</span>
+          <div>
+            <span>Bayu Prastyo</span>
+            <span>baydev</span>
+            <span>bayukun</span>
+            <span>masbay</span>
+            <span>BayuKun28</span>
+            <span>Full-Stack Engineer</span>
+            <span>Laravel 13 &amp; PostgreSQL 17</span>
+            <span>ReactJS &amp; Next.js</span>
+            <span>Web Developer Yogyakarta</span>
+            <span>Programmer Karanganyar</span>
           </div>
         </div>
 
