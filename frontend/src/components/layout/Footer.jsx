@@ -1,11 +1,6 @@
 import React from 'react';
-import { ArrowUp } from 'lucide-react';
 
 export default function Footer({ biodata }) {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <footer className="border-t-4 border-black bg-black text-white px-4 sm:px-8 py-12">
       <div className="max-w-7xl mx-auto">
@@ -29,14 +24,6 @@ export default function Footer({ biodata }) {
             <span className="bg-neo-mint text-black px-2.5 py-1 border border-white">
               PRODUCTION READY
             </span>
-            <button
-              onClick={scrollToTop}
-              className="p-2 bg-neo-yellow text-black border-2 border-white shadow-[2px_2px_0px_#fff] hover:translate-y-[-2px] transition-transform flex items-center gap-1.5 cursor-pointer"
-              aria-label="Kembali ke atas"
-            >
-              <ArrowUp className="w-4 h-4" />
-              <span className="hidden sm:inline">TOP</span>
-            </button>
           </div>
         </div>
 
