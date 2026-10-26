@@ -127,9 +127,9 @@ export default function Hero({ biodata }) {
                 href={biodata?.socials?.github || biodata?.github}
                 target="_blank"
                 rel="noreferrer"
-                className="neo-btn bg-black text-white hover:bg-gray-800 flex items-center gap-2 text-sm sm:text-base"
+                className="neo-btn !bg-black !text-white hover:!bg-zinc-800 flex items-center gap-2 text-sm sm:text-base"
               >
-                <Github className="w-5 h-5 text-neo-yellow" />
+                <Github className="w-5 h-5 text-white flex-shrink-0" />
                 <span>GITHUB</span>
               </a>
             )}
