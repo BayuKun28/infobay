@@ -12,8 +12,10 @@ import Contact from '../components/public/Contact';
 import { SeoHead, FloatingScrollTop } from '../components/common';
 import { getPublicProfile } from '../services';
 import { defaultProfileData } from '../data/profileData';
+import { useTheme } from '../hooks';
 
 export default function PublicPortfolio() {
+  const { themeMode, isDark, toggleThemeMode } = useTheme();
   const [data, setData] = useState(defaultProfileData);
   const [isLiveApi, setIsLiveApi] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,12 +42,16 @@ export default function PublicPortfolio() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FFFDF0] text-black flex flex-col selection:bg-neo-yellow selection:text-black">
+    <div className="min-h-screen bg-[#FFFDF0] dark:bg-[#0B0F19] text-black dark:text-[#F8FAFC] flex flex-col selection:bg-neo-yellow selection:text-black transition-colors duration-150">
       {/* Dynamic SEO Meta & Structured Data */}
       <SeoHead biodata={data?.biodata} />
 
       {/* Navigation */}
-      <Navbar isLiveApi={isLiveApi} />
+      <Navbar
+        isLiveApi={isLiveApi}
+        themeMode={themeMode}
+        toggleThemeMode={toggleThemeMode}
+      />
 
       {/* Marquee Banner with dynamic items */}
       <Marquee items={data?.biodata?.marquee_items} />

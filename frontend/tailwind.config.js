@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -20,6 +21,10 @@ export default {
           offwhite: '#F8F9FA',
           cream: '#FFFDF0',
           dark: '#121212',
+          'dark-bg': '#0B0F19',
+          'dark-card': '#151D2F',
+          'dark-surface': '#1A2234',
+          'dark-border': '#334155',
         },
       },
       boxShadow: {

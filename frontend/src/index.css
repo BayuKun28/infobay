@@ -24,10 +24,29 @@
 
 @layer components {
   .neo-btn {
-    @apply font-bold border-2 border-black px-4 py-2 bg-neo-yellow shadow-neo transition-all duration-150 active:translate-x-1 active:translate-y-1 active:shadow-neo-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-neo-md;
+    @apply font-bold border-2 border-black px-4 py-2 bg-neo-yellow text-black shadow-neo transition-all duration-150 active:translate-x-1 active:translate-y-1 active:shadow-neo-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-neo-md;
   }
   
   .neo-box {
-    @apply border-2 border-black bg-white shadow-neo;
+    @apply border-2 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] text-black dark:text-[#F8FAFC] shadow-neo;
   }
+}
+
+/* Custom crisp dark mode scrollbar */
+.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0B0F19;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #232F48;
+  border: 2px solid #0B0F19;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3B4863;
 }

@@ -20,13 +20,13 @@ export default function Card({
 
   return (
     <div
-      className={`border-4 border-black bg-white overflow-hidden ${shadowClass} ${
+      className={`border-4 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] text-black dark:text-[#F8FAFC] overflow-hidden ${shadowClass} ${
         hover ? 'hover:-translate-y-1.5 hover:shadow-neo-xl transition-all duration-200' : ''
       } ${className}`}
       {...props}
     >
       {header && (
-        <div className={`p-4 border-b-3 border-black ${headerBg}`}>
+        <div className={`p-4 border-b-3 border-black dark:border-slate-700 ${headerBg}`}>
           {header}
         </div>
       )}

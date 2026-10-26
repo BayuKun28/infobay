@@ -50,15 +50,15 @@ export default function NeubrutalismPagination({
   };
 
   return (
-    <div className="mt-10 pt-6 border-t-3 border-black flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
+    <div className="mt-10 pt-6 border-t-3 border-black dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
       {/* Item Counter Status */}
-      <div className="inline-flex items-center gap-2 bg-white border-2 border-black px-3.5 py-1.5 shadow-neo-sm font-bold text-xs uppercase tracking-wider text-black">
+      <div className="inline-flex items-center gap-2 bg-white dark:bg-[#151D2F] border-2 border-black dark:border-slate-700 px-3.5 py-1.5 shadow-neo-sm font-bold text-xs uppercase tracking-wider text-black dark:text-slate-200">
         <span>Menampilkan</span>
         <span className="font-black bg-neo-yellow px-1.5 py-0.5 border border-black text-black">
           {startItem}-{endItem}
         </span>
         <span>dari</span>
-        <span className="font-black text-black">{totalItems}</span>
+        <span className="font-black text-black dark:text-white">{totalItems}</span>
         <span>{itemLabel}</span>
       </div>
 
@@ -69,10 +69,10 @@ export default function NeubrutalismPagination({
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Halaman Sebelumnya"
-          className={`px-3 py-1.5 border-2 border-black font-black text-xs uppercase flex items-center gap-1 transition-all ${
+          className={`px-3 py-1.5 border-2 font-black text-xs uppercase flex items-center gap-1 transition-all ${
             currentPage === 1
-              ? 'bg-gray-200 text-gray-400 border-gray-400 cursor-not-allowed shadow-none'
-              : 'bg-white hover:bg-neo-yellow text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
+              ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border-gray-400 dark:border-slate-700 cursor-not-allowed shadow-none'
+              : 'bg-white dark:bg-[#151D2F] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-slate-200 dark:hover:text-black border-black dark:border-slate-700 shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
           }`}
         >
           <ChevronLeft className="w-4 h-4 stroke-[3]" />
@@ -84,7 +84,7 @@ export default function NeubrutalismPagination({
           {getPageNumbers().map((p, idx) => {
             if (p === '...') {
               return (
-                <span key={`dots-${idx}`} className="w-7 text-center font-black text-black select-none">
+                <span key={`dots-${idx}`} className="w-7 text-center font-black text-black dark:text-slate-400 select-none">
                   •••
                 </span>
               );
@@ -96,10 +96,10 @@ export default function NeubrutalismPagination({
                 onClick={() => handlePageClick(p)}
                 aria-label={`Halaman ${p}`}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-9 h-9 border-2 border-black font-black text-xs flex items-center justify-center transition-all ${
+                className={`w-9 h-9 border-2 font-black text-xs flex items-center justify-center transition-all ${
                   isActive
-                    ? 'bg-neo-yellow text-black shadow-neo-sm translate-x-0.5 translate-y-0.5'
-                    : 'bg-white hover:bg-neo-mint text-black shadow-neo-sm hover:-translate-y-0.5 hover:shadow-neo'
+                    ? 'bg-neo-yellow text-black border-black shadow-neo-sm translate-x-0.5 translate-y-0.5'
+                    : 'bg-white dark:bg-[#151D2F] hover:bg-neo-mint dark:hover:bg-neo-mint text-black dark:text-slate-200 dark:hover:text-black border-black dark:border-slate-700 shadow-neo-sm hover:-translate-y-0.5 hover:shadow-neo'
                 }`}
               >
                 {p}
@@ -113,10 +113,10 @@ export default function NeubrutalismPagination({
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Halaman Selanjutnya"
-          className={`px-3 py-1.5 border-2 border-black font-black text-xs uppercase flex items-center gap-1 transition-all ${
+          className={`px-3 py-1.5 border-2 font-black text-xs uppercase flex items-center gap-1 transition-all ${
             currentPage === totalPages
-              ? 'bg-gray-200 text-gray-400 border-gray-400 cursor-not-allowed shadow-none'
-              : 'bg-white hover:bg-neo-yellow text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
+              ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border-gray-400 dark:border-slate-700 cursor-not-allowed shadow-none'
+              : 'bg-white dark:bg-[#151D2F] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-slate-200 dark:hover:text-black border-black dark:border-slate-700 shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
           }`}
         >
           <span className="hidden sm:inline">NEXT</span>

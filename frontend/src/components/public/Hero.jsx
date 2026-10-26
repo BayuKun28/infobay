@@ -42,15 +42,15 @@ export default function Hero({ biodata }) {
           </div>
 
           {/* Main Hero Headline */}
-          <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight text-black uppercase">
+          <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight text-black dark:text-white uppercase">
             {renderHeadline(biodata?.hero_headline)}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-xl font-bold text-gray-800 leading-relaxed border-l-4 border-black pl-4 bg-white/60 p-3 border-2 shadow-neo">
+          <p className="text-base sm:text-xl font-bold text-gray-800 dark:text-slate-200 leading-relaxed border-l-4 border-black dark:border-neo-yellow pl-4 bg-white/80 dark:bg-[#151D2F] p-3 border-2 border-black dark:border-slate-700 shadow-neo">
             {biodata?.hero_subheadline || (
               <>
-                Halo! Saya <span className="underline decoration-4 decoration-neo-pink font-black text-black">{biodata?.name || "Bayu Prastyo"}</span> (dikenal juga sebagai <strong>{biodata?.nickname || "baydev"}</strong>, <strong>bayukun</strong>, atau <strong>masbay</strong>).
+                Halo! Saya <span className="underline decoration-4 decoration-neo-pink font-black text-black dark:text-white">{biodata?.name || "Bayu Prastyo"}</span> (dikenal juga sebagai <strong className="text-black dark:text-white">{biodata?.nickname || "baydev"}</strong>, <strong className="text-black dark:text-white">bayukun</strong>, atau <strong className="text-black dark:text-white">masbay</strong>).
                 Full-stack developer &amp; DevOps specialist spesialis ReactJS, Next.js, Laravel, PostgreSQL &amp; arsitektur sistem performa tinggi.
               </>
             )}
@@ -58,33 +58,33 @@ export default function Hero({ biodata }) {
 
           {/* Identity & Alias Chips for Search Engine Keywords */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs font-black">
-            <span className="text-gray-700 uppercase text-[11px] tracking-wider mr-1">Known As:</span>
-            <span className="bg-neo-yellow border-2 border-black px-2.5 py-0.5 shadow-neo-sm">
+            <span className="text-gray-700 dark:text-slate-300 uppercase text-[11px] tracking-wider mr-1">Known As:</span>
+            <span className="bg-neo-yellow border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
               baydev
             </span>
-            <span className="bg-neo-mint border-2 border-black px-2.5 py-0.5 shadow-neo-sm">
+            <span className="bg-neo-mint border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
               bayukun
             </span>
-            <span className="bg-neo-pink border-2 border-black px-2.5 py-0.5 shadow-neo-sm">
+            <span className="bg-neo-pink border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
               masbay (Mas Bay)
             </span>
-            <span className="bg-neo-cyan border-2 border-black px-2.5 py-0.5 shadow-neo-sm">
+            <span className="bg-neo-cyan border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
               BayuKun28
             </span>
           </div>
 
           {/* Quick Info Badges */}
           <div className="flex flex-wrap gap-2 text-xs font-bold">
-            <div className="flex items-center gap-1.5 bg-white border-2 border-black px-3 py-1.5 shadow-neo-sm">
-              <MapPin className="w-4 h-4 text-black" />
+            <div className="flex items-center gap-1.5 bg-white dark:bg-[#151D2F] border-2 border-black dark:border-slate-700 px-3 py-1.5 shadow-neo-sm text-black dark:text-slate-200">
+              <MapPin className="w-4 h-4 text-black dark:text-neo-yellow flex-shrink-0" />
               <span>{biodata?.location || "Yogyakarta / Karanganyar"}</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-neo-cyan-light border-2 border-black px-3 py-1.5 shadow-neo-sm">
-              <Mail className="w-4 h-4 text-black" />
+            <div className="flex items-center gap-1.5 bg-neo-cyan-light dark:bg-[#0E2838] border-2 border-black dark:border-cyan-700 px-3 py-1.5 shadow-neo-sm text-black dark:text-cyan-200">
+              <Mail className="w-4 h-4 text-black dark:text-cyan-300 flex-shrink-0" />
               <span>{biodata?.email || "bayukundev@gmail.com"}</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-neo-pink-light border-2 border-black px-3 py-1.5 shadow-neo-sm">
-              <Phone className="w-4 h-4 text-black" />
+            <div className="flex items-center gap-1.5 bg-neo-pink-light dark:bg-[#361320] border-2 border-black dark:border-pink-800 px-3 py-1.5 shadow-neo-sm text-black dark:text-pink-200">
+              <Phone className="w-4 h-4 text-black dark:text-pink-300 flex-shrink-0" />
               <span>{biodata?.phone || "08991907216"}</span>
             </div>
           </div>
@@ -93,9 +93,9 @@ export default function Hero({ biodata }) {
           <div className="flex flex-wrap gap-4 pt-2">
             <a
               href="#portfolio"
-              className="neo-btn bg-neo-yellow text-black flex items-center gap-2 text-sm sm:text-base"
+              className="neo-btn bg-neo-yellow text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black font-black"
             >
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-black" />
               <span>EXPLORE PROJECTS</span>
             </a>
 
@@ -116,9 +116,9 @@ export default function Hero({ biodata }) {
 
             <a
               href="#contact"
-              className="neo-btn bg-white hover:bg-neo-mint text-black flex items-center gap-2 text-sm sm:text-base"
+              className="neo-btn bg-white dark:bg-[#151D2F] hover:bg-neo-mint dark:hover:bg-neo-mint text-black dark:text-white dark:hover:text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black dark:border-slate-700 font-bold"
             >
-              <Mail className="w-5 h-5" />
+              <Mail className="w-5 h-5 text-current" />
               <span>CONTACT ME</span>
             </a>
 
@@ -127,7 +127,7 @@ export default function Hero({ biodata }) {
                 href={biodata?.socials?.github || biodata?.github}
                 target="_blank"
                 rel="noreferrer"
-                className="neo-btn !bg-black !text-white hover:!bg-zinc-800 flex items-center gap-2 text-sm sm:text-base"
+                className="neo-btn !bg-black !text-white hover:!bg-zinc-800 flex items-center gap-2 text-sm sm:text-base border-2 border-black dark:border-slate-700 font-bold"
               >
                 <Github className="w-5 h-5 text-white flex-shrink-0" />
                 <span>GITHUB</span>
@@ -140,23 +140,23 @@ export default function Hero({ biodata }) {
         <div className="lg:col-span-5 flex justify-center">
           <div className="relative w-full max-w-sm">
             {/* Background offset card decoration */}
-            <div className="absolute inset-0 bg-black translate-x-3 translate-y-3 border-4 border-black" />
-            <div className="absolute inset-0 bg-neo-pink translate-x-1.5 translate-y-1.5 border-4 border-black" />
+            <div className="absolute inset-0 bg-black dark:bg-slate-950 translate-x-3 translate-y-3 border-4 border-black dark:border-slate-800" />
+            <div className="absolute inset-0 bg-neo-pink translate-x-1.5 translate-y-1.5 border-4 border-black dark:border-slate-800" />
 
             {/* Main Avatar Box */}
-            <div className="relative border-4 border-black bg-white p-5 shadow-neo-lg">
+            <div className="relative border-4 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-5 shadow-neo-lg">
               {/* Header inside card */}
-              <div className="flex justify-between items-center pb-3 mb-3 border-b-3 border-black">
-                <span className="font-black text-xs tracking-wider uppercase bg-neo-yellow border-2 border-black px-2 py-0.5 shadow-neo-sm">
+              <div className="flex justify-between items-center pb-3 mb-3 border-b-3 border-black dark:border-slate-700">
+                <span className="font-black text-xs tracking-wider uppercase bg-neo-yellow border-2 border-black text-black px-2 py-0.5 shadow-neo-sm">
                   DEV PROFILE
                 </span>
-                <span className="font-black text-xs tracking-wider text-black uppercase">
+                <span className="font-black text-xs tracking-wider text-black dark:text-white uppercase">
                   {biodata?.name || "BAYU PRASTYO"}
                 </span>
               </div>
 
               {/* Avatar Frame with custom Neubrutalism background */}
-              <div className="relative border-3 border-black bg-neo-mint p-2 mb-4 overflow-hidden group">
+              <div className="relative border-3 border-black dark:border-slate-700 bg-neo-mint p-2 mb-4 overflow-hidden group">
                 <img
                   src={biodata?.avatar || "/images/avatar.png"}
                   alt={biodata?.name || "Bayu Prastyo"}

@@ -130,8 +130,21 @@
       ]
     }
     </script>
+    <!-- Dark Mode Immediate Initialization Script (Prevents FOUC) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('infobay_theme_mode');
+          if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#FFFDF0] text-black antialiased selection:bg-[#FFDE59] selection:text-black">
+  <body class="bg-[#FFFDF0] dark:bg-[#0B0F19] text-black dark:text-[#F8FAFC] antialiased selection:bg-[#FFDE59] selection:text-black transition-colors duration-150">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

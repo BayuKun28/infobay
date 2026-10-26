@@ -49,7 +49,7 @@ export default function Marquee({ items }) {
   const repeatedItems = [...displayItems, ...displayItems, ...displayItems, ...displayItems];
 
   return (
-    <div className="bg-neo-yellow border-y-4 border-black py-2.5 overflow-hidden font-black text-xs sm:text-sm tracking-wider select-none relative z-10">
+    <div className="bg-neo-yellow border-y-4 border-black dark:border-slate-800 py-2.5 overflow-hidden font-black text-xs sm:text-sm tracking-wider select-none relative z-10 text-black">
       <div className="flex w-max animate-marquee gap-8">
         {repeatedItems.map((item, idx) => (
           <div key={idx} className="flex items-center gap-2 flex-shrink-0">

@@ -47,10 +47,10 @@ export default function ContactForm({ className = '' }) {
 
   return (
     <div
-      className={`border-4 border-black bg-white p-6 sm:p-8 shadow-neo-lg relative ${className}`}
+      className={`border-4 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-6 sm:p-8 shadow-neo-lg relative ${className}`}
     >
       {/* Corner badge */}
-      <div className="absolute -top-3.5 right-6 bg-neo-yellow border-2 border-black px-3 py-0.5 font-black text-xs uppercase shadow-neo-sm">
+      <div className="absolute -top-3.5 right-6 bg-neo-yellow border-2 border-black text-black px-3 py-0.5 font-black text-xs uppercase shadow-neo-sm">
         FORMULIR PESAN
       </div>
 
@@ -59,8 +59,8 @@ export default function ContactForm({ className = '' }) {
           <div className="w-16 h-16 bg-neo-mint border-3 border-black shadow-neo-md mx-auto flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-black stroke-[2.5]" />
           </div>
-          <h4 className="text-2xl font-black text-black">PESAN BERHASIL TERKIRIM!</h4>
-          <p className="text-sm font-bold text-gray-700 max-w-md mx-auto">
+          <h4 className="text-2xl font-black text-black dark:text-white">PESAN BERHASIL TERKIRIM!</h4>
+          <p className="text-sm font-bold text-gray-700 dark:text-slate-300 max-w-md mx-auto">
             Terima kasih telah menghubungi saya. Pesan Anda telah masuk ke inbox admin dan saya
             akan segera merespons via email.
           </p>
@@ -76,7 +76,7 @@ export default function ContactForm({ className = '' }) {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {errorMsg && (
-            <div className="p-3 bg-red-100 border-2 border-red-500 text-red-700 text-xs font-bold flex items-center gap-2">
+            <div className="p-3 bg-red-100 dark:bg-red-950/80 border-2 border-red-500 text-red-700 dark:text-red-300 text-xs font-bold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{errorMsg}</span>
             </div>

@@ -33,7 +33,7 @@ export default function PortfolioDetailModal({ project, onClose }) {
     >
       <div className="space-y-5">
         {/* Modal Image */}
-        <div className="border-3 border-black overflow-hidden bg-neo-offwhite">
+        <div className="border-3 border-black dark:border-slate-700 overflow-hidden bg-neo-offwhite dark:bg-[#0F1626]">
           <img
             src={project.image}
             alt={project.title}
@@ -46,8 +46,8 @@ export default function PortfolioDetailModal({ project, onClose }) {
         </div>
 
         {/* Modal Description */}
-        <div className="border-l-4 border-black pl-3 bg-neo-cream p-3 border-2 shadow-neo-sm">
-          <p className="font-bold text-sm sm:text-base text-gray-900 leading-relaxed">
+        <div className="border-l-4 border-black dark:border-neo-yellow pl-3 bg-neo-cream dark:bg-[#1A2234] p-3 border-2 border-black dark:border-slate-700 shadow-neo-sm">
+          <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-slate-200 leading-relaxed">
             {project.description ||
               'Sistem informasi aplikasi berbasis web / mobile terintegrasi dengan arsitektur database relasional, antarmuka responsif, dan performa tinggi.'}
           </p>
@@ -55,13 +55,13 @@ export default function PortfolioDetailModal({ project, onClose }) {
 
         {/* Highlights */}
         <div className="flex flex-wrap gap-2 text-xs font-black">
-          <span className="bg-neo-mint border-2 border-black px-2 py-1 shadow-neo-sm">
+          <span className="bg-neo-mint border-2 border-black text-black px-2 py-1 shadow-neo-sm">
             ⚡ PRODUCTION READY
           </span>
-          <span className="bg-neo-cyan border-2 border-black px-2 py-1 shadow-neo-sm">
+          <span className="bg-neo-cyan border-2 border-black text-black px-2 py-1 shadow-neo-sm">
             🔒 SECURE ARCHITECTURE
           </span>
-          <span className="bg-neo-lilac border-2 border-black px-2 py-1 shadow-neo-sm">
+          <span className="bg-neo-lilac border-2 border-black text-black px-2 py-1 shadow-neo-sm">
             📱 RESPONSIVE DESIGN
           </span>
         </div>

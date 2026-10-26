@@ -7,7 +7,7 @@ const VARIANTS = {
   pink: 'bg-neo-pink text-black hover:bg-rose-300',
   cyan: 'bg-neo-cyan text-black hover:bg-cyan-400',
   lilac: 'bg-neo-lilac text-black hover:bg-purple-300',
-  white: 'bg-white text-black hover:bg-gray-100',
+  white: 'bg-white dark:bg-[#1E293B] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-slate-700',
   black: 'bg-black text-white hover:bg-gray-800',
   danger: 'bg-red-500 text-white hover:bg-red-600',
 };
@@ -36,9 +36,9 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 font-black uppercase tracking-wider border-2 border-black shadow-neo-sm transition-all duration-150 select-none ${
+      className={`inline-flex items-center justify-center gap-2 font-black uppercase tracking-wider border-2 border-black dark:border-slate-700 shadow-neo-sm transition-all duration-150 select-none ${
         disabled
-          ? 'bg-gray-200 text-gray-400 border-gray-400 cursor-not-allowed shadow-none'
+          ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border-gray-400 dark:border-slate-700 cursor-not-allowed shadow-none'
           : `active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-neo cursor-pointer ${variantClass}`
       } ${sizeClass} ${className}`}
       {...props}

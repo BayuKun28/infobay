@@ -38,17 +38,17 @@ export default function Portfolio({ portfolios = [] }) {
   };
 
   return (
-    <section id="portfolio" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black bg-[#FFFDF0]">
+    <section id="portfolio" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-[#FFFDF0] dark:bg-[#0B0F19] transition-colors duration-150">
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-block bg-neo-cyan border-2 border-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
+          <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
             04 / SHOWCASE KARYA TERPILIH
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black mb-2 uppercase">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-2 uppercase">
             15+ PORTOFOLIO NYATA
           </h2>
-          <p className="font-bold text-gray-800 text-sm sm:text-base">
+          <p className="font-bold text-gray-800 dark:text-slate-300 text-sm sm:text-base">
             Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, dan aplikasi mobile.
           </p>
         </div>
@@ -71,12 +71,12 @@ export default function Portfolio({ portfolios = [] }) {
 
       {/* No Results Fallback */}
       {filteredPortfolios.length === 0 && (
-        <div className="border-3 border-black bg-white p-12 text-center shadow-neo-lg max-w-md mx-auto">
-          <p className="font-black text-lg text-black mb-2 uppercase">TIDAK ADA PROYEK DITEMUKAN</p>
-          <p className="text-sm font-bold text-gray-600 mb-4">Silakan pilih kategori lain.</p>
+        <div className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-12 text-center shadow-neo-lg max-w-md mx-auto">
+          <p className="font-black text-lg text-black dark:text-white mb-2 uppercase">TIDAK ADA PROYEK DITEMUKAN</p>
+          <p className="text-sm font-bold text-gray-600 dark:text-slate-400 mb-4">Silakan pilih kategori lain.</p>
           <button
             onClick={() => handleCategorySelect('ALL')}
-            className="neo-btn bg-neo-yellow text-xs"
+            className="neo-btn bg-neo-yellow text-black text-xs"
           >
             LIHAT SEMUA PROYEK
           </button>

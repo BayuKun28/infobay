@@ -6,7 +6,7 @@ const VARIANTS = {
   pink: 'bg-neo-pink text-black',
   cyan: 'bg-neo-cyan text-black',
   lilac: 'bg-neo-lilac text-black',
-  white: 'bg-white text-black',
+  white: 'bg-white dark:bg-[#1E293B] text-black dark:text-white',
   black: 'bg-black text-white',
 };
 
