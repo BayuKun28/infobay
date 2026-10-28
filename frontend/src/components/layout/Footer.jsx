@@ -7,10 +7,10 @@ export default function Footer({ biodata }) {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b-2 border-gray-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-neo-yellow border-2 border-white shadow-[2px_2px_0px_#fff] flex items-center justify-center font-black text-black text-lg">
-              IB
+              BD
             </div>
             <div>
-              <span className="font-black text-xl tracking-tight text-white">INFOBAY</span>
+              <span className="font-black text-xl tracking-tight text-white">BAYDEV</span>
               <p className="text-xs font-bold text-gray-400">
                 Portofolio Resmi &bull; Bayu Prastyo (baydev / bayukun / masbay)
               </p>
