@@ -1,20 +1,23 @@
 import React from 'react';
 import { Mail, Phone, MapPin, MessageSquare, ExternalLink } from 'lucide-react';
 import ContactForm from '../portfolio/ContactForm';
+import { useLanguage } from '../../hooks';
 
 export default function Contact({ biodata }) {
+  const { t } = useLanguage();
+
   return (
     <section id="contact" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-white dark:bg-[#0B0F19] transition-colors duration-150">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-12">
         <div className="inline-block bg-neo-lilac border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-          07 / HUBUNGI &amp; KOLABORASI
+          {t('contact.badge', '07 / HUBUNGI & KOLABORASI')}
         </div>
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-3 uppercase">
-          MARI MEMULAI PROYEK BARU
+          {t('contact.title', 'MARI MEMULAI PROYEK BARU')}
         </h2>
         <p className="font-bold text-gray-700 dark:text-slate-300 text-sm sm:text-base">
-          Punya ide aplikasi, butuh audit sistem, atau ingin mendiskusikan peluang kerja sama? Kirimkan pesan Anda langsung.
+          {t('contact.subtitle', 'Punya ide aplikasi, butuh audit sistem, atau ingin mendiskusikan peluang kerja sama? Kirimkan pesan Anda langsung.')}
         </p>
       </div>
 
@@ -24,7 +27,7 @@ export default function Contact({ biodata }) {
           <div className="border-3 border-black dark:border-slate-700 bg-neo-yellow dark:bg-[#151D2F] p-6 shadow-neo-lg text-black dark:text-white">
             <h3 className="text-xl font-black uppercase mb-4 text-black dark:text-white flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-black dark:text-neo-yellow" />
-              KONTAK LANGSUNG
+              {t('contact.direct_title', 'KONTAK LANGSUNG')}
             </h3>
 
             <div className="space-y-3">
@@ -36,7 +39,9 @@ export default function Contact({ biodata }) {
                   <Mail className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">Email Address</div>
+                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
+                    {t('contact.email_label', 'Email Address')}
+                  </div>
                   <div className="font-bold text-sm text-black dark:text-white group-hover:underline">
                     {biodata?.email || 'bayukundev@gmail.com'}
                   </div>
@@ -53,7 +58,9 @@ export default function Contact({ biodata }) {
                   <Phone className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">Phone / WhatsApp</div>
+                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
+                    {t('contact.phone_label', 'Phone / WhatsApp')}
+                  </div>
                   <div className="font-bold text-sm text-black dark:text-white group-hover:underline">
                     {biodata?.phone || '08991907216'}
                   </div>
@@ -65,7 +72,9 @@ export default function Contact({ biodata }) {
                   <MapPin className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">Lokasi / Domisili</div>
+                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
+                    {t('contact.location_label', 'Lokasi / Domisili')}
+                  </div>
                   <div className="font-bold text-sm text-black dark:text-white">
                     {biodata?.location || 'Yogyakarta / Karanganyar'}
                   </div>
@@ -76,7 +85,9 @@ export default function Contact({ biodata }) {
 
           {/* Social Profiles Grid */}
           <div className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-5 shadow-neo-lg text-black dark:text-white">
-            <h4 className="font-black text-sm uppercase mb-3 text-black dark:text-white">MEDIA SOSIAL &amp; JEJARING RESMI</h4>
+            <h4 className="font-black text-sm uppercase mb-3 text-black dark:text-white">
+              {t('contact.social_title', 'MEDIA SOSIAL & JEJARING RESMI')}
+            </h4>
             <div className="grid grid-cols-2 gap-2 text-xs font-black">
               {biodata?.social_links && biodata.social_links.length > 0 ? (
                 biodata.social_links.map((linkItem, idx) => (

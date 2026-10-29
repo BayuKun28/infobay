@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Quote, Star, MessageSquareQuote, CheckCircle2 } from 'lucide-react';
 import NeubrutalismPagination from '../common/NeubrutalismPagination';
+import { useLanguage } from '../../hooks';
 
 export default function Testimonials({ testimonials = [] }) {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3; // 1 full row x 3 columns
 
@@ -36,13 +38,13 @@ export default function Testimonials({ testimonials = [] }) {
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="inline-block bg-neo-yellow border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-          05 / TESTIMONI &amp; ULASAN KLIEN
+          {t('testimonials.badge', '05 / TESTIMONI & ULASAN KLIEN')}
         </div>
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-4 uppercase">
-          KATA MEREKA TENTANG SAYA
+          {t('testimonials.title', 'KATA MEREKA TENTANG SAYA')}
         </h2>
         <p className="font-bold text-base sm:text-lg text-gray-800 dark:text-slate-300">
-          Ulasan jujur dari institusi pemerintah, konsultan IT, dan rekan kolaborasi yang telah bermitra dalam membangun sistem produksi.
+          {t('testimonials.subtitle', 'Ulasan jujur dari institusi pemerintah, konsultan IT, dan rekan kolaborasi yang telah bermitra dalam membangun sistem produksi.')}
         </p>
       </div>
 
@@ -124,7 +126,7 @@ export default function Testimonials({ testimonials = [] }) {
         itemsPerPage={itemsPerPage}
         onPageChange={setCurrentPage}
         targetSectionId="testimonials"
-        itemLabel="ulasan"
+        itemLabel={t('testimonials.items_label', 'ulasan')}
       />
     </section>
   );

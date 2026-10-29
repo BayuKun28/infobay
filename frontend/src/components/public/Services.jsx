@@ -1,7 +1,10 @@
 import React from 'react';
 import { Palette, Code, Smartphone, Server, ArrowUpRight } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function Services({ services = [] }) {
+  const { t } = useLanguage();
+
   // Map icons if seed icon fails
   const getFallbackIcon = (title) => {
     const t = title?.toLowerCase() || '';
@@ -16,13 +19,13 @@ export default function Services({ services = [] }) {
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="inline-block bg-neo-mint border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-          02 / LAYANAN & KAPABILITAS
+          {t('services.badge', '02 / LAYANAN & KAPABILITAS')}
         </div>
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-4">
-          APA YANG SAYA KERJAKAN?
+          {t('services.title', 'APA YANG SAYA KERJAKAN?')}
         </h2>
         <p className="font-bold text-base sm:text-lg text-gray-800 dark:text-slate-300">
-          Solusi terintegrasi dari visual UI/UX unik, arsitektur frontend cepat, hingga backend API berstandar korporasi.
+          {t('services.subtitle', 'Solusi terintegrasi dari visual UI/UX unik, arsitektur frontend cepat, hingga backend API berstandar korporasi.')}
         </p>
       </div>
 
@@ -74,13 +77,15 @@ export default function Services({ services = [] }) {
 
                 {/* Description */}
                 <p className="text-sm font-semibold text-gray-900 dark:text-slate-300 leading-relaxed mb-6">
-                  {service.description || "Layanan profesional dengan komitmen kualitas kode, stabilitas, dan performa tinggi."}
+                  {service.description || t('services.default_desc', 'Layanan profesional dengan komitmen kualitas kode, stabilitas, dan performa tinggi.')}
                 </p>
               </div>
 
               {/* Bottom tag */}
               <div className="border-t-2 border-black dark:border-slate-700 pt-3 flex items-center justify-between font-black text-xs">
-                <span className="uppercase text-black dark:text-slate-200">PRODUCTION GRADE</span>
+                <span className="uppercase text-black dark:text-slate-200">
+                  {t('services.card_tag', 'PRODUCTION GRADE')}
+                </span>
                 <ArrowUpRight className="w-4 h-4 text-black dark:text-neo-yellow group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </div>
             </div>

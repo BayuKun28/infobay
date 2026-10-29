@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function NeubrutalismPagination({
   currentPage,
@@ -10,6 +11,7 @@ export default function NeubrutalismPagination({
   targetSectionId,
   itemLabel = 'item',
 }) {
+  const { t } = useLanguage();
   if (totalPages <= 1) return null;
 
   const handlePageClick = (page) => {
@@ -53,11 +55,11 @@ export default function NeubrutalismPagination({
     <div className="mt-10 pt-6 border-t-3 border-black dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
       {/* Item Counter Status */}
       <div className="inline-flex items-center gap-2 bg-white dark:bg-[#151D2F] border-2 border-black dark:border-slate-700 px-3.5 py-1.5 shadow-neo-sm font-bold text-xs uppercase tracking-wider text-black dark:text-slate-200">
-        <span>Menampilkan</span>
+        <span>{t('portfolio.showing', 'Menampilkan')}</span>
         <span className="font-black bg-neo-yellow px-1.5 py-0.5 border border-black text-black">
           {startItem}-{endItem}
         </span>
-        <span>dari</span>
+        <span>{t('portfolio.of', 'dari')}</span>
         <span className="font-black text-black dark:text-white">{totalItems}</span>
         <span>{itemLabel}</span>
       </div>
@@ -68,7 +70,7 @@ export default function NeubrutalismPagination({
         <button
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="Halaman Sebelumnya"
+          aria-label={t('common.prev', 'Halaman Sebelumnya')}
           className={`px-3 py-1.5 border-2 font-black text-xs uppercase flex items-center gap-1 transition-all ${
             currentPage === 1
               ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border-gray-400 dark:border-slate-700 cursor-not-allowed shadow-none'
@@ -76,7 +78,7 @@ export default function NeubrutalismPagination({
           }`}
         >
           <ChevronLeft className="w-4 h-4 stroke-[3]" />
-          <span className="hidden sm:inline">PREV</span>
+          <span className="hidden sm:inline">{t('common.prev', 'PREV')}</span>
         </button>
 
         {/* Page Number Buttons */}
@@ -112,14 +114,14 @@ export default function NeubrutalismPagination({
         <button
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="Halaman Selanjutnya"
+          aria-label={t('common.next', 'Halaman Selanjutnya')}
           className={`px-3 py-1.5 border-2 font-black text-xs uppercase flex items-center gap-1 transition-all ${
             currentPage === totalPages
               ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 border-gray-400 dark:border-slate-700 cursor-not-allowed shadow-none'
               : 'bg-white dark:bg-[#151D2F] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-slate-200 dark:hover:text-black border-black dark:border-slate-700 shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none'
           }`}
         >
-          <span className="hidden sm:inline">NEXT</span>
+          <span className="hidden sm:inline">{t('common.next', 'NEXT')}</span>
           <ChevronRight className="w-4 h-4 stroke-[3]" />
         </button>
       </div>

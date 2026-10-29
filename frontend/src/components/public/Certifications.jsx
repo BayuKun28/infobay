@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Award, ExternalLink, ShieldCheck, Calendar, Hash, CheckCircle2 } from 'lucide-react';
 import NeubrutalismPagination from '../common/NeubrutalismPagination';
+import { useLanguage } from '../../hooks';
 
 export default function Certifications({ certifications = [] }) {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3; // 1 full row x 3 columns
 
@@ -36,13 +38,13 @@ export default function Certifications({ certifications = [] }) {
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-          06 / LISENSI &amp; SERTIFIKASI
+          {t('certifications.badge', '06 / LISENSI & SERTIFIKASI')}
         </div>
         <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-4 uppercase">
-          KREDENSIAL PROFESIONAL
+          {t('certifications.title', 'KREDENSIAL PROFESIONAL')}
         </h2>
         <p className="font-bold text-base sm:text-lg text-gray-800 dark:text-slate-300">
-          Standar keahlian teruji yang diakui secara resmi oleh penyedia teknologi enterprise dan institusi global.
+          {t('certifications.subtitle', 'Standar keahlian teruji yang diakui secara resmi oleh penyedia teknologi enterprise dan institusi global.')}
         </p>
       </div>
 
@@ -65,7 +67,7 @@ export default function Certifications({ certifications = [] }) {
                   </span>
                   <div className="inline-flex items-center gap-1 bg-neo-mint border-2 border-black text-black px-2 py-0.5 text-[10px] font-black uppercase shadow-neo-sm">
                     <ShieldCheck className="w-3.5 h-3.5 text-black" />
-                    <span>VERIFIED</span>
+                    <span>{t('certifications.verified', 'VERIFIED')}</span>
                   </div>
                 </div>
 
@@ -161,7 +163,7 @@ export default function Certifications({ certifications = [] }) {
         itemsPerPage={itemsPerPage}
         onPageChange={setCurrentPage}
         targetSectionId="certifications"
-        itemLabel="kredensial"
+        itemLabel={t('certifications.items_label', 'sertifikasi')}
       />
     </section>
   );

@@ -3,8 +3,10 @@ import { Send, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
 import { messageService } from '../../services/api';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { useLanguage } from '../../hooks';
 
 export default function ContactForm({ className = '' }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,7 +20,7 @@ export default function ContactForm({ className = '' }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setErrorMsg('Harap lengkapi nama, email, dan pesan detail.');
+      setErrorMsg(t('contact.validation_error', 'Harap lengkapi nama, email, dan pesan detail.'));
       return;
     }
 
@@ -51,7 +53,7 @@ export default function ContactForm({ className = '' }) {
     >
       {/* Corner badge */}
       <div className="absolute -top-3.5 right-6 bg-neo-yellow border-2 border-black text-black px-3 py-0.5 font-black text-xs uppercase shadow-neo-sm">
-        FORMULIR PESAN
+        {t('contact.form_badge', 'FORMULIR PESAN')}
       </div>
 
       {submitted ? (
@@ -59,10 +61,14 @@ export default function ContactForm({ className = '' }) {
           <div className="w-16 h-16 bg-neo-mint border-3 border-black shadow-neo-md mx-auto flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10 text-black stroke-[2.5]" />
           </div>
-          <h4 className="text-2xl font-black text-black dark:text-white">PESAN BERHASIL TERKIRIM!</h4>
+          <h4 className="text-2xl font-black text-black dark:text-white">
+            {t('contact.success_title', 'PESAN BERHASIL TERKIRIM!')}
+          </h4>
           <p className="text-sm font-bold text-gray-700 dark:text-slate-300 max-w-md mx-auto">
-            Terima kasih telah menghubungi saya. Pesan Anda telah masuk ke inbox admin dan saya
-            akan segera merespons via email.
+            {t(
+              'contact.success_desc',
+              'Terima kasih telah menghubungi saya. Pesan Anda telah masuk ke inbox admin dan saya akan segera merespons via email.'
+            )}
           </p>
           <Button
             variant="yellow"
@@ -70,7 +76,7 @@ export default function ContactForm({ className = '' }) {
             icon={RotateCcw}
             className="mt-4"
           >
-            KIRIM PESAN LAIN
+            {t('contact.send_another', 'KIRIM PESAN LAIN')}
           </Button>
         </div>
       ) : (
@@ -84,16 +90,16 @@ export default function ContactForm({ className = '' }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Nama Lengkap"
-              placeholder="Contoh: Budi Santoso"
+              label={t('contact.name_label', 'Nama Lengkap')}
+              placeholder={t('contact.name_placeholder', 'Contoh: Budi Santoso')}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
             <Input
-              label="Alamat Email"
+              label={t('contact.email_label', 'Alamat Email')}
               type="email"
-              placeholder="budi@example.com"
+              placeholder={t('contact.email_placeholder', 'budi@example.com')}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
@@ -101,17 +107,20 @@ export default function ContactForm({ className = '' }) {
           </div>
 
           <Input
-            label="Subjek / Topik Proyek"
-            placeholder="Pengembangan Web App / Konsultasi API"
+            label={t('contact.subject_label', 'Subjek / Topik Proyek')}
+            placeholder={t('contact.subject_placeholder', 'Pengembangan Web App / Konsultasi API')}
             value={formData.subject}
             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
           />
 
           <Input
-            label="Detail Pesan / Kebutuhan"
+            label={t('contact.message_label', 'Detail Pesan / Kebutuhan')}
             multiline
             rows={5}
-            placeholder="Jelaskan kebutuhan aplikasi, estimasi waktu, atau lingkup proyek Anda..."
+            placeholder={t(
+              'contact.message_placeholder',
+              'Jelaskan kebutuhan aplikasi, estimasi waktu, atau lingkup proyek Anda...'
+            )}
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             required
@@ -125,7 +134,7 @@ export default function ContactForm({ className = '' }) {
             icon={Send}
             className="w-full mt-2"
           >
-            {loading ? 'MENGIRIMKAN PESAN...' : 'KIRIM PESAN SEKARANG'}
+            {loading ? t('contact.submitting', 'MENGIRIMKAN PESAN...') : t('contact.submit', 'KIRIM PESAN SEKARANG')}
           </Button>
         </form>
       )}

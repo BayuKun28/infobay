@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import NeubrutalismPagination from '../common/NeubrutalismPagination';
 import { PortfolioFilter, PortfolioGrid, PortfolioDetailModal } from '../portfolio';
+import { useLanguage } from '../../hooks';
 
 export default function Portfolio({ portfolios = [] }) {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalProject, setActiveModalProject] = useState(null);
@@ -43,13 +45,13 @@ export default function Portfolio({ portfolios = [] }) {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-            04 / SHOWCASE KARYA TERPILIH
+            {t('portfolio.badge', '04 / SHOWCASE KARYA TERPILIH')}
           </div>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-2 uppercase">
-            15+ PORTOFOLIO NYATA
+            {t('portfolio.title', '15+ PORTOFOLIO NYATA')}
           </h2>
           <p className="font-bold text-gray-800 dark:text-slate-300 text-sm sm:text-base">
-            Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, dan aplikasi mobile.
+            {t('portfolio.subtitle', 'Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, dan aplikasi mobile.')}
           </p>
         </div>
 
@@ -72,13 +74,17 @@ export default function Portfolio({ portfolios = [] }) {
       {/* No Results Fallback */}
       {filteredPortfolios.length === 0 && (
         <div className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-12 text-center shadow-neo-lg max-w-md mx-auto">
-          <p className="font-black text-lg text-black dark:text-white mb-2 uppercase">TIDAK ADA PROYEK DITEMUKAN</p>
-          <p className="text-sm font-bold text-gray-600 dark:text-slate-400 mb-4">Silakan pilih kategori lain.</p>
+          <p className="font-black text-lg text-black dark:text-white mb-2 uppercase">
+            {t('portfolio.not_found', 'TIDAK ADA PROYEK DITEMUKAN')}
+          </p>
+          <p className="text-sm font-bold text-gray-600 dark:text-slate-400 mb-4">
+            {t('portfolio.select_other', 'Silakan pilih kategori lain.')}
+          </p>
           <button
             onClick={() => handleCategorySelect('ALL')}
             className="neo-btn bg-neo-yellow text-black text-xs"
           >
-            LIHAT SEMUA PROYEK
+            {t('portfolio.view_all', 'LIHAT SEMUA PROYEK')}
           </button>
         </div>
       )}
@@ -91,7 +97,7 @@ export default function Portfolio({ portfolios = [] }) {
         itemsPerPage={itemsPerPage}
         onPageChange={setCurrentPage}
         targetSectionId="portfolio"
-        itemLabel="proyek"
+        itemLabel={t('portfolio.items_label', 'proyek')}
       />
 
       {/* Detailed Preview Modal */}

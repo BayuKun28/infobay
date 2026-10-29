@@ -2,8 +2,10 @@ import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import { useLanguage } from '../../hooks';
 
 export default function PortfolioDetailModal({ project, onClose }) {
+  const { t } = useLanguage();
   if (!project) return null;
 
   return (
@@ -15,7 +17,7 @@ export default function PortfolioDetailModal({ project, onClose }) {
       footer={
         <>
           <Button variant="white" size="sm" onClick={onClose}>
-            TUTUP
+            {t('portfolio.modal_close', 'TUTUP')}
           </Button>
           {project.link && project.link !== '#' && (
             <a
@@ -24,7 +26,7 @@ export default function PortfolioDetailModal({ project, onClose }) {
               rel="noreferrer"
               className="px-4 py-2 border-2 border-black bg-neo-yellow font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 text-black"
             >
-              <span>KUNJUNGI WEBSITE</span>
+              <span>{t('portfolio.modal_visit', 'KUNJUNGI WEBSITE')}</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           )}
@@ -49,20 +51,23 @@ export default function PortfolioDetailModal({ project, onClose }) {
         <div className="border-l-4 border-black dark:border-neo-yellow pl-3 bg-neo-cream dark:bg-[#1A2234] p-3 border-2 border-black dark:border-slate-700 shadow-neo-sm">
           <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-slate-200 leading-relaxed">
             {project.description ||
-              'Sistem informasi aplikasi berbasis web / mobile terintegrasi dengan arsitektur database relasional, antarmuka responsif, dan performa tinggi.'}
+              t(
+                'portfolio.modal_default_desc',
+                'Sistem informasi aplikasi berbasis web / mobile terintegrasi dengan arsitektur database relasional, antarmuka responsif, dan performa tinggi.'
+              )}
           </p>
         </div>
 
         {/* Highlights */}
         <div className="flex flex-wrap gap-2 text-xs font-black">
           <span className="bg-neo-mint border-2 border-black text-black px-2 py-1 shadow-neo-sm">
-            ⚡ PRODUCTION READY
+            {t('portfolio.badge_prod', '⚡ PRODUCTION READY')}
           </span>
           <span className="bg-neo-cyan border-2 border-black text-black px-2 py-1 shadow-neo-sm">
-            🔒 SECURE ARCHITECTURE
+            {t('portfolio.badge_sec', '🔒 SECURE ARCHITECTURE')}
           </span>
           <span className="bg-neo-lilac border-2 border-black text-black px-2 py-1 shadow-neo-sm">
-            📱 RESPONSIVE DESIGN
+            {t('portfolio.badge_resp', '📱 RESPONSIVE DESIGN')}
           </span>
         </div>
       </div>

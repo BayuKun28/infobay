@@ -1,14 +1,17 @@
 import React from 'react';
 import { Sparkles, Terminal, Flame, Zap, ShieldCheck, Code2, Cpu, Server } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function Marquee({ items }) {
+  const { t } = useLanguage();
+
   const defaultItems = [
-    { text: "FULL-STACK WEB & MOBILE DEVELOPER", icon: <Terminal className="w-4 h-4" /> },
-    { text: "REACTJS & NEXT.JS SPECIALIST", icon: <Zap className="w-4 h-4" /> },
-    { text: "LARAVEL & REST API ARCHITECTURE", icon: <Flame className="w-4 h-4" /> },
-    { text: "POSTGRESQL & ENTERPRISE DB", icon: <ShieldCheck className="w-4 h-4" /> },
-    { text: "AUTHENTIC NEUBRUTALISM DESIGN", icon: <Sparkles className="w-4 h-4" /> },
-    { text: "7+ YEARS EXPERIENCE", icon: <Code2 className="w-4 h-4" /> },
+    { text: t('marquee.fullstack', 'FULL-STACK WEB & MOBILE DEVELOPER'), icon: <Terminal className="w-4 h-4" /> },
+    { text: t('marquee.react', 'REACTJS & NEXT.JS SPECIALIST'), icon: <Zap className="w-4 h-4" /> },
+    { text: t('marquee.laravel', 'LARAVEL & REST API ARCHITECTURE'), icon: <Flame className="w-4 h-4" /> },
+    { text: t('marquee.postgres', 'POSTGRESQL & ENTERPRISE DB'), icon: <ShieldCheck className="w-4 h-4" /> },
+    { text: t('marquee.neubrutalism', 'AUTHENTIC NEUBRUTALISM DESIGN'), icon: <Sparkles className="w-4 h-4" /> },
+    { text: t('marquee.exp', '7+ TAHUN PENGALAMAN'), icon: <Code2 className="w-4 h-4" /> },
   ];
 
   const iconPool = [

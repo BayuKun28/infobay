@@ -1,21 +1,24 @@
 import React from 'react';
 import { Cpu, Layers, Check, Terminal } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function Skills({ skills = [], techStack = [] }) {
+  const { t } = useLanguage();
+
   return (
     <section id="skills" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-white dark:bg-[#0B0F19] transition-colors duration-150">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-12">
         <div>
           <div className="inline-block bg-neo-pink border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-2">
-            03 / SKILLS & TECH ARSENAL
+            {t('skills.badge', '03 / SKILLS & TECH ARSENAL')}
           </div>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white">
-            KEAHLIAN & TEKNOLOGI
+            {t('skills.title', 'KEAHLIAN & TEKNOLOGI')}
           </h2>
         </div>
         <div className="bg-neo-yellow border-2 border-black text-black px-4 py-2 shadow-neo font-black text-sm">
-          ⚙️ 100% PRODUCTION TESTED
+          {t('skills.tested_badge', '⚙️ 100% PRODUCTION TESTED')}
         </div>
       </div>
 
@@ -25,7 +28,7 @@ export default function Skills({ skills = [], techStack = [] }) {
           <div className="border-3 border-black dark:border-slate-700 bg-[#FFFDF0] dark:bg-[#151D2F] p-6 sm:p-8 shadow-neo-lg">
             <h3 className="text-xl font-black mb-6 uppercase tracking-wider flex items-center gap-2 text-black dark:text-white">
               <Cpu className="w-5 h-5 text-black dark:text-neo-yellow" />
-              KOMPETENSI UTAMA
+              {t('skills.core_competencies', 'KOMPETENSI UTAMA')}
             </h3>
 
             <div className="space-y-6">
@@ -69,10 +72,10 @@ export default function Skills({ skills = [], techStack = [] }) {
           <div className="border-3 border-black dark:border-slate-700 bg-neo-yellow dark:bg-[#151D2F] p-6 sm:p-8 shadow-neo-lg text-black dark:text-white">
             <h3 className="text-xl font-black mb-4 uppercase tracking-wider flex items-center gap-2 text-black dark:text-white">
               <Layers className="w-5 h-5 text-black dark:text-neo-yellow" />
-              TECH STACK & TOOLS
+              {t('skills.tech_stack_title', 'TECH STACK & TOOLS')}
             </h3>
             <p className="text-sm font-bold text-gray-900 dark:text-slate-300 mb-6 leading-relaxed">
-              Teknologi pilihan yang digunakan sehari-hari untuk merancang antarmuka cepat dan API tangguh.
+              {t('skills.tech_stack_desc', 'Teknologi pilihan yang digunakan sehari-hari untuk merancang antarmuka cepat dan API tangguh.')}
             </p>
 
             <div className="flex flex-wrap gap-2.5">

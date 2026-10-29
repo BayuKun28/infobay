@@ -1,10 +1,13 @@
 import React from 'react';
+import { useLanguage } from '../../hooks';
 
 export default function PortfolioFilter({
   categories = ['ALL'],
   selectedCategory = 'ALL',
   onSelectCategory,
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-wrap gap-2">
       {categories.map((cat) => {
@@ -19,7 +22,7 @@ export default function PortfolioFilter({
                 : 'bg-white dark:bg-[#151D2F] text-black dark:text-slate-200 shadow-neo-sm hover:bg-neo-yellow hover:text-black dark:hover:bg-neo-yellow dark:hover:text-black hover:-translate-y-0.5 hover:shadow-neo'
             }`}
           >
-            {cat === 'ALL' ? '⚡ SEMUA PROYEK' : cat}
+            {cat === 'ALL' ? t('portfolio.all_filter', '⚡ SEMUA PROYEK') : cat}
           </button>
         );
       })}

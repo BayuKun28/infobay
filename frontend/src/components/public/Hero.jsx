@@ -1,13 +1,20 @@
 import React from 'react';
 import { ArrowDown, Mail, Phone, MapPin, Download, FileText, ExternalLink, Github, Sparkles } from 'lucide-react';
 import { getStorageUrl } from '../../utils';
+import { useLanguage } from '../../hooks';
 
 export default function Hero({ biodata }) {
+  const { t, isEnglish } = useLanguage();
+
   const renderHeadline = (headline) => {
     if (!headline) {
       return (
         <>
-          CRAFTING <span className="bg-neo-yellow border-2 border-black px-2 shadow-neo inline-block transform -rotate-1">ROBUST</span> WEB & MOBILE APPS.
+          {t('hero.headline_prefix', 'CRAFTING')}{' '}
+          <span className="bg-neo-yellow border-2 border-black px-2 shadow-neo inline-block transform -rotate-1">
+            {t('hero.headline_highlight', 'ROBUST')}
+          </span>{' '}
+          {t('hero.headline_suffix', 'WEB & MOBILE APPS.')}
         </>
       );
     }
@@ -38,7 +45,7 @@ export default function Hero({ biodata }) {
           {/* Status Badge */}
           <div className="inline-flex items-center gap-2 bg-neo-mint border-3 border-black px-4 py-1.5 shadow-neo font-black text-xs sm:text-sm tracking-wide uppercase">
             <span className="w-2.5 h-2.5 bg-black rounded-none animate-ping" />
-            <span>{biodata?.role_badge || biodata?.statusBadge || "AVAILABLE FOR WORK & CONTRACTS"}</span>
+            <span>{biodata?.role_badge || biodata?.statusBadge || t('hero.role_badge', 'AVAILABLE FOR WORK & CONTRACTS')}</span>
           </div>
 
           {/* Main Hero Headline */}
@@ -48,7 +55,14 @@ export default function Hero({ biodata }) {
 
           {/* Subtitle */}
           <p className="text-base sm:text-xl font-bold text-gray-800 dark:text-slate-200 leading-relaxed border-l-4 border-black dark:border-neo-yellow pl-4 bg-white/80 dark:bg-[#151D2F] p-3 border-2 border-black dark:border-slate-700 shadow-neo">
-            {biodata?.hero_subheadline || (
+            {biodata?.hero_subheadline ? (
+              biodata.hero_subheadline
+            ) : isEnglish ? (
+              <>
+                Hello! I am <span className="underline decoration-4 decoration-neo-pink font-black text-black dark:text-white">{biodata?.name || "Bayu Prastyo"}</span> (also known as <strong className="text-black dark:text-white">{biodata?.nickname || "baydev"}</strong>, <strong className="text-black dark:text-white">bayukun</strong>, or <strong className="text-black dark:text-white">masbay</strong>).
+                Full-stack developer &amp; DevOps specialist specializing in ReactJS, Next.js, Laravel, PostgreSQL &amp; high-performance system architecture.
+              </>
+            ) : (
               <>
                 Halo! Saya <span className="underline decoration-4 decoration-neo-pink font-black text-black dark:text-white">{biodata?.name || "Bayu Prastyo"}</span> (dikenal juga sebagai <strong className="text-black dark:text-white">{biodata?.nickname || "baydev"}</strong>, <strong className="text-black dark:text-white">bayukun</strong>, atau <strong className="text-black dark:text-white">masbay</strong>).
                 Full-stack developer &amp; DevOps specialist spesialis ReactJS, Next.js, Laravel, PostgreSQL &amp; arsitektur sistem performa tinggi.
@@ -58,7 +72,9 @@ export default function Hero({ biodata }) {
 
           {/* Identity & Alias Chips for Search Engine Keywords */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs font-black">
-            <span className="text-gray-700 dark:text-slate-300 uppercase text-[11px] tracking-wider mr-1">Known As:</span>
+            <span className="text-gray-700 dark:text-slate-300 uppercase text-[11px] tracking-wider mr-1">
+              {t('hero.known_as', 'Known As:')}
+            </span>
             <span className="bg-neo-yellow border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
               baydev
             </span>
@@ -96,7 +112,7 @@ export default function Hero({ biodata }) {
               className="neo-btn bg-neo-yellow text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black font-black"
             >
               <Sparkles className="w-5 h-5 text-black" />
-              <span>EXPLORE PROJECTS</span>
+              <span>{t('hero.explore_projects', 'EXPLORE PROJECTS')}</span>
             </a>
 
             {/* Neubrutalism CV / Resume Download Button */}
@@ -110,7 +126,7 @@ export default function Hero({ biodata }) {
                 title="Download Curiculum Vitae (PDF)"
               >
                 <FileText className="w-5 h-5 text-black" />
-                <span>DOWNLOAD RESUME / CV</span>
+                <span>{t('hero.download_cv', 'DOWNLOAD RESUME / CV')}</span>
               </a>
             )}
 
@@ -119,7 +135,7 @@ export default function Hero({ biodata }) {
               className="neo-btn bg-white dark:bg-[#151D2F] hover:bg-neo-mint dark:hover:bg-neo-mint text-black dark:text-white dark:hover:text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black dark:border-slate-700 font-bold"
             >
               <Mail className="w-5 h-5 text-current" />
-              <span>CONTACT ME</span>
+              <span>{t('hero.contact_me', 'CONTACT ME')}</span>
             </a>
 
             {(biodata?.socials?.github || biodata?.github) && (
@@ -130,7 +146,7 @@ export default function Hero({ biodata }) {
                 className="neo-btn !bg-black !text-white hover:!bg-zinc-800 flex items-center gap-2 text-sm sm:text-base border-2 border-black dark:border-slate-700 font-bold"
               >
                 <Github className="w-5 h-5 text-white flex-shrink-0" />
-                <span>GITHUB</span>
+                <span>{t('hero.github', 'GITHUB')}</span>
               </a>
             )}
           </div>
@@ -148,7 +164,7 @@ export default function Hero({ biodata }) {
               {/* Header inside card */}
               <div className="flex justify-between items-center pb-3 mb-3 border-b-3 border-black dark:border-slate-700">
                 <span className="font-black text-xs tracking-wider uppercase bg-neo-yellow border-2 border-black text-black px-2 py-0.5 shadow-neo-sm">
-                  DEV PROFILE
+                  {t('hero.dev_profile', 'DEV PROFILE')}
                 </span>
                 <span className="font-black text-xs tracking-wider text-black dark:text-white uppercase">
                   {biodata?.name || "BAYU PRASTYO"}
@@ -167,7 +183,7 @@ export default function Hero({ biodata }) {
                   }}
                 />
                 <div className="absolute bottom-4 left-4 bg-black text-white border-2 border-neo-yellow px-3 py-1 font-black text-xs uppercase shadow-neo-sm">
-                  ⚡ {biodata?.title || biodata?.role || "LEAD PROGRAMMER"}
+                  ⚡ {biodata?.title || biodata?.role || t('hero.lead_role', 'LEAD PROGRAMMER')}
                 </div>
               </div>
 
@@ -175,15 +191,23 @@ export default function Hero({ biodata }) {
               <div className="grid grid-cols-2 gap-3 text-center">
                 <div className="border-2 border-black bg-neo-yellow p-2 shadow-neo-sm">
                   <div className="font-black text-2xl text-black uppercase">
-                    {biodata?.experience_years_text || (biodata?.experienceYears ? `${biodata.experienceYears} TAHUN` : "7+ TAHUN")}
+                    {biodata?.experienceYears
+                      ? `${biodata.experienceYears}+ ${t('hero.years_exp', 'TAHUN')}`
+                      : biodata?.experience_years_text || `7+ ${t('hero.years_exp', 'TAHUN')}`}
                   </div>
-                  <div className="font-bold text-[11px] uppercase tracking-wider text-gray-800">PENGALAMAN</div>
+                  <div className="font-bold text-[11px] uppercase tracking-wider text-gray-800">
+                    {t('hero.exp_label', 'PENGALAMAN')}
+                  </div>
                 </div>
                 <div className="border-2 border-black bg-neo-cyan p-2 shadow-neo-sm">
                   <div className="font-black text-2xl text-black uppercase">
-                    {biodata?.projects_completed_text || (biodata?.completedProjects ? `${biodata.completedProjects} PROYEK` : "30+ PROYEK")}
+                    {biodata?.completedProjects
+                      ? `${biodata.completedProjects}+ ${t('hero.projects_count', 'PROYEK')}`
+                      : biodata?.projects_completed_text || `30+ ${t('hero.projects_count', 'PROYEK')}`}
                   </div>
-                  <div className="font-bold text-[11px] uppercase tracking-wider text-gray-800">SISTEM PRODUKSI</div>
+                  <div className="font-bold text-[11px] uppercase tracking-wider text-gray-800">
+                    {t('hero.prod_systems', 'SISTEM PRODUKSI')}
+                  </div>
                 </div>
               </div>
             </div>

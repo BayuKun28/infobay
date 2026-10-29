@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function FloatingScrollTop() {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -31,12 +33,14 @@ export default function FloatingScrollTop() {
   return (
     <button
       onClick={scrollToTop}
-      aria-label="Kembali ke atas"
+      aria-label={t('common.back_to_top', 'Kembali ke atas')}
       className="fixed bottom-6 right-6 z-50 p-3 bg-neo-yellow text-black border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-[0px] active:translate-y-[0px] active:shadow-[2px_2px_0px_0px_#000] transition-all flex items-center justify-center font-black cursor-pointer group"
-      title="Kembali ke paling atas"
+      title={t('common.back_to_top', 'Kembali ke paling atas')}
     >
       <ArrowUp className="w-5 h-5 stroke-[2.5] group-hover:-translate-y-0.5 transition-transform" />
-      <span className="hidden sm:inline font-black text-xs ml-1.5 tracking-wider uppercase">TOP</span>
+      <span className="hidden sm:inline font-black text-xs ml-1.5 tracking-wider uppercase">
+        {t('common.top', 'TOP')}
+      </span>
     </button>
   );
 }

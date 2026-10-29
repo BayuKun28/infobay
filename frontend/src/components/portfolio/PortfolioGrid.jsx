@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExternalLink, Eye, Code, Smartphone } from 'lucide-react';
+import { useLanguage } from '../../hooks';
 
 export default function PortfolioGrid({
   items = [],
@@ -7,6 +8,8 @@ export default function PortfolioGrid({
   activePage = 1,
   itemsPerPage = 6,
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {items.map((item, index) => {
@@ -64,7 +67,7 @@ export default function PortfolioGrid({
                 className="flex-1 py-2 px-3 border-2 border-black bg-neo-yellow text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5 text-black" />
-                <span>DETAIL KARYA</span>
+                <span>{t('portfolio.detail_btn', 'DETAIL KARYA')}</span>
               </button>
 
               {item.link && item.link !== '#' && (
@@ -73,7 +76,7 @@ export default function PortfolioGrid({
                   target="_blank"
                   rel="noreferrer"
                   className="p-2 border-2 border-black dark:border-slate-700 bg-white dark:bg-[#1E293B] hover:bg-neo-mint dark:hover:bg-neo-mint shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all text-black dark:text-white dark:hover:text-black flex items-center justify-center"
-                  title="Buka Link Proyek"
+                  title={t('portfolio.open_link', 'Buka Link Proyek')}
                 >
                   <ExternalLink className="w-4 h-4 text-current" />
                 </a>
