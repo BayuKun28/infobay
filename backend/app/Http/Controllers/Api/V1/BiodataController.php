@@ -37,7 +37,7 @@ class BiodataController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $response,
-        ]);
+        ])->header('Cache-Control', 'public, max-age=3600');
     }
 
     /**

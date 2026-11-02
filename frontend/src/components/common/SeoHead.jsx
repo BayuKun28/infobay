@@ -20,8 +20,8 @@ export default function SeoHead({ biodata }) {
       biodata.about ||
       'Full-stack software engineer & web programmer spesialis Laravel 13, PostgreSQL 17, ReactJS, Next.js, dan Docker homelab.';
 
-    // 1. Dynamic Document Title
-    const pageTitle = `${name} (${nickname} / bayukun / masbay) | ${titleRole}`;
+    // 1. Dynamic Document Title (Optimized 50-60 chars for Google SERP)
+    const pageTitle = `${name} (${nickname}) | Full-Stack Software Engineer`;
     document.title = pageTitle;
 
     // Helper to safely set or create meta tag
@@ -35,31 +35,28 @@ export default function SeoHead({ biodata }) {
       element.setAttribute('content', content);
     };
 
-    // 2. Primary Meta Tags
+    // 2. Primary Meta Tags (Optimized 150-160 chars description)
+    const metaDescription = `Portofolio resmi ${name} (${nickname}). Full-Stack Software Engineer 7+ tahun pengalaman spesialis Laravel, PostgreSQL, React, Next.js, dan Docker homelab.`;
     setMetaTag('name', 'title', pageTitle);
     setMetaTag('name', 'google-site-verification', 'xj3wGMsk9mIsj3kZghL6qIHOLt9I4wbMaQgk-4B9JK8');
-    setMetaTag(
-      'name',
-      'description',
-      `Portofolio resmi ${name} (${nickname} / bayukun / masbay). ${bioText} Berlokasi di ${location}.`
-    );
+    setMetaTag('name', 'description', metaDescription);
     setMetaTag('name', 'author', `${name} (${nickname})`);
     setMetaTag(
       'name',
       'keywords',
-      'bayu prastyo, baydev, bayukun, masbay, bayukun28, bayu prastyo developer, bayu prastyo programmer, web developer yogyakarta, programmer karanganyar, full stack developer indonesia, reactjs laravel developer, jasa pembuatan website aplikasi'
+      'bayu prastyo, baydev, bayukun, masbay, bayukun28, bayu prastyo developer, bayu prastyo programmer, web developer yogyakarta, programmer karanganyar, full stack developer indonesia, reactjs laravel developer, jasa pembuatan website aplikasi, neubrutalism web design'
     );
 
     // 3. OpenGraph Tags
     setMetaTag('property', 'og:title', pageTitle);
-    setMetaTag('property', 'og:description', bioText);
+    setMetaTag('property', 'og:description', metaDescription);
     setMetaTag('property', 'og:image', avatar);
     setMetaTag('property', 'og:url', 'https://baydev.my.id/');
     setMetaTag('property', 'og:type', 'profile');
 
     // 4. Twitter Tags
     setMetaTag('name', 'twitter:title', pageTitle);
-    setMetaTag('name', 'twitter:description', bioText);
+    setMetaTag('name', 'twitter:description', metaDescription);
     setMetaTag('name', 'twitter:image', avatar);
     setMetaTag('name', 'twitter:card', 'summary_large_image');
 
@@ -147,6 +144,55 @@ export default function SeoHead({ biodata }) {
           mainEntity: {
             '@id': 'https://baydev.my.id/#person',
           },
+        },
+        {
+          '@type': 'ItemList',
+          '@id': 'https://baydev.my.id/#navigation',
+          name: 'Menu Navigasi Resmi baydev',
+          itemListElement: [
+            {
+              '@type': 'SiteNavigationElement',
+              position: 1,
+              name: 'Tentang (About)',
+              description: `Profil, latar belakang, dan riwayat profesional ${name} (${nickname})`,
+              url: 'https://baydev.my.id/#about',
+            },
+            {
+              '@type': 'SiteNavigationElement',
+              position: 2,
+              name: 'Layanan (Services)',
+              description: 'Solusi rekayasa perangkat lunak, full-stack web, dan arsitektur database',
+              url: 'https://baydev.my.id/#services',
+            },
+            {
+              '@type': 'SiteNavigationElement',
+              position: 3,
+              name: 'Keahlian (Skills)',
+              description: 'Tech stack arsenal: Laravel, PostgreSQL, React, Docker, Linux',
+              url: 'https://baydev.my.id/#skills',
+            },
+            {
+              '@type': 'SiteNavigationElement',
+              position: 4,
+              name: 'Portofolio (Showcase)',
+              description: 'Showcase karya dan proyek aplikasi web & mobile skala produksi',
+              url: 'https://baydev.my.id/#portfolio',
+            },
+            {
+              '@type': 'SiteNavigationElement',
+              position: 5,
+              name: 'Sertifikasi (Certifications)',
+              description: 'Sertifikasi kompetensi resmi, lisensi teknis, dan kredensial profesional',
+              url: 'https://baydev.my.id/#certifications',
+            },
+            {
+              '@type': 'SiteNavigationElement',
+              position: 6,
+              name: 'Kontak (Contact)',
+              description: `Hubungi ${name} untuk konsultasi dan kolaborasi proyek`,
+              url: 'https://baydev.my.id/#contact',
+            },
+          ],
         },
       ],
     };
