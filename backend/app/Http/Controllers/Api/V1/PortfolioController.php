@@ -82,6 +82,11 @@ class PortfolioController extends Controller
             'image_file' => 'nullable|image|max:10240',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
+            'tech_stack' => 'nullable|array',
+            'github_url' => 'nullable|string',
+            'project_role' => 'nullable|string|max:255',
+            'metrics' => 'nullable|array',
+            'is_featured' => 'nullable|boolean',
         ]);
 
         // Handle uploaded image file
@@ -123,6 +128,11 @@ class PortfolioController extends Controller
             'image_file' => 'nullable|image|max:10240',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
+            'tech_stack' => 'nullable|array',
+            'github_url' => 'nullable|string',
+            'project_role' => 'nullable|string|max:255',
+            'metrics' => 'nullable|array',
+            'is_featured' => 'nullable|boolean',
         ]);
 
         // Handle uploaded image file

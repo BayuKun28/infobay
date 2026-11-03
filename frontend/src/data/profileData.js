@@ -200,19 +200,6 @@ export const defaultProfileData = {
     },
     {
       id: 7,
-      title: "Login Management",
-      category: "Mobile Development",
-      image: "https://baydev.my.id/assets/backend/images/portofolio/1757684343.png",
-      link: "#",
-      github_url: "https://github.com/BayuKun28",
-      featured: false,
-      project_role: "Mobile Security Engineer",
-      tech_stack: ["React Native", "OAuth 2.0", "JWT", "Biometric Auth", "Node.js"],
-      metrics: ["Multi-Factor Authentication", "Sub-second Token Validation", "Zero Unauthorized Breach"],
-      description: "Aplikasi mobile manajemen otentikasi multi-faktor dan single sign-on (SSO) untuk otorisasi karyawan aman dengan biometrik fingerprint dan face recognition."
-    },
-    {
-      id: 8,
       title: "KASKOS",
       category: "Mobile Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757684352.png",
@@ -225,7 +212,7 @@ export const defaultProfileData = {
       description: "Aplikasi mobile pembukuan pengeluaran kos-kosan & pencatatan keuangan pribadi dengan grafik pengeluaran bulanan, pengingat jatuh tempo sewa, dan cadangan lokal."
     },
     {
-      id: 9,
+      id: 8,
       title: "Gallery App",
       category: "Mobile Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757684363.png",
@@ -238,7 +225,7 @@ export const defaultProfileData = {
       description: "Aplikasi galeri visual mobile dengan fitur kurasi album foto berkecepatan tinggi, kompresi lokal cerdas tanpa degradasi kualitas visual, dan privasi foto pribadi."
     },
     {
-      id: 10,
+      id: 9,
       title: "To do task",
       category: "Mobile Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757684373.png",
@@ -251,7 +238,7 @@ export const defaultProfileData = {
       description: "Aplikasi produktivitas mobile harian dengan pengingat waktu, kategori prioritas kanban, dan sinkronisasi offline berkecepatan tinggi."
     },
     {
-      id: 11,
+      id: 10,
       title: "Undangan Online",
       category: "Mobile Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757921841.png",
@@ -264,7 +251,7 @@ export const defaultProfileData = {
       description: "Aplikasi undangan digital interaktif responsif dengan RSVP online real-time, amplop digital QRIS, latar belakang audio kustom, dan buku tamu digital."
     },
     {
-      id: 12,
+      id: 11,
       title: "KASKOS WEB",
       category: "Web Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757921680.png",
@@ -277,7 +264,7 @@ export const defaultProfileData = {
       description: "Versi dashboard web untuk ekosistem Kaskos. Menghubungkan penghuni kos dengan pemilik properti secara terpusat untuk monitoring kamar, tagihan, dan pemeliharaan fasilitas."
     },
     {
-      id: 13,
+      id: 12,
       title: "POS KELONTONG",
       category: "Web Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757921852.png",
@@ -290,7 +277,7 @@ export const defaultProfileData = {
       description: "Point of Sales (POS) kasir toko kelontong berbasis web dengan dukungan barcode scanner, perhitungan stok barang otomatis, cetak struk thermal, dan laporan laba-rugi harian."
     },
     {
-      id: 14,
+      id: 13,
       title: "E-TPQ WHATSAPP BLAST",
       category: "Web Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757921861.png",
@@ -303,7 +290,7 @@ export const defaultProfileData = {
       description: "Sistem administrasi santri TPQ terintegrasi gateway WhatsApp untuk pengiriman laporan nilai, SPP, dan absensi otomatis kepada wali santri dengan proteksi anti-spam."
     },
     {
-      id: 15,
+      id: 14,
       title: "E-PENSIUN",
       category: "Web Development",
       image: "https://baydev.my.id/assets/backend/images/portofolio/1757921947.png",
@@ -316,8 +303,8 @@ export const defaultProfileData = {
       description: "Aplikasi rekapitulasi pensiun pegawai instansi pemerintahan dengan verifikasi berkas digital, penelusuran status berkas pensiun, dan proyeksi dana tunjangan secara transparan."
     },
     {
-      id: 16,
-      title: "Dual-Server Homelab HA Cluster (Node .145 & Standby .146)",
+      id: 15,
+      title: "Dual-Server Homelab HA Cluster (Primary & Standby Nodes)",
       category: "DevOps & Homelab",
       image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80",
       link: "https://info.baydev.my.id",
@@ -326,14 +313,14 @@ export const defaultProfileData = {
       project_role: "Lead DevOps & Infrastructure Engineer",
       tech_stack: ["Debian Linux", "Nginx FastCGI", "PHP 8.4", "PostgreSQL 17", "Bash Scripting", "Cloudflare Zero-Trust"],
       metrics: ["99.9% High Availability Uptime", "<15ms Ultra-Low Latency", "0 MB Idle PHP RAM (Ondemand)", "Dual-Server Sync Mirror"],
-      description: "Arsitektur infrastruktur server fisik mandiri dengan sinkronisasi dual-server (Server Utama 192.168.100.145 & Standby Server 192.168.100.146). Menjalankan Nginx FastCGI Unix Socket ondemand, rotasi backup PostgreSQL harian 7 hari, dan Cloudflare Zero-Trust Tunnel."
+      description: "Arsitektur infrastruktur server fisik mandiri dengan sinkronisasi dual-server (Server Utama & Standby Mirror). Menjalankan Nginx FastCGI Unix Socket ondemand, rotasi backup PostgreSQL harian 7 hari, dan Cloudflare Zero-Trust Tunnel."
     },
     {
-      id: 17,
+      id: 16,
       title: "BayOffice AI Agent Orchestration & Retro Canvas",
       category: "Web Development",
       image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80",
-      link: "http://192.168.100.145:8888",
+      link: "#",
       github_url: "https://github.com/BayuKun28",
       featured: true,
       project_role: "Fullstack & Automation Engineer",

@@ -12,9 +12,9 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [healthData, setHealthData] = useState({
     status: 'operational',
-    node: 'bay-homelab-node-01',
-    server_primary: '192.168.100.145',
-    server_standby: '192.168.100.146',
+    node: 'bay-homelab-cluster',
+    server_primary: 'Primary Node (Host Utama)',
+    server_standby: 'Standby Mirror (HA Replica)',
     os: 'Debian GNU/Linux 12',
     latency: 12,
   });
@@ -197,10 +197,10 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
             <div className="p-3 border-2 border-black dark:border-slate-700 bg-neo-offwhite dark:bg-[#1E293B]">
               <div className="font-black uppercase text-gray-500 dark:text-slate-400 text-[10px] flex items-center gap-1 mb-1">
                 <Server className="w-3.5 h-3.5 text-neo-pink" />
-                <span>Primary Server (145):</span>
+                <span>Primary Node:</span>
               </div>
               <div className="font-mono font-black text-black dark:text-white">
-                192.168.100.145 (Host Utama)
+                Host Utama (Bare-Metal)
               </div>
               <div className="text-[10px] text-gray-600 dark:text-slate-400 mt-0.5">
                 Nginx FastCGI • PHP 8.4 • PostgreSQL 17
@@ -210,10 +210,10 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
             <div className="p-3 border-2 border-black dark:border-slate-700 bg-neo-offwhite dark:bg-[#1E293B]">
               <div className="font-black uppercase text-gray-500 dark:text-slate-400 text-[10px] flex items-center gap-1 mb-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-neo-cyan" />
-                <span>Standby Mirror (146):</span>
+                <span>Standby Mirror:</span>
               </div>
               <div className="font-mono font-black text-black dark:text-white">
-                192.168.100.146 (HA Replica)
+                HA Standby Replica
               </div>
               <div className="text-[10px] text-gray-600 dark:text-slate-400 mt-0.5">
                 Nginx FastCGI • PHP 8.3 Standby Mirror

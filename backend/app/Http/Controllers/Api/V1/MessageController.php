@@ -18,6 +18,7 @@ class MessageController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'subject' => 'nullable|string|max:255',
+            'project_type' => 'nullable|string|max:100',
             'message' => 'required|string|max:5000',
         ]);
 
@@ -25,12 +26,14 @@ class MessageController extends Controller
         $sanitizedName = trim(strip_tags($validated['name']));
         $sanitizedEmail = trim(filter_var($validated['email'], FILTER_SANITIZE_EMAIL));
         $sanitizedSubject = isset($validated['subject']) ? trim(strip_tags($validated['subject'])) : null;
+        $sanitizedProjectType = isset($validated['project_type']) ? trim(strip_tags($validated['project_type'])) : null;
         $sanitizedMessage = trim(strip_tags($validated['message']));
 
         $message = Message::create([
             'name' => $sanitizedName,
             'email' => $sanitizedEmail,
             'subject' => $sanitizedSubject,
+            'project_type' => $sanitizedProjectType,
             'message' => $sanitizedMessage,
             'is_read' => false,
             'ip_address' => $request->ip(),

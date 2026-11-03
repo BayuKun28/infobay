@@ -36,9 +36,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/health', function () {
         return response()->json([
             'status' => 'operational',
-            'node' => 'bay-homelab-node-01',
-            'server_primary' => '192.168.100.145',
-            'server_standby' => '192.168.100.146',
+            'node' => 'bay-homelab-cluster',
+            'server_primary' => 'Primary Node (Host Utama)',
+            'server_standby' => 'Standby Mirror (HA Replica)',
             'os' => 'Debian GNU/Linux 12 (bookworm)',
             'environment' => 'Self-Hosted Dual-Server Homelab',
             'php_version' => PHP_VERSION,

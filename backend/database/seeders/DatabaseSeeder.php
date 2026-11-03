@@ -174,6 +174,11 @@ class DatabaseSeeder extends Seeder
                     'category' => $item['category'] ?? 'Web Development',
                     'image' => $item['image'] ?? null,
                     'link' => $item['link'] ?? null,
+                    'github_url' => $item['github_url'] ?? null,
+                    'project_role' => $item['project_role'] ?? null,
+                    'tech_stack' => $item['tech_stack'] ?? null,
+                    'metrics' => $item['metrics'] ?? null,
+                    'is_featured' => $item['is_featured'] ?? ($item['featured'] ?? false),
                     'description' => $item['description'] ?? null,
                 ]);
             }

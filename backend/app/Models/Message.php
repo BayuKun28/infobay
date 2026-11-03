@@ -13,6 +13,7 @@ class Message extends Model
         'name',
         'email',
         'subject',
+        'project_type',
         'message',
         'is_read',
         'ip_address',

@@ -15,5 +15,16 @@ class Portfolio extends Model
         'image',
         'link',
         'description',
+        'tech_stack',
+        'github_url',
+        'project_role',
+        'metrics',
+        'is_featured',
+    ];
+
+    protected $casts = [
+        'tech_stack' => 'array',
+        'metrics' => 'array',
+        'is_featured' => 'boolean',
     ];
 }
