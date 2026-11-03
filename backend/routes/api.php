@@ -32,6 +32,20 @@ Route::prefix('v1')->group(function () {
     Route::get('/certifications/{id}', [CertificationController::class, 'show']);
     Route::post('/messages', [MessageController::class, 'store']);
 
+    // Health & Homelab Node Status Endpoint (HABIBIE PLAN-20261103-01)
+    Route::get('/health', function () {
+        return response()->json([
+            'status' => 'operational',
+            'node' => 'bay-homelab-node-01',
+            'server_primary' => '192.168.100.145',
+            'server_standby' => '192.168.100.146',
+            'os' => 'Debian GNU/Linux 12 (bookworm)',
+            'environment' => 'Self-Hosted Dual-Server Homelab',
+            'php_version' => PHP_VERSION,
+            'timestamp' => time(),
+        ])->header('Cache-Control', 'public, max-age=30');
+    });
+
     // SEO & Crawler Endpoints
     Route::get('/seo-meta', [SeoController::class, 'seoMeta']);
     Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);

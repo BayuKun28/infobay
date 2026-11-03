@@ -6,24 +6,84 @@ import { useLanguage } from '../../hooks';
 export default function Portfolio({ portfolios = [] }) {
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [selectedTech, setSelectedTech] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalProject, setActiveModalProject] = useState(null);
 
   const itemsPerPage = 6; // 2 rows x 3 columns
 
-  // Available categories
+  // Extract all categories dynamically
   const categories = useMemo(() => {
     const set = new Set(portfolios.map((p) => p.category).filter(Boolean));
     return ['ALL', ...Array.from(set)];
   }, [portfolios]);
 
-  // Filtered portfolio list
+  // Extract top tech tags dynamically from portfolios
+  const techTags = useMemo(() => {
+    const tagCount = new Map();
+    portfolios.forEach((p) => {
+      if (Array.isArray(p.tech_stack)) {
+        p.tech_stack.forEach((tech) => {
+          const name = typeof tech === 'object' ? tech.name : tech;
+          if (name && typeof name === 'string') {
+            const clean = name.trim();
+            tagCount.set(clean, (tagCount.get(clean) || 0) + 1);
+          }
+        });
+      }
+    });
+
+    // Curate popular tags (sorted by frequency)
+    const sorted = Array.from(tagCount.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name);
+
+    // Pick top 8 tags for clean, non-cluttered pills
+    return sorted.slice(0, 8);
+  }, [portfolios]);
+
+  // Realtime Filtered Portfolio List (Zero lag client-side)
   const filteredPortfolios = useMemo(() => {
-    if (selectedCategory === 'ALL') return portfolios;
-    return portfolios.filter(
-      (p) => p.category?.toLowerCase() === selectedCategory.toLowerCase()
-    );
-  }, [portfolios, selectedCategory]);
+    const query = searchQuery.trim().toLowerCase();
+
+    return portfolios.filter((item) => {
+      // 1. Category match
+      if (selectedCategory !== 'ALL') {
+        const cat = (item.category || '').toLowerCase();
+        if (cat !== selectedCategory.toLowerCase()) return false;
+      }
+
+      // 2. Tech tag match
+      if (selectedTech !== 'ALL') {
+        const itemTechs = Array.isArray(item.tech_stack)
+          ? item.tech_stack.map((t) => (typeof t === 'object' ? t.name : t).toLowerCase())
+          : [];
+        const hasTech = itemTechs.some((t) => t.includes(selectedTech.toLowerCase()));
+        if (!hasTech) return false;
+      }
+
+      // 3. Search query match (Title, description, project_role, tech_stack)
+      if (query) {
+        const titleMatch = (item.title || '').toLowerCase().includes(query);
+        const descMatch = (item.description || '').toLowerCase().includes(query);
+        const roleMatch = (item.project_role || '').toLowerCase().includes(query);
+        const catMatch = (item.category || '').toLowerCase().includes(query);
+        const techMatch = Array.isArray(item.tech_stack)
+          ? item.tech_stack.some((t) => {
+              const name = typeof t === 'object' ? t.name : t;
+              return (name || '').toLowerCase().includes(query);
+            })
+          : false;
+
+        if (!titleMatch && !descMatch && !roleMatch && !catMatch && !techMatch) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [portfolios, selectedCategory, selectedTech, searchQuery]);
 
   const totalPages = Math.ceil(filteredPortfolios.length / itemsPerPage) || 1;
   const activePage = Math.max(1, Math.min(currentPage, totalPages));
@@ -36,34 +96,58 @@ export default function Portfolio({ portfolios = [] }) {
 
   const handleCategorySelect = (cat) => {
     setSelectedCategory(cat);
-    setCurrentPage(1); // Reset to page 1 on category filter change
+    setCurrentPage(1);
+  };
+
+  const handleTechSelect = (tech) => {
+    setSelectedTech(tech);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory('ALL');
+    setSelectedTech('ALL');
+    setSearchQuery('');
+    setCurrentPage(1);
   };
 
   return (
     <section id="portfolio" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-[#FFFDF0] dark:bg-[#0B0F19] transition-colors duration-150">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div>
-          <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
-            {t('portfolio.badge', '04 / SHOWCASE KARYA TERPILIH')}
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-2 uppercase">
-            {t('portfolio.title', '15+ PORTOFOLIO NYATA')}
-          </h2>
-          <p className="font-bold text-gray-800 dark:text-slate-300 text-sm sm:text-base">
-            {t('portfolio.subtitle', 'Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, dan aplikasi mobile.')}
-          </p>
+      <div className="mb-10">
+        <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
+          {t('portfolio.badge', '04 / SHOWCASE KARYA TERPILIH')}
         </div>
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-2 uppercase">
+          {t('portfolio.title', '17+ PORTOFOLIO NYATA')}
+        </h2>
+        <p className="font-bold text-gray-800 dark:text-slate-300 text-sm sm:text-base max-w-3xl">
+          {t('portfolio.subtitle', 'Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, aplikasi mobile, dan infrastruktur homelab.')}
+        </p>
+      </div>
 
-        {/* Category Filter Pills */}
+      {/* Realtime Search & Category/Tech Filter Bar */}
+      <div className="mb-10 bg-neo-cream dark:bg-[#151D2F] p-4 sm:p-6 border-3 border-black dark:border-slate-700 shadow-neo">
         <PortfolioFilter
           categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
+          techTags={techTags}
+          selectedTech={selectedTech}
+          onSelectTech={handleTechSelect}
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onResetFilters={handleResetFilters}
+          totalResults={filteredPortfolios.length}
         />
       </div>
 
-      {/* Grid of Portfolio Cards (6 items) */}
+      {/* Grid of Portfolio Cards (6 items per page) */}
       <PortfolioGrid
         items={paginatedPortfolios}
         onSelectDetail={setActiveModalProject}
@@ -73,34 +157,36 @@ export default function Portfolio({ portfolios = [] }) {
 
       {/* No Results Fallback */}
       {filteredPortfolios.length === 0 && (
-        <div className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-12 text-center shadow-neo-lg max-w-md mx-auto">
-          <p className="font-black text-lg text-black dark:text-white mb-2 uppercase">
+        <div className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] p-10 sm:p-14 text-center shadow-neo-lg max-w-lg mx-auto">
+          <p className="font-black text-xl text-black dark:text-white mb-2 uppercase">
             {t('portfolio.not_found', 'TIDAK ADA PROYEK DITEMUKAN')}
           </p>
-          <p className="text-sm font-bold text-gray-600 dark:text-slate-400 mb-4">
-            {t('portfolio.select_other', 'Silakan pilih kategori lain.')}
+          <p className="text-sm font-bold text-gray-600 dark:text-slate-400 mb-6">
+            {t('portfolio.select_other', 'Silakan pilih kategori atau tag teknologi lain, atau reset kata kunci pencarian Anda.')}
           </p>
           <button
-            onClick={() => handleCategorySelect('ALL')}
-            className="neo-btn bg-neo-yellow text-black text-xs"
+            onClick={handleResetFilters}
+            className="neo-btn bg-neo-yellow text-black font-black text-xs uppercase"
           >
-            {t('portfolio.view_all', 'LIHAT SEMUA PROYEK')}
+            {t('portfolio.reset_filter', 'RESET SEMUA FILTER')}
           </button>
         </div>
       )}
 
       {/* Proportional Neubrutalism Pagination Controls */}
-      <NeubrutalismPagination
-        currentPage={activePage}
-        totalPages={totalPages}
-        totalItems={filteredPortfolios.length}
-        itemsPerPage={itemsPerPage}
-        onPageChange={setCurrentPage}
-        targetSectionId="portfolio"
-        itemLabel={t('portfolio.items_label', 'proyek')}
-      />
+      {filteredPortfolios.length > 0 && (
+        <NeubrutalismPagination
+          currentPage={activePage}
+          totalPages={totalPages}
+          totalItems={filteredPortfolios.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          targetSectionId="portfolio"
+          itemLabel={t('portfolio.items_label', 'proyek')}
+        />
+      )}
 
-      {/* Detailed Preview Modal */}
+      {/* Detailed Preview Modal with Case Study Metrics */}
       <PortfolioDetailModal
         project={activeModalProject}
         onClose={() => setActiveModalProject(null)}

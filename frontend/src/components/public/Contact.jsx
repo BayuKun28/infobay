@@ -1,10 +1,25 @@
-import React from 'react';
-import { Mail, Phone, MapPin, MessageSquare, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, MapPin, MessageSquare, ExternalLink, Copy, Check } from 'lucide-react';
 import ContactForm from '../portfolio/ContactForm';
 import { useLanguage } from '../../hooks';
 
 export default function Contact({ biodata }) {
   const { t } = useLanguage();
+  const [copiedField, setCopiedField] = useState(null);
+
+  const handleCopy = (text, field, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+    }
+    setCopiedField(field);
+    setTimeout(() => {
+      setCopiedField(null);
+    }, 2000);
+  };
 
   return (
     <section id="contact" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-white dark:bg-[#0B0F19] transition-colors duration-150">
@@ -31,41 +46,91 @@ export default function Contact({ biodata }) {
             </h3>
 
             <div className="space-y-3">
-              <a
-                href={`mailto:${biodata?.email || 'bayukundev@gmail.com'}`}
-                className="flex items-center gap-3 p-3 bg-white dark:bg-[#1E293B] border-2 border-black dark:border-slate-700 shadow-neo-sm hover:translate-x-1 transition-transform group"
-              >
-                <div className="p-2 bg-neo-mint border border-black text-black">
-                  <Mail className="w-5 h-5 text-black" />
-                </div>
-                <div>
-                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
-                    {t('contact.email_label', 'Email Address')}
+              <div className="flex items-center justify-between gap-3 p-3 bg-white dark:bg-[#1E293B] border-2 border-black dark:border-slate-700 shadow-neo-sm group">
+                <a
+                  href={`mailto:${biodata?.email || 'bayukundev@gmail.com'}`}
+                  className="flex items-center gap-3 flex-1 min-w-0"
+                >
+                  <div className="p-2 bg-neo-mint border border-black text-black flex-shrink-0">
+                    <Mail className="w-5 h-5 text-black" />
                   </div>
-                  <div className="font-bold text-sm text-black dark:text-white group-hover:underline">
-                    {biodata?.email || 'bayukundev@gmail.com'}
+                  <div className="truncate">
+                    <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
+                      {t('contact.email_label', 'Email Address')}
+                    </div>
+                    <div className="font-bold text-sm text-black dark:text-white group-hover:underline truncate">
+                      {biodata?.email || 'bayukundev@gmail.com'}
+                    </div>
                   </div>
-                </div>
-              </a>
+                </a>
 
-              <a
-                href={`https://wa.me/62${(biodata?.phone || '08991907216').replace(/^0/, '')}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 p-3 bg-white dark:bg-[#1E293B] border-2 border-black dark:border-slate-700 shadow-neo-sm hover:translate-x-1 transition-transform group"
-              >
-                <div className="p-2 bg-neo-pink border border-black text-black">
-                  <Phone className="w-5 h-5 text-black" />
-                </div>
-                <div>
-                  <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
-                    {t('contact.phone_label', 'Phone / WhatsApp')}
+                <button
+                  type="button"
+                  onClick={(e) => handleCopy(biodata?.email || 'bayukundev@gmail.com', 'email', e)}
+                  className={`px-2.5 py-1 text-[11px] font-black uppercase border-2 border-black shadow-neo-sm transition-all flex items-center gap-1 cursor-pointer select-none flex-shrink-0 ${
+                    copiedField === 'email'
+                      ? 'bg-neo-mint text-black scale-105 shadow-none'
+                      : 'bg-neo-yellow text-black hover:bg-black hover:text-white'
+                  }`}
+                  title={t('contact.copy_btn', 'Salin Email')}
+                >
+                  {copiedField === 'email' ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>{t('contact.copied', '✓ TERSALIN!')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>{t('contact.copy_btn', 'SALIN')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 p-3 bg-white dark:bg-[#1E293B] border-2 border-black dark:border-slate-700 shadow-neo-sm group">
+                <a
+                  href={`https://wa.me/62${(biodata?.phone || '08991907216').replace(/^0/, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 flex-1 min-w-0"
+                >
+                  <div className="p-2 bg-neo-pink border border-black text-black flex-shrink-0">
+                    <Phone className="w-5 h-5 text-black" />
                   </div>
-                  <div className="font-bold text-sm text-black dark:text-white group-hover:underline">
-                    {biodata?.phone || '08991907216'}
+                  <div className="truncate">
+                    <div className="text-[11px] font-black uppercase text-gray-600 dark:text-slate-400">
+                      {t('contact.phone_label', 'Phone / WhatsApp')}
+                    </div>
+                    <div className="font-bold text-sm text-black dark:text-white group-hover:underline truncate">
+                      {biodata?.phone || '08991907216'}
+                    </div>
                   </div>
-                </div>
-              </a>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={(e) => handleCopy(biodata?.phone || '08991907216', 'phone', e)}
+                  className={`px-2.5 py-1 text-[11px] font-black uppercase border-2 border-black shadow-neo-sm transition-all flex items-center gap-1 cursor-pointer select-none flex-shrink-0 ${
+                    copiedField === 'phone'
+                      ? 'bg-neo-mint text-black scale-105 shadow-none'
+                      : 'bg-neo-yellow text-black hover:bg-black hover:text-white'
+                  }`}
+                  title={t('contact.copy_btn', 'Salin Nomor WhatsApp')}
+                >
+                  {copiedField === 'phone' ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>{t('contact.copied', '✓ TERSALIN!')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>{t('contact.copy_btn', 'SALIN')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
               <div className="flex items-center gap-3 p-3 bg-white dark:bg-[#1E293B] border-2 border-black dark:border-slate-700 shadow-neo-sm">
                 <div className="p-2 bg-neo-cyan border border-black text-black">

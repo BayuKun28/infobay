@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Eye, Code, Smartphone } from 'lucide-react';
+import { ExternalLink, Eye, Code, Smartphone, Server, Star, Zap } from 'lucide-react';
 import { useLanguage } from '../../hooks';
 
 export default function PortfolioGrid({
@@ -13,9 +13,24 @@ export default function PortfolioGrid({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {items.map((item, index) => {
-        const isWeb = item.category?.toLowerCase().includes('web');
-        const badgeBg = isWeb ? 'bg-neo-mint' : 'bg-neo-pink';
+        const catLower = (item.category || '').toLowerCase();
+        const isWeb = catLower.includes('web');
+        const isMobile = catLower.includes('mobile');
+        const isHomelab = catLower.includes('homelab') || catLower.includes('devops');
+        
+        let badgeBg = 'bg-neo-mint';
+        let CategoryIcon = Code;
+        if (isMobile) {
+          badgeBg = 'bg-neo-pink';
+          CategoryIcon = Smartphone;
+        } else if (isHomelab) {
+          badgeBg = 'bg-neo-yellow';
+          CategoryIcon = Server;
+        }
+
         const globalIndex = (activePage - 1) * itemsPerPage + index + 1;
+        const techPreview = Array.isArray(item.tech_stack) ? item.tech_stack.slice(0, 3) : [];
+        const primaryMetric = Array.isArray(item.metrics) && item.metrics.length > 0 ? item.metrics[0] : null;
 
         return (
           <div
@@ -34,29 +49,73 @@ export default function PortfolioGrid({
                       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80';
                   }}
                 />
+                
                 {/* Category Badge overlay */}
                 <div
-                  className={`absolute top-3 left-3 ${badgeBg} border-2 border-black text-black px-2.5 py-0.5 font-black text-[11px] uppercase tracking-wider shadow-neo-sm flex items-center gap-1`}
+                  className={`absolute top-3 left-3 ${badgeBg} border-2 border-black text-black px-2.5 py-0.5 font-black text-[11px] uppercase tracking-wider shadow-neo-sm flex items-center gap-1 z-10`}
                 >
-                  {isWeb ? <Code className="w-3.5 h-3.5 text-black" /> : <Smartphone className="w-3.5 h-3.5 text-black" />}
+                  <CategoryIcon className="w-3.5 h-3.5 text-black" />
                   <span>{item.category || 'Development'}</span>
                 </div>
 
+                {/* Featured Ribbon Badge */}
+                {item.featured && (
+                  <div className="absolute bottom-3 left-3 bg-neo-yellow border-2 border-black text-black px-2 py-0.5 font-black text-[10px] uppercase tracking-widest shadow-neo-sm flex items-center gap-1 z-10">
+                    <Star className="w-3 h-3 fill-black text-black" />
+                    <span>FEATURED</span>
+                  </div>
+                )}
+
                 {/* Project Number */}
-                <div className="absolute top-3 right-3 bg-black dark:bg-slate-900 border border-black dark:border-slate-700 text-white px-2 py-0.5 font-mono text-[10px] font-bold">
+                <div className="absolute top-3 right-3 bg-black dark:bg-slate-900 border border-black dark:border-slate-700 text-white px-2 py-0.5 font-mono text-[10px] font-bold z-10">
                   #{String(item.id || globalIndex).padStart(2, '0')}
                 </div>
               </div>
 
               {/* Card Content */}
               <div className="p-5">
+                {/* Project Role Pill */}
+                {item.project_role && (
+                  <div className="text-[11px] font-black uppercase tracking-wider text-neo-pink dark:text-neo-yellow mb-1.5 flex items-center gap-1">
+                    <span>{item.project_role}</span>
+                  </div>
+                )}
+
                 <h3 className="text-xl font-black text-black dark:text-white mb-2 tracking-tight line-clamp-1 group-hover:text-neo-pink dark:group-hover:text-neo-mint transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-sm font-semibold text-gray-700 dark:text-slate-300 leading-relaxed line-clamp-3 mb-4">
+                
+                <p className="text-sm font-semibold text-gray-700 dark:text-slate-300 leading-relaxed line-clamp-2 mb-3">
                   {item.description ||
                     'Aplikasi web/mobile terintegrasi dengan arsitektur tangguh dan pengalaman pengguna modern.'}
                 </p>
+
+                {/* Primary Metric Highlight (Habibie Plan) */}
+                {primaryMetric && (
+                  <div className="mb-3 px-2.5 py-1 bg-neo-offwhite dark:bg-[#1A2234] border border-black/30 dark:border-slate-700 text-[11px] font-extrabold text-black dark:text-slate-200 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-neo-yellow flex-shrink-0" />
+                    <span className="truncate">{primaryMetric}</span>
+                  </div>
+                )}
+
+                {/* Tech Stack Preview Pills (3 tags) */}
+                {techPreview.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {techPreview.map((tech, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 bg-neo-offwhite dark:bg-[#1E293B] border border-black dark:border-slate-600 text-black dark:text-slate-200 text-[10px] font-black tracking-wide"
+                      >
+                        #{typeof tech === 'object' ? tech.name || 'tech' : tech}
+                      </span>
+                    ))}
+                    {item.tech_stack && item.tech_stack.length > 3 && (
+                      <span className="px-1.5 py-0.5 bg-neo-yellow/30 dark:bg-neo-yellow/20 border border-black/40 dark:border-slate-600 text-[10px] font-black text-black dark:text-neo-yellow">
+                        +{item.tech_stack.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

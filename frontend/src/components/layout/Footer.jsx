@@ -20,7 +20,11 @@ export default function Footer({ biodata }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-black">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-black">
+            <span className="bg-neo-yellow text-black px-2.5 py-1 border border-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-none bg-green-600 animate-pulse border border-black" />
+              <span>DEBIAN HOMELAB CLUSTER (.145 &amp; .146)</span>
+            </span>
             <span className="bg-neo-pink text-black px-2.5 py-1 border border-white">
               {t('footer.neubrutalism', 'NEUBRUTALISM AUTHENTIC')}
             </span>

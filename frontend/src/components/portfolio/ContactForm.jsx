@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, RotateCcw, Sparkles } from 'lucide-react';
 import { messageService } from '../../services/api';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -13,9 +13,33 @@ export default function ContactForm({ className = '' }) {
     subject: '',
     message: '',
   });
+  const [projectType, setProjectType] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const projectTypes = [
+    { id: 'web', label: t('contact.quick_web', 'Web Application'), icon: '🌐' },
+    { id: 'api', label: t('contact.quick_api', 'Backend & REST API'), icon: '⚙️' },
+    { id: 'homelab', label: t('contact.quick_homelab', 'Homelab & DevOps'), icon: '🖥️' },
+    { id: 'consult', label: t('contact.quick_consult', 'Konsultasi IT & Audit'), icon: '💡' },
+    { id: 'mobile', label: t('contact.quick_mobile', 'Mobile App'), icon: '📱' },
+  ];
+
+  const handleSelectProjectType = (type) => {
+    if (projectType === type.label) {
+      setProjectType('');
+    } else {
+      setProjectType(type.label);
+      // Auto-suggest subject if empty or starts with previous type
+      if (!formData.subject || formData.subject.startsWith('Diskusi Proyek:')) {
+        setFormData((prev) => ({
+          ...prev,
+          subject: `Diskusi Proyek: ${type.label}`,
+        }));
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,14 +52,20 @@ export default function ContactForm({ className = '' }) {
     setErrorMsg(null);
 
     try {
+      const finalSubject = projectType && !formData.subject.includes(projectType)
+        ? `[${projectType}] ${formData.subject.trim() || 'Inquiry Proyek'}`
+        : formData.subject.trim() || undefined;
+
       await messageService.submitMessage({
         name: formData.name.trim(),
         email: formData.email.trim(),
-        subject: formData.subject.trim() || undefined,
+        subject: finalSubject,
         message: formData.message.trim(),
+        project_type: projectType || undefined,
       });
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
+      setProjectType('');
     } catch (err) {
       console.error('Submit message failed:', err);
       const resMsg =
@@ -87,6 +117,34 @@ export default function ContactForm({ className = '' }) {
               <span>{errorMsg}</span>
             </div>
           )}
+
+          {/* Quick-Pill Project Type Selector (HABIBIE PLAN-20261103-01) */}
+          <div className="space-y-2">
+            <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-slate-200 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-neo-pink" />
+              <span>{t('contact.project_type_label', 'Pilih Kategori Kebutuhan Proyek (Quick Selector):')}</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {projectTypes.map((type) => {
+                const isSelected = projectType === type.label;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => handleSelectProjectType(type)}
+                    className={`px-3 py-1.5 border-2 border-black dark:border-slate-600 font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-neo-yellow text-black shadow-neo translate-x-0.5 translate-y-0.5'
+                        : 'bg-neo-offwhite dark:bg-[#1E293B] text-black dark:text-slate-200 shadow-neo-sm hover:bg-neo-mint hover:text-black dark:hover:bg-neo-mint dark:hover:text-black'
+                    }`}
+                  >
+                    <span>{type.icon}</span>
+                    <span>{type.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
