@@ -560,3 +560,42 @@ export const categoryService = {
     return res.data;
   },
 };
+
+// System & Backup Governance Services
+export const backupService = {
+  async exportBackup() {
+    const res = await apiClient.get('/admin/backup/export', { responseType: 'blob' });
+    const blob = new Blob([res.data], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `infobay_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
+  },
+
+  async importBackup(payload) {
+    let headers = {};
+    if (payload instanceof FormData) {
+      headers['Content-Type'] = 'multipart/form-data';
+    }
+    const res = await apiClient.post('/admin/backup/import', payload, { headers });
+    return res.data;
+  },
+};
+
+export const systemService = {
+  async getHealth() {
+    const res = await apiClient.get('/admin/system/health');
+    return res.data;
+  },
+
+  async clearCache() {
+    const res = await apiClient.post('/admin/system/clear-cache');
+    return res.data;
+  },
+};
+

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\BiodataController;
 use App\Http\Controllers\Api\V1\CertificationController;
 use App\Http\Controllers\Api\V1\EducationController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\V1\PortfolioController;
 use App\Http\Controllers\Api\V1\SeoController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\SkillController;
+use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Controllers\Api\V1\TestimonialController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +73,14 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile', [AuthController::class, 'updateProfile']);
             // Media Upload
             Route::post('/upload', [PortfolioController::class, 'uploadImage']);
+
+            // System Maintenance & Health
+            Route::post('/system/clear-cache', [SystemController::class, 'clearCache']);
+            Route::get('/system/health', [SystemController::class, 'getSystemHealth']);
+
+            // Data Governance: Backup & Restore
+            Route::get('/backup/export', [BackupController::class, 'export']);
+            Route::post('/backup/import', [BackupController::class, 'import']);
 
             // Biodata
             Route::put('/biodata', [BiodataController::class, 'update']);

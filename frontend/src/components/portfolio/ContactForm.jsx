@@ -13,6 +13,7 @@ export default function ContactForm({ className = '' }) {
     subject: '',
     message: '',
   });
+  const [honeypot, setHoneypot] = useState('');
   const [projectType, setProjectType] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -62,6 +63,7 @@ export default function ContactForm({ className = '' }) {
         subject: finalSubject,
         message: formData.message.trim(),
         project_type: projectType || undefined,
+        website_hp: honeypot || undefined,
       });
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
@@ -111,6 +113,20 @@ export default function ContactForm({ className = '' }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Honeypot field for anti-spambots (invisible to humans) */}
+          <div style={{ display: 'none', position: 'absolute', left: '-9999px', opacity: 0 }} aria-hidden="true">
+            <label htmlFor="website_hp">Leave this empty</label>
+            <input
+              type="text"
+              id="website_hp"
+              name="website_hp"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+          </div>
+
           {errorMsg && (
             <div className="p-3 bg-red-100 dark:bg-red-950/80 border-2 border-red-500 text-red-700 dark:text-red-300 text-xs font-bold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -194,6 +210,18 @@ export default function ContactForm({ className = '' }) {
           >
             {loading ? t('contact.submitting', 'MENGIRIMKAN PESAN...') : t('contact.submit', 'KIRIM PESAN SEKARANG')}
           </Button>
+
+          {/* Direct WhatsApp Consultation Shortcut */}
+          <div className="pt-2 text-center">
+            <a
+              href="https://wa.me/628991907216?text=Halo%20Mas%20Bay,%20saya%20tertarik%20mendiskusikan%20kebutuhan%20proyek%20sistem%20web"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-black text-gray-700 dark:text-slate-300 hover:text-black dark:hover:text-neo-yellow underline underline-offset-4 decoration-2"
+            >
+              <span>{t('contact.wa_direct', '💬 Butuh respon cepat? Hubungi langsung via WhatsApp Resmi')}</span>
+            </a>
+          </div>
         </form>
       )}
     </div>

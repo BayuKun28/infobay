@@ -71,8 +71,11 @@ export default function PortfolioManager({
   const [currentId, setCurrentId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
+    client_name: '',
+    project_year: '',
     category: 'Web Development',
     image: '',
+    gallery: [],
     link: '#',
     github_url: '',
     project_role: '',
@@ -86,6 +89,9 @@ export default function PortfolioManager({
   const [newTechInput, setNewTechInput] = useState('');
   const [newMetricInput, setNewMetricInput] = useState('');
   const [newHighlightInput, setNewHighlightInput] = useState('');
+  const [newGalleryUrl, setNewGalleryUrl] = useState('');
+  const [newGalleryCaption, setNewGalleryCaption] = useState('');
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   // Local file upload state
   const [selectedFile, setSelectedFile] = useState(null);
@@ -170,8 +176,11 @@ export default function PortfolioManager({
 
     setFormData({
       title: '',
+      client_name: '',
+      project_year: new Date().getFullYear().toString(),
       category: defaultCat,
       image: '',
+      gallery: [],
       link: '#',
       github_url: '',
       project_role: '',
@@ -182,6 +191,8 @@ export default function PortfolioManager({
       metrics: [],
       highlights: ['PRODUCTION READY', 'SECURE ARCHITECTURE', 'RESPONSIVE DESIGN'],
     });
+    setNewGalleryUrl('');
+    setNewGalleryCaption('');
     setOpenForm(true);
   };
 
@@ -193,6 +204,21 @@ export default function PortfolioManager({
     setNewTechInput('');
     setNewMetricInput('');
     setNewHighlightInput('');
+    setNewGalleryUrl('');
+    setNewGalleryCaption('');
+
+    const parsedGallery = Array.isArray(item.gallery)
+      ? item.gallery
+      : typeof item.gallery === 'string'
+      ? (() => {
+          try {
+            const parsed = JSON.parse(item.gallery);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })()
+      : [];
 
     const parsedTech = Array.isArray(item.tech_stack)
       ? item.tech_stack.map((t) => (typeof t === 'object' && t !== null ? t.name || t.tag || '' : String(t))).filter(Boolean)
@@ -228,8 +254,11 @@ export default function PortfolioManager({
 
     setFormData({
       title: item.title || '',
+      client_name: item.client_name || '',
+      project_year: item.project_year || '',
       category: item.category || 'Web Development',
       image: item.image || '',
+      gallery: parsedGallery,
       link: item.link || '#',
       github_url: item.github_url || '',
       project_role: item.project_role || '',
@@ -295,6 +324,48 @@ export default function PortfolioManager({
       ...prev,
       highlights: prev.highlights.filter((_, idx) => idx !== indexToRemove),
     }));
+  };
+
+  const handleAddGalleryItem = (url, caption = '') => {
+    const targetUrl = url || newGalleryUrl.trim();
+    if (targetUrl) {
+      setFormData((prev) => ({
+        ...prev,
+        gallery: [...(prev.gallery || []), { url: targetUrl, caption: caption || newGalleryCaption.trim() }],
+      }));
+      setNewGalleryUrl('');
+      setNewGalleryCaption('');
+    }
+  };
+
+  const handleRemoveGalleryItem = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
+
+  const handleUploadGalleryFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Ukuran file maksimal 10MB', 'error');
+      return;
+    }
+    setUploadingGallery(true);
+    try {
+      const res = await adminService.uploadImage(file);
+      if (res?.url) {
+        handleAddGalleryItem(res.url, file.name.replace(/\.[^/.]+$/, ''));
+        showToast('Screenshot berhasil ditambahkan ke galeri', 'success');
+      }
+    } catch (err) {
+      console.error('Upload gallery screenshot failed:', err);
+      showToast('Gagal mengunggah screenshot galeri', 'error');
+    } finally {
+      setUploadingGallery(false);
+      e.target.value = '';
+    }
   };
 
   const handleFileChange = (e) => {
@@ -911,6 +982,11 @@ export default function PortfolioManager({
                           {item.project_role}
                         </Typography>
                       )}
+                      {(item.client_name || item.project_year) && (
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', fontSize: '0.68rem', fontWeight: 500 }}>
+                          {item.client_name ? `Klien: ${item.client_name}` : ''} {item.project_year ? `• ${item.project_year}` : ''}
+                        </Typography>
+                      )}
                       <Typography
                         variant="caption"
                         color="text.secondary"
@@ -1160,6 +1236,28 @@ export default function PortfolioManager({
               </Button>
             </Box>
 
+            {/* Client Name & Project Year */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 2 }}>
+              <TextField
+                label="Nama Klien / Lembaga Mitra"
+                fullWidth
+                value={formData.client_name}
+                onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+                size="small"
+                placeholder="Contoh: PT Jamkrida Jatim, Diskominfo"
+                helperText="Nama klien atau lembaga pemilik sistem (opsional)"
+              />
+              <TextField
+                label="Tahun Rilis"
+                fullWidth
+                value={formData.project_year}
+                onChange={(e) => setFormData({ ...formData, project_year: e.target.value })}
+                size="small"
+                placeholder="Contoh: 2024"
+                helperText="Tahun pengerjaan / rilis sistem"
+              />
+            </Box>
+
             {/* Project Role & Featured Toggle in 2-column Box */}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center' }}>
               <TextField
@@ -1288,6 +1386,116 @@ export default function PortfolioManager({
               placeholder="https://..."
               helperText="Bisa diisi URL gambar eksternal atau biarkan kosong jika mengunggah file di atas."
             />
+
+            {/* Multi-Screenshot Gallery Section (Studi Kasus Detail) */}
+            <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.88rem' }}>
+                    Galeri Screenshot &amp; Arsitektur
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Tangkapan layar tambahan untuk studi kasus detail pada modal portofolio publik.
+                  </Typography>
+                </Box>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  size="small"
+                  disabled={uploadingGallery}
+                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+                >
+                  {uploadingGallery ? 'Mengunggah...' : '+ Unggah Gambar'}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleUploadGalleryFile}
+                  />
+                </Button>
+              </Box>
+
+              {/* Input manual URL / Caption */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <TextField
+                  placeholder="URL Screenshot (/storage/... atau https://...)"
+                  size="small"
+                  fullWidth
+                  value={newGalleryUrl}
+                  onChange={(e) => setNewGalleryUrl(e.target.value)}
+                  sx={{ '.MuiInputBase-input': { fontSize: '0.82rem' } }}
+                />
+                <TextField
+                  placeholder="Keterangan singkat"
+                  size="small"
+                  value={newGalleryCaption}
+                  onChange={(e) => setNewGalleryCaption(e.target.value)}
+                  sx={{ width: { xs: '100%', sm: 180 }, '.MuiInputBase-input': { fontSize: '0.82rem' } }}
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleAddGalleryItem()}
+                  disabled={!newGalleryUrl.trim()}
+                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem', px: 2, whiteSpace: 'nowrap' }}
+                >
+                  Tambah
+                </Button>
+              </Box>
+
+              {/* Gallery Items Grid */}
+              {formData.gallery && formData.gallery.length > 0 ? (
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                  {formData.gallery.map((gItem, gIdx) => {
+                    const gUrl = typeof gItem === 'string' ? gItem : gItem.url;
+                    const gCaption = typeof gItem === 'object' ? gItem.caption : '';
+                    return (
+                      <Box
+                        key={gIdx}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1,
+                          border: 1,
+                          borderColor: 'divider',
+                          borderRadius: 1.5,
+                          bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={gUrl}
+                          alt="thumb"
+                          sx={{ width: 56, height: 40, objectFit: 'cover', borderRadius: 1, border: 1, borderColor: 'divider' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" sx={{ fontSize: '0.78rem', fontWeight: 600 }} noWrap>
+                            {gCaption || `Screenshot #${gIdx + 1}`}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap display="block">
+                            {gUrl}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveGalleryItem(gIdx)}
+                          title="Hapus screenshot"
+                        >
+                          <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              ) : (
+                <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic', display: 'block', textAlign: 'center', py: 1 }}>
+                  Belum ada screenshot tambahan.
+                </Typography>
+              )}
+            </Box>
 
             {/* Links: Demo Link & GitHub Source Code in 2-column Grid */}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>

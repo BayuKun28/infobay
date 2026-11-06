@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import NeubrutalismPagination from '../common/NeubrutalismPagination';
 import { PortfolioFilter, PortfolioGrid, PortfolioDetailModal } from '../portfolio';
 import { useLanguage } from '../../hooks';
@@ -12,6 +12,40 @@ export default function Portfolio({ portfolios = [] }) {
   const [activeModalProject, setActiveModalProject] = useState(null);
 
   const itemsPerPage = 6; // 2 rows x 3 columns
+
+  // Deep linking: read ?project=id from URL on load
+  useEffect(() => {
+    if (portfolios.length > 0 && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const projectId = params.get('project');
+      if (projectId) {
+        const found = portfolios.find(
+          (p) => String(p.id) === projectId || (p.title && p.title.toLowerCase().replace(/\s+/g, '-') === projectId)
+        );
+        if (found) {
+          setActiveModalProject(found);
+        }
+      }
+    }
+  }, [portfolios]);
+
+  const handleOpenDetail = (proj) => {
+    setActiveModalProject(proj);
+    if (proj?.id && typeof window !== 'undefined') {
+      const url = new URL(window.location);
+      url.searchParams.set('project', String(proj.id));
+      window.history.replaceState({}, '', url);
+    }
+  };
+
+  const handleCloseDetail = () => {
+    setActiveModalProject(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location);
+      url.searchParams.delete('project');
+      window.history.replaceState({}, '', url);
+    }
+  };
 
   // Extract all categories dynamically
   const categories = useMemo(() => {
@@ -150,7 +184,7 @@ export default function Portfolio({ portfolios = [] }) {
       {/* Grid of Portfolio Cards (6 items per page) */}
       <PortfolioGrid
         items={paginatedPortfolios}
-        onSelectDetail={setActiveModalProject}
+        onSelectDetail={handleOpenDetail}
         activePage={activePage}
         itemsPerPage={itemsPerPage}
       />
@@ -189,7 +223,7 @@ export default function Portfolio({ portfolios = [] }) {
       {/* Detailed Preview Modal with Case Study Metrics */}
       <PortfolioDetailModal
         project={activeModalProject}
-        onClose={() => setActiveModalProject(null)}
+        onClose={handleCloseDetail}
       />
     </section>
   );

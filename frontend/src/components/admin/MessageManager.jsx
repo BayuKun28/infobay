@@ -1037,10 +1037,12 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
               variant="contained"
               startIcon={<ReplyIcon fontSize="small" />}
               component="a"
-              href={`mailto:${selectedMessage?.email}?subject=Re: ${encodeURIComponent(selectedMessage?.subject || 'Balasan Pesan')}`}
+              href={`mailto:${selectedMessage?.email}?subject=Re: ${encodeURIComponent(selectedMessage?.subject || 'Tindak Lanjut Diskusi Proyek')}&body=${encodeURIComponent(
+                `Halo ${selectedMessage?.name || 'Bapak/Ibu'},\n\nTerima kasih telah menghubungi saya melalui website infobay terkait "${selectedMessage?.subject || 'Kebutuhan Proyek'}".\n\nSaya telah mempelajari pesan Anda:\n"${selectedMessage?.message ? (selectedMessage.message.length > 200 ? selectedMessage.message.slice(0, 200) + '...' : selectedMessage.message) : ''}"\n\nUntuk mendiskusikan arsitektur sistem, lingkup pekerjaan, dan estimasi waktu secara lebih detail, apakah Bapak/Ibu berkenan jika kita jadwalkan diskusi teknis via Google Meet atau WhatsApp?\n\nSalam hormat,\nBayu Prastyo (baydev)\nSenior Programmer & Fullstack Engineer\nWhatsApp: +62 899-1907-216\nWebsite: https://info.baydev.my.id`
+              )}`}
               sx={{ fontWeight: 700, fontSize: '0.8rem' }}
             >
-              Balas via Email
+              Balas via Email (Template Cepat)
             </Button>
           </Box>
         </DialogActions>

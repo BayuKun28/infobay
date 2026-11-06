@@ -678,6 +678,7 @@ export default function AdminLayout({
               recentPortfolios: data.portfolios || [],
             }}
             onNavigateTab={(tab) => setCurrentTab(tab)}
+            showToast={showToast}
           />
         )}
 

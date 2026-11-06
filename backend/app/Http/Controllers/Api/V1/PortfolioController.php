@@ -79,9 +79,12 @@ class PortfolioController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'client_name' => 'nullable|string|max:255',
+            'project_year' => 'nullable|string|max:50',
             'category' => 'required|string|max:100',
             'image' => 'nullable',
             'image_file' => 'nullable|image|max:10240',
+            'gallery' => 'nullable',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
             'tech_stack' => 'nullable',
@@ -92,6 +95,16 @@ class PortfolioController extends Controller
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize gallery (support array or JSON string)
+        if (isset($validated['gallery'])) {
+            if (is_string($validated['gallery'])) {
+                $decoded = json_decode($validated['gallery'], true);
+                $validated['gallery'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['gallery'])) {
+                $validated['gallery'] = [];
+            }
+        }
 
         // Normalize highlights (support array, JSON string, or comma/newline-separated string)
         if (isset($validated['highlights'])) {
@@ -169,9 +182,12 @@ class PortfolioController extends Controller
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
+            'client_name' => 'nullable|string|max:255',
+            'project_year' => 'nullable|string|max:50',
             'category' => 'sometimes|required|string|max:100',
             'image' => 'nullable',
             'image_file' => 'nullable|image|max:10240',
+            'gallery' => 'nullable',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
             'tech_stack' => 'nullable',
@@ -182,6 +198,16 @@ class PortfolioController extends Controller
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize gallery (support array or JSON string)
+        if (isset($validated['gallery'])) {
+            if (is_string($validated['gallery'])) {
+                $decoded = json_decode($validated['gallery'], true);
+                $validated['gallery'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['gallery'])) {
+                $validated['gallery'] = [];
+            }
+        }
 
         // Normalize highlights (support array, JSON string, or comma/newline-separated string)
         if (isset($validated['highlights'])) {

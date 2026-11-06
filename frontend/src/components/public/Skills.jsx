@@ -1,18 +1,50 @@
-import React from 'react';
-import { Cpu, Layers, Check, Terminal } from 'lucide-react';
+import React, { useState } from 'react';
+import { Cpu, Layers, Check, Terminal, Play, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../../hooks';
 
 export default function Skills({ skills = [], techStack = [], biodata = null }) {
   const { t } = useLanguage();
 
   const terminalHost = biodata?.terminal_widget?.user_host || 'baydev@workstation:~$';
-  const terminalLines = Array.isArray(biodata?.terminal_widget?.lines) && biodata.terminal_widget.lines.length > 0
+  const defaultTerminalLines = Array.isArray(biodata?.terminal_widget?.lines) && biodata.terminal_widget.lines.length > 0
     ? biodata.terminal_widget.lines
     : [
         'git checkout -b feature/high-performance',
         'composer check & npm test',
         'All 15+ production systems operational',
       ];
+
+  const [activeLines, setActiveLines] = useState(defaultTerminalLines);
+  const [executedCmd, setExecutedCmd] = useState('');
+
+  const handleRunCommand = (cmd) => {
+    setExecutedCmd(cmd);
+    if (cmd === 'whoami') {
+      setActiveLines([
+        `$ ${cmd}`,
+        'baydev (Bayu Prastyo)',
+        'Role: Senior Programmer & Distributed API Systems Engineer',
+        'Status: Open for Contract, Remote, or High-Impact Engineering Roles',
+      ]);
+    } else if (cmd === 'uptime') {
+      setActiveLines([
+        `$ ${cmd}`,
+        'workstation up 1,520 days, load average: 0.12, 0.08, 0.05',
+        'Zero downtime record across 15+ government & corporate deployments',
+      ]);
+    } else if (cmd === 'curl /stack') {
+      setActiveLines([
+        `$ ${cmd}`,
+        'Backend: Laravel 12, PHP 8.4 (Ondemand FastCGI), Sanctum',
+        'Database: PostgreSQL 17 (Indexed & Relational Schema)',
+        'Frontend: React 18, Vite, Tailwind CSS Neubrutalism, Material-UI',
+        'Infrastructure: Debian GNU/Linux 12, Nginx Reverse-Proxy, Cloudflare Tunnel',
+      ]);
+    } else if (cmd === 'clear') {
+      setActiveLines(defaultTerminalLines);
+      setExecutedCmd('');
+    }
+  };
 
   return (
     <section id="skills" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-white dark:bg-[#0B0F19] transition-colors duration-150">
@@ -106,21 +138,42 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
             </div>
           </div>
 
-          {/* Quick Terminal Box */}
+          {/* Interactive Workstation Terminal Box */}
           <div className="border-3 border-black dark:border-slate-700 bg-black text-white p-5 shadow-neo-lg font-mono text-xs">
-            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-gray-800 text-neo-yellow">
-              <Terminal className="w-4 h-4" />
-              <span className="font-bold">{terminalHost}</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-gray-800">
+              <div className="flex items-center gap-2 text-neo-yellow">
+                <Terminal className="w-4 h-4" />
+                <span className="font-bold">{terminalHost}</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {['whoami', 'uptime', 'curl /stack', 'clear'].map((cmd) => (
+                  <button
+                    key={cmd}
+                    type="button"
+                    onClick={() => handleRunCommand(cmd)}
+                    className={`px-2 py-0.5 border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
+                      executedCmd === cmd
+                        ? 'bg-neo-yellow text-black border-neo-yellow'
+                        : 'bg-gray-900 border-gray-700 text-gray-300 hover:border-neo-yellow hover:text-neo-yellow'
+                    }`}
+                  >
+                    {cmd === 'clear' ? '↺ reset' : `$ ${cmd}`}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="space-y-1 text-gray-300">
-              {terminalLines.map((line, lIdx) => {
+            <div className="space-y-1.5 text-gray-300 min-h-[70px]">
+              {activeLines.map((line, lIdx) => {
                 const bulletColors = ['text-neo-mint', 'text-neo-pink', 'text-neo-yellow', 'text-neo-cyan'];
-                const isCheck = line.toLowerCase().includes('operational') || line.toLowerCase().includes('ready') || line.toLowerCase().includes('success');
+                const isCheck = line.toLowerCase().includes('operational') || line.toLowerCase().includes('ready') || line.toLowerCase().includes('success') || line.toLowerCase().includes('zero downtime');
+                const isPrompt = line.startsWith('$');
                 return (
-                  <p key={lIdx}>
-                    <span className={isCheck ? 'text-neo-yellow' : bulletColors[lIdx % bulletColors.length]}>
-                      {isCheck ? '✔' : '➜'}
-                    </span>{' '}
+                  <p key={lIdx} className={isPrompt ? 'text-neo-yellow font-bold' : ''}>
+                    {!isPrompt && (
+                      <span className={isCheck ? 'text-neo-yellow' : bulletColors[lIdx % bulletColors.length]}>
+                        {isCheck ? '✔' : '➜'}{' '}
+                      </span>
+                    )}
                     {line}
                   </p>
                 );

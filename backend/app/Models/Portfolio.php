@@ -11,8 +11,11 @@ class Portfolio extends Model
 
     protected $fillable = [
         'title',
+        'client_name',
+        'project_year',
         'category',
         'image',
+        'gallery',
         'link',
         'description',
         'tech_stack',
@@ -25,6 +28,7 @@ class Portfolio extends Model
     ];
 
     protected $casts = [
+        'gallery' => 'array',
         'tech_stack' => 'array',
         'metrics' => 'array',
         'highlights' => 'array',

@@ -14,6 +14,14 @@ class MessageController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        // Honeypot anti-spam check: bots fill hidden trap fields automatically
+        if (!empty($request->input('website_hp')) || !empty($request->input('honeypot'))) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pesan berhasil dikirim. Terima kasih telah menghubungi kami!',
+            ], 201);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',

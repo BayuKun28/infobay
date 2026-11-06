@@ -1,15 +1,52 @@
-import React from 'react';
-import { ExternalLink, Github, Zap, Layers, UserCheck, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, Github, Zap, Layers, UserCheck, ShieldCheck, Share2, Check, Building2, Calendar } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { useLanguage } from '../../hooks';
 
 export default function PortfolioDetailModal({ project, onClose }) {
   const { t } = useLanguage();
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [activeImage, setActiveImage] = useState(project?.image || '');
+
+  useEffect(() => {
+    if (project?.image) {
+      setActiveImage(project.image);
+    }
+  }, [project]);
+
   if (!project) return null;
 
   const techList = Array.isArray(project.tech_stack) ? project.tech_stack : [];
   const metricsList = Array.isArray(project.metrics) ? project.metrics : [];
+
+  // Parse gallery screenshots
+  const galleryList = Array.isArray(project.gallery)
+    ? project.gallery
+    : typeof project.gallery === 'string'
+    ? (() => {
+        try {
+          const parsed = JSON.parse(project.gallery);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })()
+    : [];
+
+  // Combine cover image with additional gallery screenshots
+  const allImages = [
+    ...(project.image ? [{ url: project.image, caption: 'Main Preview' }] : []),
+    ...galleryList.map((g) => (typeof g === 'string' ? { url: g, caption: 'Screenshot' } : g)),
+  ];
+
+  const handleCopyLink = () => {
+    const url = new URL(window.location.origin);
+    url.searchParams.set('project', String(project.id));
+    navigator.clipboard.writeText(url.toString());
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
 
   return (
     <Modal
@@ -19,46 +56,58 @@ export default function PortfolioDetailModal({ project, onClose }) {
       subtitle={project.category}
       maxWidth="max-w-3xl"
       footer={
-        <div className="flex flex-wrap items-center justify-end gap-2.5 w-full sm:w-auto">
-          <Button variant="white" size="sm" onClick={onClose}>
-            {t('portfolio.modal_close', 'TUTUP')}
-          </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2.5 w-full">
+          {/* Share Deep Link Button */}
+          <button
+            onClick={handleCopyLink}
+            className="px-3 py-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-white dark:hover:text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 transition-all cursor-pointer"
+            title="Salin tautan langsung proyek ini"
+          >
+            {copiedLink ? <Check className="w-4 h-4 text-green-700" /> : <Share2 className="w-4 h-4" />}
+            <span>{copiedLink ? t('portfolio.link_copied', 'TAUTAN DISALIN!') : t('portfolio.share_link', 'BAGIKAN PROYEK')}</span>
+          </button>
 
-          {/* GitHub Source Code Button (HABIBIE PLAN) */}
-          {project.github_url && (
-            <a
-              href={project.github_url}
-              target="_blank"
-              rel="noreferrer"
-              className="px-3.5 py-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 text-black dark:text-white transition-all"
-            >
-              <Github className="w-4 h-4" />
-              <span>{t('portfolio.source_code', 'LIHAT SOURCE CODE')}</span>
-            </a>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="white" size="sm" onClick={onClose}>
+              {t('portfolio.modal_close', 'TUTUP')}
+            </Button>
 
-          {/* Live Website Button */}
-          {project.link && project.link !== '#' && (
-            <a
-              href={project.link}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 border-2 border-black bg-neo-yellow hover:bg-neo-mint font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 text-black transition-all"
-            >
-              <span>{t('portfolio.modal_visit', 'KUNJUNGI WEBSITE')}</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
+            {/* GitHub Source Code Button (HABIBIE PLAN) */}
+            {project.github_url && (
+              <a
+                href={project.github_url}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 text-black dark:text-white transition-all"
+              >
+                <Github className="w-4 h-4" />
+                <span>{t('portfolio.source_code', 'LIHAT SOURCE CODE')}</span>
+              </a>
+            )}
+
+            {/* Live Website Button */}
+            {project.link && project.link !== '#' && (
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 border-2 border-black bg-neo-yellow hover:bg-neo-mint font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 text-black transition-all"
+              >
+                <span>{t('portfolio.modal_visit', 'KUNJUNGI WEBSITE')}</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+          </div>
         </div>
       }
     >
       <div className="space-y-6">
-        {/* Modal Image */}
-        <div className="border-3 border-black dark:border-slate-700 overflow-hidden bg-neo-offwhite dark:bg-[#0F1626]">
+        {/* Modal Main Image Preview */}
+        <div className="border-3 border-black dark:border-slate-700 overflow-hidden bg-neo-offwhite dark:bg-[#0F1626] shadow-neo-sm">
           <img
-            src={project.image}
+            src={activeImage || project.image}
             alt={project.title}
-            className="w-full h-56 sm:h-72 object-cover object-top filter contrast-105"
+            className="w-full h-56 sm:h-80 object-cover object-top filter contrast-105 transition-all duration-200"
             onError={(e) => {
               e.target.src =
                 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80';
@@ -66,20 +115,82 @@ export default function PortfolioDetailModal({ project, onClose }) {
           />
         </div>
 
-        {/* Project Role & Status Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-neo-offwhite dark:bg-[#1A2234] border-2 border-black dark:border-slate-700 shadow-neo-sm">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-neo-yellow border border-black text-black">
-              <UserCheck className="w-4 h-4 text-black" />
+        {/* Multi-Screenshot Gallery Thumbnail Bar */}
+        {allImages.length > 1 && (
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-black uppercase text-gray-500 dark:text-slate-400 block tracking-wider">
+              {t('portfolio.gallery_label', 'Galeri Screenshot & Arsitektur Sistem:')}
             </span>
-            <div>
-              <span className="text-[10px] font-black uppercase text-gray-500 dark:text-slate-400 block leading-tight">
-                {t('portfolio.role_label', 'Peran Proyek')}
-              </span>
-              <span className="font-black text-xs sm:text-sm text-black dark:text-white">
-                {project.project_role || 'Senior Software Engineer'}
-              </span>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+              {allImages.map((imgItem, idx) => {
+                const isSelected = (activeImage || project.image) === imgItem.url;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImage(imgItem.url)}
+                    className={`shrink-0 w-20 h-14 border-2 border-black dark:border-slate-700 overflow-hidden transition-all cursor-pointer ${
+                      isSelected
+                        ? 'ring-2 ring-neo-yellow scale-105 shadow-neo'
+                        : 'opacity-70 hover:opacity-100 hover:scale-102'
+                    }`}
+                  >
+                    <img
+                      src={imgItem.url}
+                      alt={imgItem.caption || `Screenshot ${idx + 1}`}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </button>
+                );
+              })}
             </div>
+          </div>
+        )}
+
+        {/* Project Metadata Bar: Client, Year, Role & Status */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5 p-3.5 bg-neo-offwhite dark:bg-[#1A2234] border-2 border-black dark:border-slate-700 shadow-neo-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 bg-neo-yellow border border-black text-black">
+                <UserCheck className="w-4 h-4 text-black" />
+              </span>
+              <div>
+                <span className="text-[10px] font-black uppercase text-gray-500 dark:text-slate-400 block leading-tight">
+                  {t('portfolio.role_label', 'Peran Proyek')}
+                </span>
+                <span className="font-black text-xs sm:text-sm text-black dark:text-white">
+                  {project.project_role || 'Senior Software Engineer'}
+                </span>
+              </div>
+            </div>
+
+            {project.client_name && (
+              <div className="flex items-center gap-1.5 border-l-2 border-black/20 dark:border-slate-700 pl-3">
+                <Building2 className="w-4 h-4 text-gray-700 dark:text-slate-300" />
+                <div>
+                  <span className="text-[10px] font-black uppercase text-gray-500 dark:text-slate-400 block leading-tight">
+                    {t('portfolio.client_label', 'Klien / Mitra')}
+                  </span>
+                  <span className="font-black text-xs text-black dark:text-white">
+                    {project.client_name}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {project.project_year && (
+              <div className="flex items-center gap-1.5 border-l-2 border-black/20 dark:border-slate-700 pl-3">
+                <Calendar className="w-4 h-4 text-gray-700 dark:text-slate-300" />
+                <div>
+                  <span className="text-[10px] font-black uppercase text-gray-500 dark:text-slate-400 block leading-tight">
+                    {t('portfolio.year_label', 'Tahun')}
+                  </span>
+                  <span className="font-black text-xs text-black dark:text-white">
+                    {project.project_year}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">

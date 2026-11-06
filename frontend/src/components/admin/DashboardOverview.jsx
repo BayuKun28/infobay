@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   Paper,
@@ -13,16 +13,88 @@ import {
   TableHead,
   TableRow,
   TablePagination,
+  CircularProgress,
+  Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import StorageIcon from '@mui/icons-material/Storage';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CachedIcon from '@mui/icons-material/Cached';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { systemService, backupService } from '../../services/api';
 
-export default function DashboardOverview({ stats, onNavigateTab }) {
+export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
   const allPortfolios = stats?.recentPortfolios || [];
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  // System & Backup States
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [clearingCache, setClearingCache] = useState(false);
+  const [exportingBackup, setExportingBackup] = useState(false);
+  const [importingBackup, setImportingBackup] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchHealth() {
+      try {
+        const res = await systemService.getHealth();
+        if (isMounted) setSystemHealth(res);
+      } catch (err) {
+        console.warn('Failed to load system health:', err.message);
+      }
+    }
+    fetchHealth();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      const res = await systemService.clearCache();
+      if (showToast) showToast(res?.message || 'Cache aplikasi berhasil dibersihkan', 'success');
+    } catch (err) {
+      if (showToast) showToast('Gagal membersihkan cache aplikasi', 'error');
+    } finally {
+      setClearingCache(false);
+    }
+  };
+
+  const handleExportBackup = async () => {
+    setExportingBackup(true);
+    try {
+      await backupService.exportBackup();
+      if (showToast) showToast('Berkas backup JSON berhasil diunduh', 'success');
+    } catch (err) {
+      if (showToast) showToast('Gagal mengekspor file backup', 'error');
+    } finally {
+      setExportingBackup(false);
+    }
+  };
+
+  const handleImportBackup = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('backup_file', file);
+
+    setImportingBackup(true);
+    try {
+      const res = await backupService.importBackup(formData);
+      if (showToast) showToast(res?.message || 'Data berhasil dipulihkan dari backup', 'success');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      if (showToast) showToast(err?.response?.data?.message || 'Gagal mengimpor file backup', 'error');
+    } finally {
+      setImportingBackup(false);
+      e.target.value = '';
+    }
+  };
 
   const paginatedPortfolios = allPortfolios.slice(
     page * rowsPerPage,
@@ -394,6 +466,169 @@ export default function DashboardOverview({ stats, onNavigateTab }) {
           }}
         />
       </Paper>
+
+      {/* System Health, Maintenance & Data Governance Section */}
+      <Grid container spacing={2}>
+        {/* System Health & Cache Controls */}
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.88rem' }}>
+                  Kesehatan Sistem &amp; Cache
+                </Typography>
+                <Chip
+                  label="Operational"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(5, 150, 105, 0.12)',
+                    color: (th) => th.palette.mode === 'dark' ? '#34D399' : '#065F46',
+                  }}
+                />
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                Pantau metrik dasar runtime PHP, database PostgreSQL, dan bersihkan cache aplikasi jika terjadi pembaruan data.
+              </Typography>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 2 }}>
+                <Box sx={{ p: 1.2, border: 1, borderColor: 'divider', borderRadius: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                    Database
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                    {systemHealth?.database?.type || 'PostgreSQL 17'}
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 1.2, border: 1, borderColor: 'divider', borderRadius: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                    PHP Runtime
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                    PHP {systemHealth?.php_version?.slice(0, 6) || '8.4'}
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 1.2, border: 1, borderColor: 'divider', borderRadius: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                    Memori Terpakai
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                    {systemHealth?.memory_usage_mb ? `${systemHealth.memory_usage_mb} MB` : '18.4 MB'}
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 1.2, border: 1, borderColor: 'divider', borderRadius: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.68rem' }}>
+                    Sisa Disk
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>
+                    {systemHealth?.disk?.free_gb ? `${systemHealth.disk.free_gb} GB` : 'Tersedia'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={clearingCache ? <CircularProgress size={14} /> : <CachedIcon sx={{ fontSize: 18 }} />}
+              onClick={handleClearCache}
+              disabled={clearingCache}
+              sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+            >
+              {clearingCache ? 'Membersihkan...' : 'Bersihkan Cache Aplikasi (Optimize Clear)'}
+            </Button>
+          </Paper>
+        </Grid>
+
+        {/* Data Governance: Backup & Restore */}
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.88rem' }}>
+                  Tata Kelola Data (Backup &amp; Restore)
+                </Typography>
+                <Chip
+                  label="JSON Bundle"
+                  size="small"
+                  variant="outlined"
+                  sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700, borderColor: 'divider' }}
+                />
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                Unduh salinan cadangan instan seluruh database (biodata, portofolio, layanan, keahlian, pesan, sertifikasi) atau pulihkan sistem dari file JSON.
+              </Typography>
+
+              <Box sx={{ p: 1.5, border: 1, borderColor: 'divider', borderRadius: 1.5, bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)', mb: 2 }}>
+                <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600, color: 'text.secondary', display: 'block' }}>
+                  Prosedur Pemulihan Cepat:
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem', display: 'block' }}>
+                  Format file harus berupa .json yang dihasilkan dari tombol ekspor di bawah. Data yang ada akan diperbarui atau ditambahkan secara aman dalam transaksi database.
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={exportingBackup ? <CircularProgress size={14} color="inherit" /> : <CloudDownloadIcon sx={{ fontSize: 18 }} />}
+                onClick={handleExportBackup}
+                disabled={exportingBackup}
+                sx={{ flex: 1, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+              >
+                {exportingBackup ? 'Mengekspor...' : 'Ekspor Backup JSON'}
+              </Button>
+
+              <Button
+                component="label"
+                variant="outlined"
+                size="small"
+                startIcon={importingBackup ? <CircularProgress size={14} /> : <CloudUploadIcon sx={{ fontSize: 18 }} />}
+                disabled={importingBackup}
+                sx={{ flex: 1, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+              >
+                {importingBackup ? 'Memulihkan...' : 'Impor Backup JSON'}
+                <input
+                  type="file"
+                  hidden
+                  accept=".json,application/json"
+                  onChange={handleImportBackup}
+                />
+              </Button>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
