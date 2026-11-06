@@ -37,7 +37,7 @@ class BiodataController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $response,
-        ])->header('Cache-Control', 'public, max-age=3600');
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
     /**
@@ -46,9 +46,9 @@ class BiodataController extends Controller
     public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'title' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'name' => 'sometimes|required|string|max:255',
+            'title' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|max:255',
             'phone' => 'nullable|string|max:50',
             'location' => 'nullable|string|max:255',
             'avatar' => 'nullable|string',
@@ -72,7 +72,11 @@ class BiodataController extends Controller
 
         $biodata = Biodata::first();
         if (!$biodata) {
-            $biodata = new Biodata();
+            $biodata = new Biodata([
+                'name' => $validated['name'] ?? 'Bayu Samudra',
+                'title' => $validated['title'] ?? 'Full Stack Developer',
+                'email' => $validated['email'] ?? 'bayu@example.com',
+            ]);
         }
 
         // Handle avatar upload if provided
@@ -82,18 +86,22 @@ class BiodataController extends Controller
         }
 
         // Handle dynamic social_links (can be array or JSON string from FormData)
-        if (isset($validated['social_links'])) {
+        if (array_key_exists('social_links', $validated)) {
             if (is_string($validated['social_links'])) {
                 $decoded = json_decode($validated['social_links'], true);
                 $validated['social_links'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['social_links'])) {
+                $validated['social_links'] = [];
             }
         }
 
         // Handle dynamic tech_stack (can be array or JSON string from FormData)
-        if (isset($validated['tech_stack'])) {
+        if (array_key_exists('tech_stack', $validated)) {
             if (is_string($validated['tech_stack'])) {
                 $decoded = json_decode($validated['tech_stack'], true);
                 $validated['tech_stack'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['tech_stack'])) {
+                $validated['tech_stack'] = [];
             }
         }
 
@@ -104,10 +112,12 @@ class BiodataController extends Controller
         }
 
         // Handle dynamic marquee_items (can be array or JSON string from FormData)
-        if (isset($validated['marquee_items'])) {
+        if (array_key_exists('marquee_items', $validated)) {
             if (is_string($validated['marquee_items'])) {
                 $decoded = json_decode($validated['marquee_items'], true);
                 $validated['marquee_items'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['marquee_items'])) {
+                $validated['marquee_items'] = [];
             }
         }
 

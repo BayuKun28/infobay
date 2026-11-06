@@ -149,6 +149,30 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('status', 'success');
     }
 
+    public function test_admin_partial_biodata_update_tech_stack_only(): void
+    {
+        $loginRes = $this->postJson('/api/v1/auth/login', [
+            'email' => 'admin@baydev.my.id',
+            'password' => '193328',
+        ]);
+        $token = $loginRes->json('data.token');
+
+        // Test partial update with ONLY tech_stack
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->putJson('/api/v1/admin/biodata', [
+                'tech_stack' => ['Laravel 13', 'ReactJS', 'PostgreSQL 17'],
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.tech_stack', ['Laravel 13', 'ReactJS', 'PostgreSQL 17']);
+
+        // Verify database persistence and that name was not wiped out
+        $biodata = Biodata::first();
+        $this->assertEquals(['Laravel 13', 'ReactJS', 'PostgreSQL 17'], $biodata->tech_stack);
+        $this->assertNotEmpty($biodata->name);
+    }
+
     public function test_unauthenticated_access_to_admin_route_is_blocked(): void
     {
         $response = $this->postJson('/api/v1/admin/portfolios', [

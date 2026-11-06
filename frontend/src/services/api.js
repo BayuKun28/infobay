@@ -144,14 +144,14 @@ export function normalizeTechStack(raw) {
 // Dedicated Admin Data Loader (100% Direct from Database, Zero Seed Fallback)
 export async function getAdminAllData() {
   const [bioRes, portRes, servRes, skillRes, eduRes, expRes, testRes, certRes] = await Promise.allSettled([
-    apiClient.get('/biodata'),
-    apiClient.get('/portfolios'),
-    apiClient.get('/services'),
-    apiClient.get('/skills'),
-    apiClient.get('/educations'),
-    apiClient.get('/experiences'),
-    apiClient.get('/admin/testimonials'),
-    apiClient.get('/admin/certifications'),
+    apiClient.get('/biodata', { params: { _t: Date.now() } }),
+    apiClient.get('/portfolios', { params: { _t: Date.now() } }),
+    apiClient.get('/services', { params: { _t: Date.now() } }),
+    apiClient.get('/skills', { params: { _t: Date.now() } }),
+    apiClient.get('/educations', { params: { _t: Date.now() } }),
+    apiClient.get('/experiences', { params: { _t: Date.now() } }),
+    apiClient.get('/admin/testimonials', { params: { _t: Date.now() } }),
+    apiClient.get('/admin/certifications', { params: { _t: Date.now() } }),
   ]);
 
   const bioData = bioRes.status === 'fulfilled' && bioRes.value.data?.data ? bioRes.value.data.data : null;

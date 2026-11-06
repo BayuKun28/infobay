@@ -57,18 +57,10 @@ export default function ServicesSkillsManager({
 
   // Sync tech tags when biodata or techStack prop changes
   useEffect(() => {
-    if (biodata?.tech_stack) {
-      const parsed = normalizeTechStack(biodata.tech_stack);
-      if (parsed.length > 0) {
-        setTechTags(parsed);
-        return;
-      }
-    }
-    if (techStack && techStack.length > 0) {
-      const parsed = normalizeTechStack(techStack);
-      if (parsed.length > 0) {
-        setTechTags(parsed);
-      }
+    if (biodata && biodata.tech_stack !== undefined && biodata.tech_stack !== null) {
+      setTechTags(normalizeTechStack(biodata.tech_stack));
+    } else if (techStack && Array.isArray(techStack) && techStack.length > 0) {
+      setTechTags(normalizeTechStack(techStack));
     }
   }, [biodata, techStack]);
 
@@ -102,9 +94,16 @@ export default function ServicesSkillsManager({
     setLoading(true);
     try {
       const cleanTags = normalizeTechStack(techTags);
-      await adminService.updateBiodata({ tech_stack: cleanTags });
+      const payload = {
+        tech_stack: cleanTags,
+      };
+      if (biodata?.name) payload.name = biodata.name;
+      if (biodata?.title) payload.title = biodata.title;
+      if (biodata?.email) payload.email = biodata.email;
+
+      await adminService.updateBiodata(payload);
       showToast('Tech stack & tools arsenal berhasil diperbarui', 'success');
-      onRefresh();
+      if (onRefresh) onRefresh();
     } catch (err) {
       console.error('Failed to update tech stack:', err);
       showToast(err.response?.data?.message || 'Gagal menyimpan tech stack', 'error');
