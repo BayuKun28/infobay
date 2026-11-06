@@ -19,6 +19,7 @@ import {
   Typography,
   CircularProgress,
   Tooltip,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -26,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import CategoryIcon from '@mui/icons-material/Category';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { categoryService } from '../../services/api';
 
 export default function CategoryManagerModal({
@@ -50,7 +52,7 @@ export default function CategoryManagerModal({
     try {
       await categoryService.createCategory({ name: newCatName.trim() });
       setNewCatName('');
-      if (showToast) showToast('Kategori baru berhasil ditambahkan ke database!', 'success');
+      if (showToast) showToast('Kategori baru berhasil ditambahkan!', 'success');
       if (onCategoriesChange) await onCategoriesChange();
     } catch (err) {
       const msg = err.response?.data?.message || 'Gagal menambahkan kategori.';
@@ -109,45 +111,82 @@ export default function CategoryManagerModal({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 2.5,
-          border: '2px solid black',
-          boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
+          borderRadius: 3,
+          bgcolor: 'background.paper',
+          backgroundImage: 'none',
+          border: 1,
+          borderColor: 'divider',
         },
       }}
     >
-      <DialogTitle
-        sx={{
-          fontWeight: 800,
-          fontSize: '1.1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '2px solid black',
-          bgcolor: '#FFFDF0',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CategoryIcon sx={{ color: 'text.primary' }} />
-          <span>Kelola Kategori Portofolio (Dinamis Database)</span>
+      {/* Dialog Header */}
+      <DialogTitle sx={{ px: 3, pt: 2.5, pb: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              sx={{
+                width: 42,
+                height: 42,
+                borderRadius: 2,
+                bgcolor: (th) =>
+                  th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.16)' : 'rgba(67, 56, 202, 0.08)',
+                color: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CategoryIcon />
+            </Box>
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ lineHeight: 1.2 }}>
+                  Kelola Kategori Portofolio
+                </Typography>
+                <Chip
+                  label={`${categories.length} Kategori`}
+                  size="small"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: '0.72rem',
+                    height: 22,
+                    bgcolor: 'action.selected',
+                    color: 'primary.main',
+                  }}
+                />
+              </Box>
+              <Typography variant="caption" color="text.secondary">
+                Tambah, ubah nama, dan kelola kategori portofolio dinamis langsung di database
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={onClose}
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { color: 'text.primary', bgcolor: 'action.hover' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </Box>
-        <Chip
-          label={`${categories.length} Kategori`}
-          size="small"
-          sx={{ fontWeight: 800, border: '1.5px solid black', bgcolor: '#FFE600' }}
-        />
       </DialogTitle>
 
-      <DialogContent sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        {/* Form Input Kategori Baru */}
+      {/* Dialog Body */}
+      <DialogContent dividers sx={{ px: 3, py: 2.5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {/* Form Tambah Kategori Baru */}
         <Paper
           component="form"
           onSubmit={handleAdd}
           elevation={0}
           sx={{
             p: 2,
-            border: '2px solid black',
-            bgcolor: '#F8FAFC',
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)',
+            borderRadius: 2.5,
+            border: 1,
+            borderColor: 'divider',
+            bgcolor: (th) =>
+              th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(15, 23, 42, 0.02)',
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             gap: 1.5,
@@ -156,67 +195,70 @@ export default function CategoryManagerModal({
         >
           <TextField
             label="Nama Kategori Baru"
-            placeholder="Contoh: Cloud Architecture, Machine Learning..."
+            placeholder="Contoh: AI & Automation, Cloud DevOps, Full-Stack Web..."
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
             fullWidth
             size="small"
             disabled={submitting}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                bgcolor: 'white',
-                '& fieldset': { borderColor: 'black', borderWidth: '1.5px' },
-              },
-            }}
           />
           <Button
             type="submit"
             variant="contained"
+            color="primary"
             disabled={submitting || !newCatName.trim()}
             startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
             sx={{
-              bgcolor: '#FFE600',
-              color: 'black',
-              fontWeight: 800,
-              border: '2px solid black',
-              boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)',
+              fontWeight: 700,
+              fontSize: '0.82rem',
               whiteSpace: 'nowrap',
               px: 3,
-              '&:hover': {
-                bgcolor: '#FFD700',
-                boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)',
-              },
+              height: 40,
+              borderRadius: 2,
             }}
           >
             Tambah Kategori
           </Button>
         </Paper>
 
-        {/* Tabel Kategori */}
+        {/* Tabel Daftar Kategori */}
         <TableContainer
           component={Paper}
           elevation={0}
           sx={{
-            border: '2px solid black',
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)',
+            borderRadius: 2.5,
+            border: 1,
+            borderColor: 'divider',
             maxHeight: 340,
+            overflow: 'auto',
           }}
         >
           <Table size="small" stickyHeader>
             <TableHead>
-              <TableRow sx={{ '& th': { bgcolor: '#F1F5F9', fontWeight: 800, borderBottom: '2px solid black' } }}>
-                <TableCell width={60} align="center">#</TableCell>
+              <TableRow
+                sx={{
+                  '& th': {
+                    bgcolor: (th) =>
+                      th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.04)',
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    color: 'text.secondary',
+                    borderColor: 'divider',
+                  },
+                }}
+              >
+                <TableCell width={50} align="center">#</TableCell>
                 <TableCell>Nama Kategori</TableCell>
                 <TableCell>Slug Sistem</TableCell>
-                <TableCell align="center">Portofolio Terkait</TableCell>
-                <TableCell width={120} align="center">Aksi</TableCell>
+                <TableCell align="center" width={140}>Karya Terkait</TableCell>
+                <TableCell width={130} align="center">Aksi</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {categories.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
-                    Belum ada kategori portofolio di database.
+                  <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    Belum ada data kategori di database.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -225,10 +267,19 @@ export default function CategoryManagerModal({
                   const inUse = (cat.portfolios_count || 0) > 0;
 
                   return (
-                    <TableRow key={cat.id} hover sx={{ '& td': { borderColor: 'divider' } }}>
-                      <TableCell align="center" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    <TableRow
+                      key={cat.id}
+                      hover
+                      sx={{
+                        '& td': { borderColor: 'divider' },
+                        '&:last-child td, &:last-child th': { border: 0 },
+                      }}
+                    >
+                      <TableCell align="center" sx={{ color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
+
+                      {/* Nama Kategori / Inline Edit */}
                       <TableCell>
                         {isEditingThis ? (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -238,17 +289,20 @@ export default function CategoryManagerModal({
                               onChange={(e) => setEditName(e.target.value)}
                               autoFocus
                               sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  bgcolor: 'white',
+                                maxWidth: 260,
+                                '& .MuiOutlinedInput-input': {
+                                  py: 0.7,
                                   fontSize: '0.85rem',
+                                  fontWeight: 600,
                                 },
                               }}
                             />
                             <IconButton
                               size="small"
-                              color="success"
+                              color="primary"
                               onClick={() => handleSaveEdit(cat.id)}
                               disabled={submitting || !editName.trim()}
+                              title="Simpan Perubahan"
                             >
                               <CheckIcon fontSize="small" />
                             </IconButton>
@@ -256,19 +310,24 @@ export default function CategoryManagerModal({
                               size="small"
                               color="inherit"
                               onClick={() => setEditingId(null)}
+                              title="Batal"
                             >
                               <CloseIcon fontSize="small" />
                             </IconButton>
                           </Box>
                         ) : (
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.85rem' }}>
                             {cat.name}
                           </Typography>
                         )}
                       </TableCell>
-                      <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'text.secondary' }}>
+
+                      {/* Slug */}
+                      <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'text.secondary' }}>
                         {cat.slug}
                       </TableCell>
+
+                      {/* Portofolio Terkait */}
                       <TableCell align="center">
                         <Chip
                           label={`${cat.portfolios_count || 0} Karya`}
@@ -276,12 +335,31 @@ export default function CategoryManagerModal({
                           sx={{
                             fontWeight: 700,
                             fontSize: '0.72rem',
-                            bgcolor: inUse ? '#E0F2FE' : '#F1F5F9',
-                            color: inUse ? '#0369A1' : 'text.secondary',
-                            border: '1px solid black',
+                            height: 22,
+                            bgcolor: (th) =>
+                              inUse
+                                ? th.palette.mode === 'dark'
+                                  ? 'rgba(56, 189, 248, 0.16)'
+                                  : 'rgba(3, 105, 161, 0.08)'
+                                : 'action.selected',
+                            color: (th) =>
+                              inUse
+                                ? th.palette.mode === 'dark'
+                                  ? '#7DD3FC'
+                                  : '#0369A1'
+                                : 'text.secondary',
+                            border: 1,
+                            borderColor: (th) =>
+                              inUse
+                                ? th.palette.mode === 'dark'
+                                  ? 'rgba(56, 189, 248, 0.3)'
+                                  : 'rgba(3, 105, 161, 0.2)'
+                                : 'divider',
                           }}
                         />
                       </TableCell>
+
+                      {/* Aksi */}
                       <TableCell align="center">
                         {deleteConfirmId === cat.id ? (
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
@@ -289,7 +367,7 @@ export default function CategoryManagerModal({
                               size="small"
                               color="error"
                               variant="contained"
-                              sx={{ minWidth: 45, px: 1, py: 0.2, fontSize: '0.7rem', fontWeight: 800 }}
+                              sx={{ minWidth: 42, px: 1, py: 0.2, fontSize: '0.7rem', fontWeight: 700 }}
                               onClick={() => handleDelete(cat.id)}
                               disabled={submitting}
                             >
@@ -298,7 +376,7 @@ export default function CategoryManagerModal({
                             <Button
                               size="small"
                               color="inherit"
-                              sx={{ minWidth: 45, px: 1, py: 0.2, fontSize: '0.7rem' }}
+                              sx={{ minWidth: 42, px: 1, py: 0.2, fontSize: '0.7rem' }}
                               onClick={() => setDeleteConfirmId(null)}
                             >
                               Batal
@@ -311,27 +389,50 @@ export default function CategoryManagerModal({
                                 size="small"
                                 onClick={() => startEdit(cat)}
                                 disabled={submitting || isEditingThis}
-                                sx={{ border: '1px solid #ccc' }}
+                                sx={{
+                                  color: (th) => (th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA'),
+                                  bgcolor: (th) =>
+                                    th.palette.mode === 'dark'
+                                      ? 'rgba(129, 140, 248, 0.12)'
+                                      : 'rgba(67, 56, 202, 0.06)',
+                                  '&:hover': {
+                                    bgcolor: 'primary.main',
+                                    color: (th) =>
+                                      th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF',
+                                  },
+                                }}
                               >
-                                <EditIcon fontSize="small" sx={{ fontSize: '0.9rem' }} />
+                                <EditIcon sx={{ fontSize: 16 }} />
                               </IconButton>
                             </Tooltip>
                             <Tooltip
                               title={
                                 inUse
-                                  ? `Tidak dapat dihapus: sedang digunakan ${cat.portfolios_count} karya.`
+                                  ? `Tidak dapat dihapus: sedang digunakan ${cat.portfolios_count} karya portofolio.`
                                   : 'Hapus Kategori'
                               }
                             >
                               <span>
                                 <IconButton
                                   size="small"
-                                  color="error"
                                   onClick={() => setDeleteConfirmId(cat.id)}
                                   disabled={submitting || inUse}
-                                  sx={{ border: '1px solid #ffcdd2' }}
+                                  sx={{
+                                    color: (th) => (th.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626'),
+                                    bgcolor: (th) =>
+                                      th.palette.mode === 'dark'
+                                        ? 'rgba(239, 68, 68, 0.12)'
+                                        : 'rgba(220, 38, 38, 0.06)',
+                                    '&:hover': {
+                                      bgcolor: 'error.main',
+                                      color: '#FFFFFF',
+                                    },
+                                    '&.Mui-disabled': {
+                                      opacity: 0.4,
+                                    },
+                                  }}
                                 >
-                                  <DeleteIcon fontSize="small" sx={{ fontSize: '0.9rem' }} />
+                                  <DeleteIcon sx={{ fontSize: 16 }} />
                                 </IconButton>
                               </span>
                             </Tooltip>
@@ -345,21 +446,28 @@ export default function CategoryManagerModal({
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* Info Note Footer */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', px: 0.5 }}>
+          <InfoOutlinedIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+          <Typography variant="caption" sx={{ fontSize: '0.73rem', lineHeight: 1.4 }}>
+            Kategori yang masih memiliki karya aktif diproteksi dari penghapusan demi menjaga integritas data.
+          </Typography>
+        </Box>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, borderTop: '2px solid black', bgcolor: '#F8FAFC' }}>
+      {/* Dialog Footer Actions */}
+      <DialogActions sx={{ px: 3, py: 2, borderTop: 1, borderColor: 'divider' }}>
         <Button
           onClick={onClose}
-          variant="outlined"
+          variant="contained"
+          color="primary"
+          size="small"
           sx={{
-            color: 'black',
-            fontWeight: 800,
-            borderColor: 'black',
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)',
-            '&:hover': {
-              borderColor: 'black',
-              bgcolor: '#e2e8f0',
-            },
+            fontWeight: 700,
+            fontSize: '0.82rem',
+            px: 3,
+            borderRadius: 2,
           }}
         >
           Selesai &amp; Tutup
