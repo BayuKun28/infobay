@@ -7,6 +7,7 @@ use App\Models\Certification;
 use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Portfolio;
+use App\Models\PortfolioCategory;
 use App\Models\Service;
 use App\Models\Skill;
 use App\Models\Testimonial;
@@ -168,6 +169,7 @@ class DatabaseSeeder extends Seeder
         // 8. Seed Portfolios
         if (!empty($data['portfolios'])) {
             Portfolio::truncate();
+            $portfolioOrder = 1;
             foreach ($data['portfolios'] as $item) {
                 Portfolio::create([
                     'title' => $item['title'],
@@ -179,10 +181,14 @@ class DatabaseSeeder extends Seeder
                     'tech_stack' => $item['tech_stack'] ?? null,
                     'metrics' => $item['metrics'] ?? null,
                     'is_featured' => $item['is_featured'] ?? ($item['featured'] ?? false),
+                    'order_index' => $item['order_index'] ?? $portfolioOrder++,
                     'description' => $item['description'] ?? null,
                 ]);
             }
         }
+
+        // 8.1 Seed Portfolio Categories
+        $this->call(PortfolioCategorySeeder::class);
 
         // 9. Seed Testimonials
         Testimonial::truncate();

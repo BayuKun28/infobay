@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Portfolio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PortfolioController extends Controller
 {
     /**
      * Get list of portfolios (Public). Supports ?category= filter.
+     * Ordered by order_index ASC, then id ASC.
      */
     public function index(Request $request): JsonResponse
     {
@@ -21,7 +23,7 @@ class PortfolioController extends Controller
             $query->where('category', $request->category);
         }
 
-        $portfolios = $query->orderBy('id', 'asc')->get();
+        $portfolios = $query->orderBy('order_index', 'asc')->orderBy('id', 'asc')->get();
 
         return response()->json([
             'status' => 'success',
@@ -87,7 +89,14 @@ class PortfolioController extends Controller
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable|array',
             'is_featured' => 'nullable|boolean',
+            'order_index' => 'nullable|integer',
         ]);
+
+        // Auto-assign order_index if not provided
+        if (!isset($validated['order_index'])) {
+            $maxOrder = Portfolio::max('order_index') ?? 0;
+            $validated['order_index'] = $maxOrder + 1;
+        }
 
         // Handle uploaded image file
         if ($request->hasFile('image_file')) {
@@ -133,6 +142,7 @@ class PortfolioController extends Controller
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable|array',
             'is_featured' => 'nullable|boolean',
+            'order_index' => 'nullable|integer',
         ]);
 
         // Handle uploaded image file
@@ -150,6 +160,29 @@ class PortfolioController extends Controller
             'status' => 'success',
             'message' => 'Portofolio berhasil diperbarui.',
             'data' => $portfolio,
+        ]);
+    }
+
+    /**
+     * Batch reorder portfolios (Admin protected).
+     */
+    public function reorder(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|integer|exists:portfolios,id',
+            'items.*.order_index' => 'required|integer',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['items'] as $item) {
+                Portfolio::where('id', $item['id'])->update(['order_index' => $item['order_index']]);
+            }
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Urutan portofolio berhasil diperbarui.',
         ]);
     }
 

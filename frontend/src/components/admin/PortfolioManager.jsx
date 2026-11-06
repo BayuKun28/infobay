@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -37,10 +37,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
-import { adminService } from '../../services/api';
+import CategoryIcon from '@mui/icons-material/Category';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
-
-const CATEGORIES = ['Web Development', 'Mobile Development', 'UI/UX Design', 'Backend System'];
+import CategoryManagerModal from './CategoryManagerModal';
 
 export default function PortfolioManager({
   portfolios = [],
@@ -54,6 +56,10 @@ export default function PortfolioManager({
   const [filterCat, setFilterCat] = useState('ALL');
   const [loading, setLoading] = useState(false);
 
+  // Dynamic Categories state
+  const [categories, setCategories] = useState([]);
+  const [openCategoryModal, setOpenCategoryModal] = useState(false);
+
   // Form Dialog state
   const [openForm, setOpenForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -64,6 +70,7 @@ export default function PortfolioManager({
     image: '',
     link: '#',
     description: '',
+    order_index: 1,
   });
 
   // Local file upload state
@@ -75,36 +82,62 @@ export default function PortfolioManager({
   const [openDelete, setOpenDelete] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // Fetch dynamic categories from DB
+  const loadCategories = useCallback(async () => {
+    try {
+      const data = await categoryService.getCategories();
+      if (Array.isArray(data)) {
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  // Combined category list for filters (DB categories + any categories currently in portfolios)
+  const allCategoryNames = useMemo(() => {
+    const names = new Set(categories.map((c) => c.name));
+    portfolios.forEach((p) => {
+      if (p.category) names.add(p.category);
+    });
+    return Array.from(names);
+  }, [categories, portfolios]);
+
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts = { ALL: portfolios.length };
-    CATEGORIES.forEach((cat) => {
+    allCategoryNames.forEach((cat) => {
       counts[cat] = portfolios.filter((p) => p.category === cat).length;
     });
     return counts;
-  }, [portfolios]);
+  }, [portfolios, allCategoryNames]);
 
-  // Filter logic
+  // Filter & sort logic (sorted primarily by order_index asc, then id asc)
   const filteredList = useMemo(() => {
-    return portfolios.filter((item) => {
+    const list = portfolios.filter((item) => {
       const matchSearch =
         item.title?.toLowerCase().includes(search.toLowerCase()) ||
         item.description?.toLowerCase().includes(search.toLowerCase());
       const matchCat = filterCat === 'ALL' || item.category === filterCat;
       return matchSearch && matchCat;
     });
+
+    return list.sort((a, b) => {
+      const orderA = a.order_index ?? a.id ?? 0;
+      const orderB = b.order_index ?? b.id ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return (a.id ?? 0) - (b.id ?? 0);
+    });
   }, [portfolios, search, filterCat]);
 
   // Pagination state
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [rowsPerPage, setRowsPerPage] = useState(12);
 
-  // Reset page when filter or search changes
-  useEffect(() => {
-    setPage(0);
-  }, [search, filterCat]);
-
-  // Paginated list
   const paginatedList = useMemo(() => {
     return filteredList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [filteredList, page, rowsPerPage]);
@@ -114,12 +147,18 @@ export default function PortfolioManager({
     setCurrentId(null);
     setSelectedFile(null);
     setPreviewUrl('');
+    const defaultCat = categories[0]?.name || 'Web Development';
+    const nextOrder = portfolios.length > 0
+      ? Math.max(...portfolios.map((p) => p.order_index ?? 0)) + 1
+      : 1;
+
     setFormData({
       title: '',
-      category: 'Web Development',
+      category: defaultCat,
       image: '',
       link: '#',
       description: '',
+      order_index: nextOrder,
     });
     setOpenForm(true);
   };
@@ -135,15 +174,16 @@ export default function PortfolioManager({
       image: item.image || '',
       link: item.link || '#',
       description: item.description || '',
+      order_index: item.order_index ?? 1,
     });
     setOpenForm(true);
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        showToast('Ukuran file terlalu besar (maksimal 10MB)', 'error');
+        showToast('Ukuran file maksimal 10MB', 'error');
         return;
       }
       setSelectedFile(file);
@@ -182,6 +222,7 @@ export default function PortfolioManager({
 
       const payload = {
         ...formData,
+        order_index: parseInt(formData.order_index, 10) || 0,
         image: finalImageUrl,
       };
 
@@ -193,7 +234,8 @@ export default function PortfolioManager({
         showToast('Portofolio baru berhasil ditambahkan', 'success');
       }
       setOpenForm(false);
-      onRefresh();
+      if (onRefresh) onRefresh();
+      loadCategories();
     } catch (err) {
       console.error('Save portfolio error:', err);
       showToast(err.response?.data?.message || 'Gagal menyimpan portofolio', 'error');
@@ -215,13 +257,58 @@ export default function PortfolioManager({
       showToast(`Portofolio "${deleteTarget.title}" berhasil dihapus`, 'success');
       setOpenDelete(false);
       setDeleteTarget(null);
-      onRefresh();
+      if (onRefresh) onRefresh();
+      loadCategories();
     } catch (err) {
       console.error('Delete portfolio error:', err);
       showToast(err.response?.data?.message || 'Gagal menghapus portofolio', 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Quick Reorder: swap order with adjacent item in full sorted list
+  const handleMoveOrder = async (item, direction) => {
+    const sorted = [...portfolios].sort((a, b) => {
+      const orderA = a.order_index ?? a.id ?? 0;
+      const orderB = b.order_index ?? b.id ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return (a.id ?? 0) - (b.id ?? 0);
+    });
+
+    const currentIndex = sorted.findIndex((p) => p.id === item.id);
+    if (currentIndex === -1) return;
+
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= sorted.length) return;
+
+    const targetItem = sorted[targetIndex];
+    let currentOrder = item.order_index ?? currentIndex + 1;
+    let targetOrder = targetItem.order_index ?? targetIndex + 1;
+
+    if (currentOrder === targetOrder) {
+      targetOrder = currentOrder + direction;
+    }
+
+    setLoading(true);
+    try {
+      await adminService.reorderPortfolios([
+        { id: item.id, order_index: targetOrder },
+        { id: targetItem.id, order_index: currentOrder },
+      ]);
+      showToast('Urutan portofolio berhasil diperbarui', 'success');
+      if (onRefresh) await onRefresh();
+    } catch (err) {
+      console.error('Reorder error:', err);
+      showToast('Gagal mengubah urutan portofolio', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefreshAll = async () => {
+    if (onRefresh) await onRefresh();
+    await loadCategories();
   };
 
   return (
@@ -264,21 +351,18 @@ export default function PortfolioManager({
                 fontWeight: 700,
                 fontSize: '0.75rem',
                 cursor: 'pointer',
-                bgcolor: filterCat === 'ALL'
-                  ? (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA'
-                  : 'transparent',
-                color: filterCat === 'ALL'
-                  ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF'
-                  : 'text.secondary',
-                border: '1.5px solid',
-                borderColor: filterCat === 'ALL' ? 'transparent' : 'divider',
+                bgcolor: filterCat === 'ALL' ? 'primary.main' : 'action.selected',
+                color: filterCat === 'ALL' ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF' : 'text.primary',
+                border: 1,
+                borderColor: filterCat === 'ALL' ? 'primary.main' : 'divider',
                 '&:hover': {
+                  bgcolor: filterCat === 'ALL' ? 'primary.dark' : 'action.hover',
                   borderColor: 'primary.main',
                   color: 'text.primary',
                 },
               }}
             />
-            {CATEGORIES.map((cat) => (
+            {allCategoryNames.map((cat) => (
               <Chip
                 key={cat}
                 label={`${cat} (${categoryCounts[cat] || 0})`}
@@ -288,15 +372,12 @@ export default function PortfolioManager({
                   fontWeight: 700,
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  bgcolor: filterCat === cat
-                    ? (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA'
-                    : 'transparent',
-                  color: filterCat === cat
-                    ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF'
-                    : 'text.secondary',
-                  border: '1.5px solid',
-                  borderColor: filterCat === cat ? 'transparent' : 'divider',
+                  bgcolor: filterCat === cat ? 'primary.main' : 'transparent',
+                  color: filterCat === cat ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF' : 'text.primary',
+                  border: 1,
+                  borderColor: filterCat === cat ? 'primary.main' : 'divider',
                   '&:hover': {
+                    bgcolor: filterCat === cat ? 'primary.dark' : 'action.hover',
                     borderColor: 'primary.main',
                     color: 'text.primary',
                   },
@@ -306,12 +387,27 @@ export default function PortfolioManager({
           </Box>
 
           {/* Action Buttons */}
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<CategoryIcon sx={{ fontSize: 16 }} />}
+              onClick={() => setOpenCategoryModal(true)}
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                borderColor: 'divider',
+                color: 'text.primary',
+                '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary' },
+              }}
+            >
+              Kelola Kategori
+            </Button>
             <Button
               variant="outlined"
               size="small"
               startIcon={<RefreshIcon sx={{ fontSize: 16 }} />}
-              onClick={onRefresh}
+              onClick={handleRefreshAll}
               sx={{ fontWeight: 600, fontSize: '0.78rem' }}
             >
               Refresh
@@ -345,7 +441,7 @@ export default function PortfolioManager({
                 flexDirection: 'column',
               }}
             >
-              <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
+              <Box sx={{ display: 'flex', p: 1.5, gap: 1.5 }}>
                 <Box
                   component="img"
                   src={getStorageUrl(item.image)}
@@ -366,9 +462,23 @@ export default function PortfolioManager({
                 />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                      #{item.id || index + 1}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <Chip
+                        label={`#${item.order_index ?? item.id}`}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          bgcolor: 'action.selected',
+                          fontFamily: 'monospace',
+                        }}
+                        title="Urutan Tampil"
+                      />
+                      <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                        ID:{item.id}
+                      </Typography>
+                    </Box>
                     <Chip
                       label={item.category}
                       size="small"
@@ -385,9 +495,31 @@ export default function PortfolioManager({
               </Box>
 
               <Box sx={{ px: 2, py: 1.2, bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)', borderTop: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.72rem', fontWeight: 600 }}>
-                  {item.image?.startsWith('/storage') ? 'local_storage' : 'external'}
-                </Typography>
+                {/* Reorder controls in mobile card */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleMoveOrder(item, -1)}
+                    disabled={loading}
+                    sx={{ p: 0.3, border: 1, borderColor: 'divider' }}
+                    title="Pindah Naik"
+                  >
+                    <ArrowDropUpIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleMoveOrder(item, 1)}
+                    disabled={loading}
+                    sx={{ p: 0.3, border: 1, borderColor: 'divider' }}
+                    title="Pindah Turun"
+                  >
+                    <ArrowDropDownIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                    Urutan: {item.order_index ?? '-'}
+                  </Typography>
+                </Box>
+
                 <Box sx={{ display: 'flex', gap: 0.8 }}>
                   {item.link && item.link !== '#' && (
                     <IconButton
@@ -452,37 +584,25 @@ export default function PortfolioManager({
           {filteredList.length === 0 && (
             <Paper elevation={0} sx={{ p: 4, textAlign: 'center', borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
               <Typography variant="body2" color="text.secondary">
-                Tidak ada data portofolio yang cocok dengan pencarian.
+                Tidak ada portofolio yang cocok dengan filter atau pencarian.
               </Typography>
             </Paper>
           )}
 
           {/* Mobile Pagination Control */}
           {filteredList.length > rowsPerPage && (
-            <Paper
-              elevation={0}
-              sx={{
-                p: 1.5,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderRadius: 2.5,
-                border: 1,
-                borderColor: 'divider',
-                bgcolor: 'background.paper',
-              }}
-            >
+            <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Button
                 size="small"
                 variant="outlined"
                 disabled={page === 0}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                onClick={() => setPage((prev) => prev - 1)}
                 sx={{ fontWeight: 700, fontSize: '0.75rem', px: 1.8 }}
               >
                 Sebelumnya
               </Button>
-              <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                {page * rowsPerPage + 1}-{Math.min((page + 1) * rowsPerPage, filteredList.length)} dari {filteredList.length}
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                Halaman {page + 1} dari {Math.ceil(filteredList.length / rowsPerPage)}
               </Typography>
               <Button
                 size="small"
@@ -502,6 +622,9 @@ export default function PortfolioManager({
             <Table size="small">
               <TableHead sx={{ bgcolor: 'action.hover' }}>
                 <TableRow>
+                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: '0.75rem', width: 95 }}>
+                    Urutan
+                  </TableCell>
                   <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', width: 60 }}>#ID</TableCell>
                   <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', width: 80 }}>Media</TableCell>
                   <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem' }}>Judul &amp; Deskripsi</TableCell>
@@ -515,6 +638,44 @@ export default function PortfolioManager({
               <TableBody>
                 {paginatedList.map((item, index) => (
                   <TableRow key={item.id || index} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    {/* Urutan & Quick Reorder */}
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.3 }}>
+                        <Chip
+                          label={item.order_index ?? '-'}
+                          size="small"
+                          sx={{
+                            height: 22,
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            minWidth: 28,
+                            bgcolor: 'action.selected',
+                            fontFamily: 'monospace',
+                          }}
+                        />
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleMoveOrder(item, -1)}
+                            disabled={loading || (page === 0 && index === 0)}
+                            sx={{ p: 0.1 }}
+                            title="Pindah Naik"
+                          >
+                            <ArrowDropUpIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleMoveOrder(item, 1)}
+                            disabled={loading || ((page + 1) * rowsPerPage >= filteredList.length && index === paginatedList.length - 1)}
+                            sx={{ p: 0.1 }}
+                            title="Pindah Turun"
+                          >
+                            <ArrowDropDownIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </TableCell>
+
                     <TableCell sx={{ color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.78rem' }}>
                       #{item.id || index + 1}
                     </TableCell>
@@ -645,7 +806,7 @@ export default function PortfolioManager({
 
                 {filteredList.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                       <Typography variant="body2" color="text.secondary">
                         Tidak ada portofolio yang cocok dengan filter atau pencarian.
                       </Typography>
@@ -656,7 +817,6 @@ export default function PortfolioManager({
             </Table>
           </TableContainer>
 
-          {/* Desktop Table Pagination */}
           <TablePagination
             rowsPerPageOptions={[6, 12, 24, { label: 'Semua', value: filteredList.length }]}
             component="div"
@@ -705,21 +865,68 @@ export default function PortfolioManager({
               size="small"
             />
 
-            <TextField
-              select
-              label="Kategori"
-              fullWidth
-              required
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              size="small"
-            >
-              {CATEGORIES.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
+            {/* Dynamic Category Selector & Manage Button */}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+              <TextField
+                select
+                label="Kategori Portofolio"
+                fullWidth
+                required
+                value={formData.category}
+                onChange={(e) => {
+                  if (e.target.value === '__NEW__') {
+                    setOpenCategoryModal(true);
+                  } else {
+                    setFormData({ ...formData, category: e.target.value });
+                  }
+                }}
+                size="small"
+              >
+                {allCategoryNames.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat}
+                  </MenuItem>
+                ))}
+                <MenuItem
+                  value="__NEW__"
+                  sx={{
+                    fontStyle: 'italic',
+                    color: 'primary.main',
+                    fontWeight: 700,
+                    borderTop: '1px dashed',
+                    borderColor: 'divider',
+                  }}
+                >
+                  + Tambah / Kelola Kategori...
                 </MenuItem>
-              ))}
-            </TextField>
+              </TextField>
+
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setOpenCategoryModal(true)}
+                sx={{
+                  height: 40,
+                  whiteSpace: 'nowrap',
+                  minWidth: 100,
+                  fontWeight: 700,
+                  fontSize: '0.75rem',
+                }}
+              >
+                Kelola
+              </Button>
+            </Box>
+
+            {/* Order Index Input */}
+            <TextField
+              label="Urutan Tampil (Order Index)"
+              type="number"
+              fullWidth
+              value={formData.order_index}
+              onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value, 10) || 0 })}
+              size="small"
+              helperText="Angka lebih kecil tampil lebih dulu (contoh: 1, 2, 3...)"
+            />
 
             {/* Direct Image Upload Dropzone */}
             <Box
@@ -752,42 +959,39 @@ export default function PortfolioManager({
                       borderColor: 'divider',
                     }}
                   />
-                  {selectedFile && (
-                    <Typography variant="caption" display="block" color="success.main" fontWeight={700} sx={{ mt: 0.8, fontSize: '0.75rem' }}>
-                      ✓ {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB) siap diunggah
-                    </Typography>
-                  )}
+                  <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {selectedFile ? `File baru: ${selectedFile.name}` : 'Gambar saat ini'}
+                  </Typography>
                 </Box>
               ) : (
-                <ImageOutlinedIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 0.5 }} />
+                <ImageOutlinedIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
               )}
 
               <input
-                type="file"
-                accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml"
-                id="portfolio-file-upload"
+                accept="image/*"
                 style={{ display: 'none' }}
+                id="admin-portfolio-upload-input"
+                type="file"
                 onChange={handleFileChange}
               />
-              <label htmlFor="portfolio-file-upload">
+              <label htmlFor="admin-portfolio-upload-input">
                 <Button
+                  variant="outlined"
                   component="span"
-                  variant="contained"
-                  color="secondary"
                   size="small"
-                  startIcon={<CloudUploadIcon sx={{ fontSize: 18 }} />}
-                  sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.8rem', mt: 0.5 }}
+                  startIcon={<CloudUploadIcon />}
+                  sx={{ fontWeight: 600, fontSize: '0.78rem' }}
                 >
-                  Pilih Berkas Gambar
+                  {previewUrl ? 'Ganti File Gambar' : 'Pilih Berkas Gambar'}
                 </Button>
               </label>
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1, fontSize: '0.72rem', fontWeight: 500 }}>
-                Format: PNG, JPG, WEBP (Maks 10MB). Tersimpan lokal di storage.
+              <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.8, fontSize: '0.7rem' }}>
+                Format didukung: JPG, PNG, WEBP, GIF, SVG (Maks. 10MB)
               </Typography>
             </Box>
 
             <TextField
-              label="URL Gambar Cadangan (Opsional)"
+              label="URL Gambar Manual (Opsional jika tidak upload berkas)"
               fullWidth
               value={formData.image}
               onChange={(e) => {
@@ -795,7 +999,8 @@ export default function PortfolioManager({
                 if (!selectedFile) setPreviewUrl(e.target.value);
               }}
               size="small"
-              helperText="Path lokal (/storage/portfolios/...) atau URL eksternal"
+              placeholder="https://..."
+              helperText="Bisa diisi URL gambar eksternal atau biarkan kosong jika mengunggah file di atas."
             />
 
             <TextField
@@ -862,6 +1067,15 @@ export default function PortfolioManager({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Dedicated Category Manager Modal */}
+      <CategoryManagerModal
+        open={openCategoryModal}
+        onClose={() => setOpenCategoryModal(false)}
+        categories={categories}
+        onCategoriesChange={loadCategories}
+        showToast={showToast}
+      />
     </Box>
   );
 }

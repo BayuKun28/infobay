@@ -20,11 +20,13 @@ class Portfolio extends Model
         'project_role',
         'metrics',
         'is_featured',
+        'order_index',
     ];
 
     protected $casts = [
         'tech_stack' => 'array',
         'metrics' => 'array',
         'is_featured' => 'boolean',
+        'order_index' => 'integer',
     ];
 }

@@ -107,7 +107,7 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
           <button
             type="button"
             onClick={() => setShowHealthModal(true)}
-            title={t('homelab.tooltip', 'Website ini di-host secara mandiri pada bare-metal server homelab AMD E2-9000 & Standby Server 146.')}
+            title={t('homelab.tooltip', 'Website ini di-host secara mandiri pada bare-metal server homelab AMD E2-9000 & Standby Mirror.')}
             className="flex items-center gap-1.5 bg-white dark:bg-[#151D2F] border-2 border-black dark:border-slate-700 px-2.5 py-1 shadow-neo-sm text-xs ml-1 hover:bg-neo-yellow hover:text-black dark:hover:bg-neo-yellow dark:hover:text-black transition-all cursor-pointer select-none group"
           >
             <span className="w-2.5 h-2.5 rounded-none border border-black bg-green-500 animate-pulse" />

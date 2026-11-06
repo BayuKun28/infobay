@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\CertificationController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\MessageController;
+use App\Http\Controllers\Api\V1\PortfolioCategoryController;
 use App\Http\Controllers\Api\V1\PortfolioController;
 use App\Http\Controllers\Api\V1\SeoController;
 use App\Http\Controllers\Api\V1\ServiceController;
@@ -20,6 +21,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/biodata', [BiodataController::class, 'index']);
     Route::get('/portfolios', [PortfolioController::class, 'index']);
     Route::get('/portfolios/{id}', [PortfolioController::class, 'show']);
+    Route::get('/portfolio-categories', [PortfolioCategoryController::class, 'index']);
     Route::get('/services', [ServiceController::class, 'index']);
     Route::get('/skills', [SkillController::class, 'index']);
     Route::get('/educations', [EducationController::class, 'index']);
@@ -76,8 +78,14 @@ Route::prefix('v1')->group(function () {
 
             // Portfolios
             Route::post('/portfolios', [PortfolioController::class, 'store']);
+            Route::post('/portfolios/reorder', [PortfolioController::class, 'reorder']);
             Route::put('/portfolios/{id}', [PortfolioController::class, 'update']);
             Route::delete('/portfolios/{id}', [PortfolioController::class, 'destroy']);
+
+            // Portfolio Categories
+            Route::post('/portfolio-categories', [PortfolioCategoryController::class, 'store']);
+            Route::put('/portfolio-categories/{id}', [PortfolioCategoryController::class, 'update']);
+            Route::delete('/portfolio-categories/{id}', [PortfolioCategoryController::class, 'destroy']);
 
             // Services
             Route::post('/services', [ServiceController::class, 'store']);

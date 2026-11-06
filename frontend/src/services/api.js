@@ -251,8 +251,8 @@ export async function getSystemHealth() {
     return {
       status: 'operational',
       node: 'bay-homelab-node-01',
-      server_primary: '192.168.100.145',
-      server_standby: '192.168.100.146',
+      server_primary: 'Primary Node (Host Utama)',
+      server_standby: 'Standby Mirror (HA Replica)',
       os: 'Debian GNU/Linux 12 (bookworm)',
       environment: 'Self-Hosted Dual-Server Homelab',
       latency: Math.min(25, latency),
@@ -339,6 +339,11 @@ export const adminService = {
 
   async deletePortfolio(id) {
     const res = await apiClient.delete(`/admin/portfolios/${id}`);
+    return res.data;
+  },
+
+  async reorderPortfolios(items) {
+    const res = await apiClient.post('/admin/portfolios/reorder', { items });
     return res.data;
   },
 
@@ -507,6 +512,29 @@ export const adminService = {
 
   async deleteCertification(id) {
     const res = await apiClient.delete(`/admin/certifications/${id}`);
+    return res.data;
+  },
+};
+
+// Portfolio Categories Service (Dynamic Categories)
+export const categoryService = {
+  async getCategories() {
+    const res = await apiClient.get('/portfolio-categories');
+    return res.data?.data || [];
+  },
+
+  async createCategory(payload) {
+    const res = await apiClient.post('/admin/portfolio-categories', payload);
+    return res.data;
+  },
+
+  async updateCategory(id, payload) {
+    const res = await apiClient.put(`/admin/portfolio-categories/${id}`, payload);
+    return res.data;
+  },
+
+  async deleteCategory(id) {
+    const res = await apiClient.delete(`/admin/portfolio-categories/${id}`);
     return res.data;
   },
 };
