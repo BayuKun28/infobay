@@ -84,13 +84,25 @@ class PortfolioController extends Controller
             'image_file' => 'nullable|image|max:10240',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
-            'tech_stack' => 'nullable|array',
+            'tech_stack' => 'nullable',
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable|array',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize tech_stack (support array, JSON string, or comma-separated string)
+        if (isset($validated['tech_stack'])) {
+            if (is_string($validated['tech_stack'])) {
+                $decoded = json_decode($validated['tech_stack'], true);
+                $validated['tech_stack'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', explode(',', $validated['tech_stack']))));
+            } elseif (!is_array($validated['tech_stack'])) {
+                $validated['tech_stack'] = [];
+            }
+        }
 
         // Auto-assign order_index if not provided
         if (!isset($validated['order_index'])) {
@@ -137,13 +149,25 @@ class PortfolioController extends Controller
             'image_file' => 'nullable|image|max:10240',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
-            'tech_stack' => 'nullable|array',
+            'tech_stack' => 'nullable',
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable|array',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize tech_stack (support array, JSON string, or comma-separated string)
+        if (isset($validated['tech_stack'])) {
+            if (is_string($validated['tech_stack'])) {
+                $decoded = json_decode($validated['tech_stack'], true);
+                $validated['tech_stack'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', explode(',', $validated['tech_stack']))));
+            } elseif (!is_array($validated['tech_stack'])) {
+                $validated['tech_stack'] = [];
+            }
+        }
 
         // Handle uploaded image file
         if ($request->hasFile('image_file')) {

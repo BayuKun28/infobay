@@ -26,7 +26,6 @@ import PublicIcon from '@mui/icons-material/Public';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { getStorageUrl } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -45,18 +44,6 @@ const POPULAR_PLATFORMS = [
   'Facebook',
   'WhatsApp',
   'Personal Website / Blog',
-];
-
-const DEFAULT_MARQUEE_ITEMS = [
-  'LARAVEL 13',
-  'POSTGRESQL 17',
-  'REACTJS VITE',
-  'TAILWIND CSS',
-  'MATERIAL UI',
-  'DOCKER HOMELAB',
-  'REST API ARCHITECTURE',
-  'LINUX DEBIAN',
-  'SYSTEM AUTOMATION',
 ];
 
 export default function BiodataManager({ biodata, onRefresh, showToast, onOpenProfileModal }) {
@@ -84,10 +71,6 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
   // CV Upload state
   const [cvFile, setCvFile] = useState(null);
   const [cvUploading, setCvUploading] = useState(false);
-
-  // Marquee items state
-  const [marqueeItems, setMarqueeItems] = useState(DEFAULT_MARQUEE_ITEMS);
-  const [newMarqueeInput, setNewMarqueeInput] = useState('');
 
   const [loading, setLoading] = useState(false);
 
@@ -125,12 +108,6 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         setSocialLinks([]);
       }
 
-      // Load dynamic marquee items
-      if (biodata.marquee_items && Array.isArray(biodata.marquee_items) && biodata.marquee_items.length > 0) {
-        setMarqueeItems(biodata.marquee_items);
-      } else {
-        setMarqueeItems(DEFAULT_MARQUEE_ITEMS);
-      }
     }
   }, [biodata]);
 
@@ -174,23 +151,6 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     } finally {
       setCvUploading(false);
     }
-  };
-
-  const handleAddMarqueeItem = () => {
-    const trimmed = newMarqueeInput.trim().toUpperCase();
-    if (trimmed && !marqueeItems.includes(trimmed)) {
-      setMarqueeItems([...marqueeItems, trimmed]);
-      setNewMarqueeInput('');
-    }
-  };
-
-  const handleRemoveMarqueeItem = (index) => {
-    setMarqueeItems(marqueeItems.filter((_, i) => i !== index));
-  };
-
-  const handleResetMarquee = () => {
-    setMarqueeItems(DEFAULT_MARQUEE_ITEMS);
-    showToast('Daftar teks marquee direset ke default', 'info');
   };
 
   const handleAddSocialLink = () => {
@@ -248,7 +208,7 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         avatar: finalAvatarUrl,
         cv_file_url: finalCvUrl,
         social_links: cleanSocialLinks,
-        marquee_items: marqueeItems,
+        marquee_items: [],
       };
 
       await adminService.updateBiodata(payload);
@@ -323,7 +283,7 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                 Profil Pengembang &amp; Konfigurasi Portofolio
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Kelola identitas publik, tampilan Hero Section, berkas CV, running marquee, dan tautan sosial media.
+                Kelola identitas publik, tampilan Hero Section, berkas CV, dan tautan sosial media.
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mt: 1.5, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
                 <Chip size="small" label="Dynamic API Sync" color="info" variant="outlined" />
@@ -607,76 +567,7 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
               </Paper>
             </Grid>
 
-            {/* SECTION 4: RUNNING MARQUEE TICKER */}
-            <Grid item xs={12}>
-              <Divider sx={{ my: 1 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <ViewCarouselIcon fontSize="small" /> 4. Running Marquee Banner (Ticker Teks Berjalan)
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Daftar slogan atau highlight kompetensi yang berputar horizontal di bawah navbar.
-                  </Typography>
-                </Box>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<RefreshIcon />}
-                  onClick={handleResetMarquee}
-                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
-                >
-                  Reset Default
-                </Button>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 1.5, mb: 2, maxWidth: 500 }}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="Tambah item marquee baru (e.g. CLOUD ARCHITECTURE)..."
-                  value={newMarqueeInput}
-                  onChange={(e) => setNewMarqueeInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddMarqueeItem();
-                    }
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  onClick={handleAddMarqueeItem}
-                  disabled={!newMarqueeInput.trim()}
-                  sx={{ fontWeight: 700, px: 2.5, whiteSpace: 'nowrap' }}
-                >
-                  Tambah
-                </Button>
-              </Box>
-
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {marqueeItems.map((item, idx) => (
-                  <Chip
-                    key={idx}
-                    label={item}
-                    onDelete={() => handleRemoveMarqueeItem(idx)}
-                    sx={{
-                      fontWeight: 800,
-                      fontSize: '0.76rem',
-                      letterSpacing: '0.04em',
-                      bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 222, 89, 0.15)' : 'rgba(255, 222, 89, 0.3)',
-                      color: (th) => th.palette.mode === 'dark' ? '#FFDE59' : '#000000',
-                      border: 1,
-                      borderColor: (th) => th.palette.mode === 'dark' ? '#FFDE59' : '#000000',
-                    }}
-                  />
-                ))}
-              </Box>
-            </Grid>
-
-            {/* SECTION 5: DYNAMIC SOCIAL LINKS */}
+            {/* SECTION 4: DYNAMIC SOCIAL LINKS */}
             <Grid item xs={12}>
               <Divider sx={{ my: 1 }} />
               <Box
@@ -700,7 +591,7 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                 >
                   <Box>
                     <Typography variant="subtitle1" fontWeight="800" color="text.primary">
-                      5. Tautan Jejaring Sosial (Dynamic JSON)
+                      4. Tautan Jejaring Sosial (Dynamic JSON)
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       Tambah, edit, atau hapus sosmed apa saja tanpa batasan platform.

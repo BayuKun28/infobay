@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar, Footer } from '../components/layout';
-import Marquee from '../components/public/Marquee';
 import Hero from '../components/public/Hero';
 import About from '../components/public/About';
 import Services from '../components/public/Services';
@@ -52,9 +51,6 @@ export default function PublicPortfolio() {
         themeMode={themeMode}
         toggleThemeMode={toggleThemeMode}
       />
-
-      {/* Marquee Banner with dynamic items */}
-      <Marquee items={data?.biodata?.marquee_items} />
 
       {/* Hero Section */}
       <Hero biodata={data?.biodata} />

@@ -40,6 +40,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CategoryIcon from '@mui/icons-material/Category';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import LayersIcon from '@mui/icons-material/Layers';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
@@ -71,7 +72,9 @@ export default function PortfolioManager({
     link: '#',
     description: '',
     order_index: 1,
+    tech_stack: [],
   });
+  const [newTechInput, setNewTechInput] = useState('');
 
   // Local file upload state
   const [selectedFile, setSelectedFile] = useState(null);
@@ -147,6 +150,7 @@ export default function PortfolioManager({
     setCurrentId(null);
     setSelectedFile(null);
     setPreviewUrl('');
+    setNewTechInput('');
     const defaultCat = categories[0]?.name || 'Web Development';
     const nextOrder = portfolios.length > 0
       ? Math.max(...portfolios.map((p) => p.order_index ?? 0)) + 1
@@ -159,6 +163,7 @@ export default function PortfolioManager({
       link: '#',
       description: '',
       order_index: nextOrder,
+      tech_stack: [],
     });
     setOpenForm(true);
   };
@@ -168,6 +173,14 @@ export default function PortfolioManager({
     setCurrentId(item.id);
     setSelectedFile(null);
     setPreviewUrl(item.image || '');
+    setNewTechInput('');
+
+    const parsedTech = Array.isArray(item.tech_stack)
+      ? item.tech_stack.map((t) => (typeof t === 'object' && t !== null ? t.name || t.tag || '' : String(t))).filter(Boolean)
+      : typeof item.tech_stack === 'string'
+      ? item.tech_stack.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
     setFormData({
       title: item.title || '',
       category: item.category || 'Web Development',
@@ -175,8 +188,27 @@ export default function PortfolioManager({
       link: item.link || '#',
       description: item.description || '',
       order_index: item.order_index ?? 1,
+      tech_stack: parsedTech,
     });
     setOpenForm(true);
+  };
+
+  const handleAddTechTag = () => {
+    const trimmed = newTechInput.trim().replace(/^#/, '');
+    if (trimmed && !formData.tech_stack.some((t) => t.toLowerCase() === trimmed.toLowerCase())) {
+      setFormData((prev) => ({
+        ...prev,
+        tech_stack: [...prev.tech_stack, trimmed],
+      }));
+      setNewTechInput('');
+    }
+  };
+
+  const handleRemoveTechTag = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      tech_stack: prev.tech_stack.filter((t) => t !== tagToRemove),
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -224,6 +256,7 @@ export default function PortfolioManager({
         ...formData,
         order_index: parseInt(formData.order_index, 10) || 0,
         image: finalImageUrl,
+        tech_stack: formData.tech_stack || [],
       };
 
       if (isEditing) {
@@ -491,6 +524,32 @@ export default function PortfolioManager({
                   <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontSize: '0.72rem', mt: 0.3 }}>
                     {item.description || 'Tidak ada deskripsi'}
                   </Typography>
+                  {Array.isArray(item.tech_stack) && item.tech_stack.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, mt: 0.6 }}>
+                      {item.tech_stack.slice(0, 3).map((tech, tIdx) => {
+                        const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
+                        return (
+                          <Chip
+                            key={tIdx}
+                            label={`#${name}`}
+                            size="small"
+                            sx={{
+                              height: 16,
+                              fontSize: '0.6rem',
+                              fontWeight: 700,
+                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
+                              color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
+                            }}
+                          />
+                        );
+                      })}
+                      {item.tech_stack.length > 3 && (
+                        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', alignSelf: 'center' }}>
+                          +{item.tech_stack.length - 3}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
                 </Box>
               </Box>
 
@@ -715,6 +774,32 @@ export default function PortfolioManager({
                       >
                         {item.description || 'Tidak ada deskripsi'}
                       </Typography>
+                      {Array.isArray(item.tech_stack) && item.tech_stack.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                          {item.tech_stack.slice(0, 3).map((tech, tIdx) => {
+                            const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
+                            return (
+                              <Chip
+                                key={tIdx}
+                                label={`#${name}`}
+                                size="small"
+                                sx={{
+                                  height: 18,
+                                  fontSize: '0.62rem',
+                                  fontWeight: 700,
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
+                                  color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
+                                }}
+                              />
+                            );
+                          })}
+                          {item.tech_stack.length > 3 && (
+                            <Typography variant="caption" sx={{ fontSize: '0.62rem', color: 'text.secondary', alignSelf: 'center' }}>
+                              +{item.tech_stack.length - 3}
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -1011,6 +1096,81 @@ export default function PortfolioManager({
               size="small"
               placeholder="https://..."
             />
+
+            {/* Tech Stack & Frameworks Input */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <LayersIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                TECH STACK & FRAMEWORKS
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  placeholder="Ketik teknologi (contoh: Laravel, React, Tailwind) lalu tekan Enter"
+                  size="small"
+                  fullWidth
+                  value={newTechInput}
+                  onChange={(e) => setNewTechInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTechTag();
+                    }
+                  }}
+                  helperText="Tekan Enter atau klik Tambah untuk menyematkan tag teknologi pada portofolio ini"
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAddTechTag}
+                  disabled={!newTechInput.trim()}
+                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
+                >
+                  Tambah
+                </Button>
+              </Box>
+
+              {/* Chips Display */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 0.8,
+                  minHeight: 38,
+                  p: 1.2,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
+                }}
+              >
+                {formData.tech_stack && formData.tech_stack.length > 0 ? (
+                  formData.tech_stack.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={`#${tag}`}
+                      size="small"
+                      onDelete={() => handleRemoveTechTag(tag)}
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.72rem',
+                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
+                        color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
+                        border: 1,
+                        borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
+                        '& .MuiChip-deleteIcon': {
+                          color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
+                          '&:hover': { color: 'error.main' },
+                        },
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
+                    Belum ada tech stack disematkan. Ketik di atas dan tekan Tambah atau Enter.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
 
             <TextField
               label="Deskripsi Proyek"
