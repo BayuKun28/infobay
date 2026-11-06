@@ -27,6 +27,8 @@ import {
   CardMedia,
   useTheme,
   useMediaQuery,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -41,6 +43,8 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LayersIcon from '@mui/icons-material/Layers';
+import BoltIcon from '@mui/icons-material/Bolt';
+import StarIcon from '@mui/icons-material/Star';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
@@ -70,11 +74,16 @@ export default function PortfolioManager({
     category: 'Web Development',
     image: '',
     link: '#',
+    github_url: '',
+    project_role: '',
+    is_featured: false,
     description: '',
     order_index: 1,
     tech_stack: [],
+    metrics: [],
   });
   const [newTechInput, setNewTechInput] = useState('');
+  const [newMetricInput, setNewMetricInput] = useState('');
 
   // Local file upload state
   const [selectedFile, setSelectedFile] = useState(null);
@@ -151,6 +160,7 @@ export default function PortfolioManager({
     setSelectedFile(null);
     setPreviewUrl('');
     setNewTechInput('');
+    setNewMetricInput('');
     const defaultCat = categories[0]?.name || 'Web Development';
     const nextOrder = portfolios.length > 0
       ? Math.max(...portfolios.map((p) => p.order_index ?? 0)) + 1
@@ -161,9 +171,13 @@ export default function PortfolioManager({
       category: defaultCat,
       image: '',
       link: '#',
+      github_url: '',
+      project_role: '',
+      is_featured: false,
       description: '',
       order_index: nextOrder,
       tech_stack: [],
+      metrics: [],
     });
     setOpenForm(true);
   };
@@ -174,6 +188,7 @@ export default function PortfolioManager({
     setSelectedFile(null);
     setPreviewUrl(item.image || '');
     setNewTechInput('');
+    setNewMetricInput('');
 
     const parsedTech = Array.isArray(item.tech_stack)
       ? item.tech_stack.map((t) => (typeof t === 'object' && t !== null ? t.name || t.tag || '' : String(t))).filter(Boolean)
@@ -181,14 +196,31 @@ export default function PortfolioManager({
       ? item.tech_stack.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
 
+    const parsedMetrics = Array.isArray(item.metrics)
+      ? item.metrics.map(String).filter(Boolean)
+      : typeof item.metrics === 'string'
+      ? (() => {
+          try {
+            const parsed = JSON.parse(item.metrics);
+            return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+          } catch {
+            return item.metrics.split('\n').map((s) => s.trim()).filter(Boolean);
+          }
+        })()
+      : [];
+
     setFormData({
       title: item.title || '',
       category: item.category || 'Web Development',
       image: item.image || '',
       link: item.link || '#',
+      github_url: item.github_url || '',
+      project_role: item.project_role || '',
+      is_featured: Boolean(item.is_featured ?? item.featured ?? false),
       description: item.description || '',
       order_index: item.order_index ?? 1,
       tech_stack: parsedTech,
+      metrics: parsedMetrics,
     });
     setOpenForm(true);
   };
@@ -208,6 +240,24 @@ export default function PortfolioManager({
     setFormData((prev) => ({
       ...prev,
       tech_stack: prev.tech_stack.filter((t) => t !== tagToRemove),
+    }));
+  };
+
+  const handleAddMetric = () => {
+    const trimmed = newMetricInput.trim();
+    if (trimmed && !formData.metrics.includes(trimmed)) {
+      setFormData((prev) => ({
+        ...prev,
+        metrics: [...prev.metrics, trimmed],
+      }));
+      setNewMetricInput('');
+    }
+  };
+
+  const handleRemoveMetric = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      metrics: prev.metrics.filter((_, idx) => idx !== indexToRemove),
     }));
   };
 
@@ -257,6 +307,10 @@ export default function PortfolioManager({
         order_index: parseInt(formData.order_index, 10) || 0,
         image: finalImageUrl,
         tech_stack: formData.tech_stack || [],
+        metrics: formData.metrics || [],
+        project_role: formData.project_role || '',
+        github_url: formData.github_url || '',
+        is_featured: Boolean(formData.is_featured),
       };
 
       if (isEditing) {
@@ -511,6 +565,22 @@ export default function PortfolioManager({
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
                         ID:{item.id}
                       </Typography>
+                      {(item.is_featured ?? item.featured) && (
+                        <Chip
+                          label="★"
+                          size="small"
+                          sx={{
+                            height: 18,
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            bgcolor: '#FEF08A',
+                            color: '#854D0E',
+                            border: 1,
+                            borderColor: '#EAB308',
+                          }}
+                          title="Featured Project"
+                        />
+                      )}
                     </Box>
                     <Chip
                       label={item.category}
@@ -521,35 +591,49 @@ export default function PortfolioManager({
                   <Typography variant="subtitle2" fontWeight={700} noWrap sx={{ fontSize: '0.88rem' }}>
                     {item.title}
                   </Typography>
+                  {item.project_role && (
+                    <Typography variant="caption" sx={{ display: 'block', color: 'primary.main', fontWeight: 700, fontSize: '0.68rem', mt: -0.2 }}>
+                      {item.project_role}
+                    </Typography>
+                  )}
                   <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontSize: '0.72rem', mt: 0.3 }}>
                     {item.description || 'Tidak ada deskripsi'}
                   </Typography>
-                  {Array.isArray(item.tech_stack) && item.tech_stack.length > 0 && (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, mt: 0.6 }}>
-                      {item.tech_stack.slice(0, 3).map((tech, tIdx) => {
-                        const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
-                        return (
-                          <Chip
-                            key={tIdx}
-                            label={`#${name}`}
-                            size="small"
-                            sx={{
-                              height: 16,
-                              fontSize: '0.6rem',
-                              fontWeight: 700,
-                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
-                              color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
-                            }}
-                          />
-                        );
-                      })}
-                      {item.tech_stack.length > 3 && (
-                        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', alignSelf: 'center' }}>
-                          +{item.tech_stack.length - 3}
-                        </Typography>
-                      )}
-                    </Box>
-                  )}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, mt: 0.6 }}>
+                    {Array.isArray(item.tech_stack) && item.tech_stack.slice(0, 3).map((tech, tIdx) => {
+                      const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
+                      return (
+                        <Chip
+                          key={tIdx}
+                          label={`#${name}`}
+                          size="small"
+                          sx={{
+                            height: 16,
+                            fontSize: '0.6rem',
+                            fontWeight: 700,
+                            bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
+                            color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
+                          }}
+                        />
+                      );
+                    })}
+                    {Array.isArray(item.metrics) && item.metrics.length > 0 && (
+                      <Chip
+                        icon={<BoltIcon sx={{ fontSize: '11px !important' }} />}
+                        label={`${item.metrics.length} Metrik`}
+                        size="small"
+                        sx={{
+                          height: 16,
+                          fontSize: '0.6rem',
+                          fontWeight: 700,
+                          bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)',
+                          color: '#D97706',
+                          border: 1,
+                          borderColor: 'rgba(245, 158, 11, 0.3)',
+                        }}
+                      />
+                    )}
+                  </Box>
                 </Box>
               </Box>
 
@@ -758,9 +842,31 @@ export default function PortfolioManager({
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.82rem' }}>
-                        {item.title}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flexWrap: 'wrap' }}>
+                        <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.82rem' }}>
+                          {item.title}
+                        </Typography>
+                        {(item.is_featured ?? item.featured) && (
+                          <Chip
+                            label="★ FEATURED"
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: '0.6rem',
+                              fontWeight: 800,
+                              bgcolor: '#FEF08A',
+                              color: '#854D0E',
+                              border: 1,
+                              borderColor: '#EAB308',
+                            }}
+                          />
+                        )}
+                      </Box>
+                      {item.project_role && (
+                        <Typography variant="caption" sx={{ display: 'block', color: 'primary.main', fontWeight: 700, fontSize: '0.7rem' }}>
+                          {item.project_role}
+                        </Typography>
+                      )}
                       <Typography
                         variant="caption"
                         color="text.secondary"
@@ -774,9 +880,9 @@ export default function PortfolioManager({
                       >
                         {item.description || 'Tidak ada deskripsi'}
                       </Typography>
-                      {Array.isArray(item.tech_stack) && item.tech_stack.length > 0 && (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                          {item.tech_stack.slice(0, 3).map((tech, tIdx) => {
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                        {Array.isArray(item.tech_stack) && item.tech_stack.length > 0 &&
+                          item.tech_stack.slice(0, 3).map((tech, tIdx) => {
                             const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
                             return (
                               <Chip
@@ -793,13 +899,23 @@ export default function PortfolioManager({
                               />
                             );
                           })}
-                          {item.tech_stack.length > 3 && (
-                            <Typography variant="caption" sx={{ fontSize: '0.62rem', color: 'text.secondary', alignSelf: 'center' }}>
-                              +{item.tech_stack.length - 3}
-                            </Typography>
-                          )}
-                        </Box>
-                      )}
+                        {Array.isArray(item.metrics) && item.metrics.length > 0 && (
+                          <Chip
+                            icon={<BoltIcon sx={{ fontSize: '12px !important' }} />}
+                            label={`${item.metrics.length} Metrik`}
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: '0.62rem',
+                              fontWeight: 700,
+                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)',
+                              color: '#D97706',
+                              border: 1,
+                              borderColor: 'rgba(245, 158, 11, 0.3)',
+                            }}
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -932,7 +1048,7 @@ export default function PortfolioManager({
       <Dialog
         open={openForm}
         onClose={() => setOpenForm(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
         PaperProps={{ sx: { borderRadius: 2.5 } }}
       >
@@ -1000,6 +1116,53 @@ export default function PortfolioManager({
               >
                 Kelola
               </Button>
+            </Box>
+
+            {/* Project Role & Featured Toggle in 2-column Box */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center' }}>
+              <TextField
+                label="Peran Proyek (Project Role)"
+                fullWidth
+                value={formData.project_role}
+                onChange={(e) => setFormData({ ...formData, project_role: e.target.value })}
+                size="small"
+                placeholder="Contoh: Senior Web Programmer / Lead Architect"
+                helperText="Peran pada proyek ini (default: Senior Software Engineer)"
+              />
+
+              <Box
+                sx={{
+                  p: 1,
+                  px: 1.5,
+                  border: 1,
+                  borderColor: formData.is_featured ? '#F59E0B' : 'divider',
+                  borderRadius: 2,
+                  bgcolor: formData.is_featured
+                    ? (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.08)'
+                    : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.is_featured}
+                      onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                      color="warning"
+                    />
+                  }
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <StarIcon sx={{ fontSize: 18, color: formData.is_featured ? '#F59E0B' : 'text.secondary' }} />
+                      <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                        Tandai Proyek Unggulan (★ FEATURED)
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ m: 0 }}
+                />
+              </Box>
             </Box>
 
             {/* Order Index Input */}
@@ -1088,20 +1251,34 @@ export default function PortfolioManager({
               helperText="Bisa diisi URL gambar eksternal atau biarkan kosong jika mengunggah file di atas."
             />
 
-            <TextField
-              label="Tautan Proyek / Demo"
-              fullWidth
-              value={formData.link}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              size="small"
-              placeholder="https://..."
-            />
+            {/* Links: Demo Link & GitHub Source Code in 2-column Grid */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <TextField
+                label="Tautan Proyek / Demo"
+                fullWidth
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                size="small"
+                placeholder="https://..."
+                helperText="Tautan website live / tombol KUNJUNGI WEBSITE"
+              />
+
+              <TextField
+                label="Tautan GitHub / Source Code"
+                fullWidth
+                value={formData.github_url}
+                onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
+                size="small"
+                placeholder="https://github.com/..."
+                helperText="Tautan repositori / tombol LIHAT SOURCE CODE"
+              />
+            </Box>
 
             {/* Tech Stack & Frameworks Input */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
                 <LayersIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                TECH STACK & FRAMEWORKS
+                TECH STACK &amp; FRAMEWORKS
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
@@ -1167,6 +1344,104 @@ export default function PortfolioManager({
                 ) : (
                   <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
                     Belum ada tech stack disematkan. Ketik di atas dan tekan Tambah atau Enter.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+
+            {/* Matrix Informasi & Metrik Kunci Input */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <BoltIcon sx={{ fontSize: 16, color: '#F59E0B' }} />
+                DAMPAK &amp; METRIK KUNCI (MATRIX INFORMASI)
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  placeholder="Ketik capaian/metrik (contoh: Rp 100M+ Plafon Kredit Terkelola / 10K+ Transaksi Bulanan)"
+                  size="small"
+                  fullWidth
+                  value={newMetricInput}
+                  onChange={(e) => setNewMetricInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddMetric();
+                    }
+                  }}
+                  helperText="Tekan Enter atau klik Tambah untuk menyematkan kartu matriks metrik ke modal proyek publik"
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAddMetric}
+                  disabled={!newMetricInput.trim()}
+                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
+                >
+                  Tambah
+                </Button>
+              </Box>
+
+              {/* Metrics List Display */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0.8,
+                  minHeight: 38,
+                  p: 1.2,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
+                }}
+              >
+                {formData.metrics && formData.metrics.length > 0 ? (
+                  formData.metrics.map((metric, mIdx) => (
+                    <Box
+                      key={mIdx}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        px: 1.5,
+                        py: 0.8,
+                        borderRadius: 1.5,
+                        border: 1,
+                        borderColor: 'divider',
+                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#FFFFFF',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip
+                          label={`METRIC #${mIdx + 1}`}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            bgcolor: '#FEF08A',
+                            color: '#854D0E',
+                            border: 1,
+                            borderColor: '#EAB308',
+                          }}
+                        />
+                        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                          {metric}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveMetric(mIdx)}
+                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, p: 0.4 }}
+                        title="Hapus Metrik"
+                      >
+                        <ClearIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
+                    Belum ada matriks metrik disematkan. Ketik di atas dan tekan Tambah atau Enter.
                   </Typography>
                 )}
               </Box>

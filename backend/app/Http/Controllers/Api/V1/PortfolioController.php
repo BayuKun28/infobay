@@ -87,10 +87,22 @@ class PortfolioController extends Controller
             'tech_stack' => 'nullable',
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
-            'metrics' => 'nullable|array',
+            'metrics' => 'nullable',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize metrics (support array, JSON string, or newline-separated string)
+        if (isset($validated['metrics'])) {
+            if (is_string($validated['metrics'])) {
+                $decoded = json_decode($validated['metrics'], true);
+                $validated['metrics'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', explode("\n", $validated['metrics']))));
+            } elseif (!is_array($validated['metrics'])) {
+                $validated['metrics'] = [];
+            }
+        }
 
         // Normalize tech_stack (support array, JSON string, or comma-separated string)
         if (isset($validated['tech_stack'])) {
@@ -152,10 +164,22 @@ class PortfolioController extends Controller
             'tech_stack' => 'nullable',
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
-            'metrics' => 'nullable|array',
+            'metrics' => 'nullable',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize metrics (support array, JSON string, or newline-separated string)
+        if (isset($validated['metrics'])) {
+            if (is_string($validated['metrics'])) {
+                $decoded = json_decode($validated['metrics'], true);
+                $validated['metrics'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', explode("\n", $validated['metrics']))));
+            } elseif (!is_array($validated['metrics'])) {
+                $validated['metrics'] = [];
+            }
+        }
 
         // Normalize tech_stack (support array, JSON string, or comma-separated string)
         if (isset($validated['tech_stack'])) {

@@ -86,7 +86,7 @@ export default function PortfolioDetailModal({ project, onClose }) {
             <span className="bg-neo-mint border-2 border-black text-black px-2.5 py-0.5 font-black text-[11px] uppercase tracking-wider">
               {project.category || 'Production'}
             </span>
-            {project.featured && (
+            {(project.featured || project.is_featured) && (
               <span className="bg-neo-pink border-2 border-black text-black px-2 py-0.5 font-black text-[11px] uppercase tracking-wider">
                 ★ FEATURED
               </span>
