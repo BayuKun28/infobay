@@ -75,18 +75,18 @@ export default function Hero({ biodata }) {
             <span className="text-gray-700 dark:text-slate-300 uppercase text-[11px] tracking-wider mr-1">
               {t('hero.known_as', 'Known As:')}
             </span>
-            <span className="bg-neo-yellow border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
-              baydev
-            </span>
-            <span className="bg-neo-mint border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
-              bayukun
-            </span>
-            <span className="bg-neo-pink border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
-              masbay (Mas Bay)
-            </span>
-            <span className="bg-neo-cyan border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black">
-              BayuKun28
-            </span>
+            {(Array.isArray(biodata?.aliases) && biodata.aliases.length > 0
+              ? biodata.aliases
+              : ['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28']
+            ).map((alias, idx) => {
+              const bgColors = ['bg-neo-yellow', 'bg-neo-mint', 'bg-neo-pink', 'bg-neo-cyan', 'bg-neo-lilac'];
+              const bgClass = bgColors[idx % bgColors.length];
+              return (
+                <span key={idx} className={`${bgClass} border-2 border-black px-2.5 py-0.5 shadow-neo-sm text-black`}>
+                  {alias}
+                </span>
+              );
+            })}
           </div>
 
           {/* Quick Info Badges */}

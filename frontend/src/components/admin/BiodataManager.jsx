@@ -27,6 +27,10 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import TerminalIcon from '@mui/icons-material/Terminal';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import LabelIcon from '@mui/icons-material/Label';
+import ShieldIcon from '@mui/icons-material/Shield';
 import { getStorageUrl } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -61,10 +65,22 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     experience_years_text: '',
     projects_completed_text: '',
     cv_file_url: '',
+    specialization: '',
+    work_status: '',
+    terminal_user_host: 'baydev@workstation:~$',
+    terminal_lines_text: '',
   });
 
   // Dynamic social links array of { platform: '', url: '' }
   const [socialLinks, setSocialLinks] = useState([]);
+  const [aliases, setAliases] = useState(['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28']);
+  const [newAliasInput, setNewAliasInput] = useState('');
+  const [engineeringPrinciples, setEngineeringPrinciples] = useState([
+    { title: 'Architecture First', desc: 'Desain database relasional kokoh, query terindeks, dan skema bersih.' },
+    { title: 'Authentic UX', desc: 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.' },
+    { title: 'Rock-Solid Security', desc: 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.' },
+  ]);
+
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
 
@@ -76,6 +92,24 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
 
   useEffect(() => {
     if (biodata) {
+      const defaultPrinciples = [
+        { title: 'Architecture First', desc: 'Desain database relasional kokoh, query terindeks, dan skema bersih.' },
+        { title: 'Authentic UX', desc: 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.' },
+        { title: 'Rock-Solid Security', desc: 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.' },
+      ];
+
+      const defaultTerminalLines = [
+        'git checkout -b feature/high-performance',
+        'composer check & npm test',
+        'All 15+ production systems operational',
+      ];
+
+      const currentTerminalLines = Array.isArray(biodata.terminal_widget?.lines)
+        ? biodata.terminal_widget.lines.join('\n')
+        : typeof biodata.terminal_widget === 'string'
+        ? biodata.terminal_widget
+        : defaultTerminalLines.join('\n');
+
       setFormData({
         name: biodata.name || '',
         title: biodata.title || '',
@@ -90,9 +124,27 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         experience_years_text: biodata.experience_years_text || '',
         projects_completed_text: biodata.projects_completed_text || '',
         cv_file_url: biodata.cv_file_url || '',
+        specialization: biodata.specialization || 'Web Application & API Systems',
+        work_status: biodata.work_status || 'Open for Remote & Hybrid Roles',
+        terminal_user_host: biodata.terminal_widget?.user_host || 'baydev@workstation:~$',
+        terminal_lines_text: currentTerminalLines,
       });
 
       setAvatarPreview(biodata.avatar || '');
+
+      // Load dynamic aliases
+      if (biodata.aliases && Array.isArray(biodata.aliases) && biodata.aliases.length > 0) {
+        setAliases(biodata.aliases);
+      } else {
+        setAliases(['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28']);
+      }
+
+      // Load engineering principles
+      if (biodata.engineering_principles && Array.isArray(biodata.engineering_principles) && biodata.engineering_principles.length > 0) {
+        setEngineeringPrinciples(biodata.engineering_principles);
+      } else {
+        setEngineeringPrinciples(defaultPrinciples);
+      }
 
       // Load dynamic social_links or fallback to legacy socials
       if (biodata.social_links && Array.isArray(biodata.social_links) && biodata.social_links.length > 0) {
@@ -107,7 +159,6 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
       } else {
         setSocialLinks([]);
       }
-
     }
   }, [biodata]);
 
@@ -168,6 +219,32 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     setSocialLinks(updated);
   };
 
+  const handleAddAlias = () => {
+    const trimmed = newAliasInput.trim();
+    if (trimmed && !aliases.includes(trimmed)) {
+      setAliases([...aliases, trimmed]);
+      setNewAliasInput('');
+    }
+  };
+
+  const handleRemoveAlias = (idx) => {
+    setAliases(aliases.filter((_, i) => i !== idx));
+  };
+
+  const handleAddPrinciple = () => {
+    setEngineeringPrinciples([...engineeringPrinciples, { title: '', desc: '' }]);
+  };
+
+  const handleUpdatePrinciple = (idx, field, val) => {
+    const updated = [...engineeringPrinciples];
+    updated[idx][field] = val;
+    setEngineeringPrinciples(updated);
+  };
+
+  const handleRemovePrinciple = (idx) => {
+    setEngineeringPrinciples(engineeringPrinciples.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -208,6 +285,15 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         avatar: finalAvatarUrl,
         cv_file_url: finalCvUrl,
         social_links: cleanSocialLinks,
+        aliases: aliases.filter(Boolean),
+        engineering_principles: engineeringPrinciples.filter((p) => p.title && p.title.trim()),
+        terminal_widget: {
+          user_host: formData.terminal_user_host || 'baydev@workstation:~$',
+          lines: formData.terminal_lines_text
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean),
+        },
         marquee_items: [],
       };
 
@@ -407,6 +493,30 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                 onChange={(e) => setFormData({ ...formData, about: e.target.value })}
                 size="small"
                 placeholder="Ceritakan tentang diri Anda, keahlian, dan minat..."
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Spesialisasi Profil (About Me Box)"
+                fullWidth
+                value={formData.specialization}
+                onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                size="small"
+                placeholder="e.g. Web Application & API Systems"
+                helperText="Tampil di kartu profil seksi About Me halaman publik"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Status Ketersediaan Kerja"
+                fullWidth
+                value={formData.work_status}
+                onChange={(e) => setFormData({ ...formData, work_status: e.target.value })}
+                size="small"
+                placeholder="e.g. Open for Remote & Hybrid Roles"
+                helperText="Status ketersediaan kontrak/pekerjaan di seksi About Me"
               />
             </Grid>
 
@@ -692,6 +802,219 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                     ))}
                   </Box>
                 )}
+              </Box>
+            </Grid>
+
+            {/* SECTION 5: ALIASES & MONIKERS (KNOWN AS) */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(15, 23, 42, 0.03)',
+                  borderRadius: 3,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LabelIcon fontSize="small" sx={{ color: 'primary.main' }} /> 5. Kata Kunci Monikers &amp; Alias ("Known As")
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                  Tag sebutan atau nama panggung developer yang tampil di Hero Section dan About Section untuk optimasi kata kunci pencarian SEO.
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                  <TextField
+                    placeholder="Ketik alias (contoh: baydev, bayukun, masbay) lalu tekan Enter"
+                    size="small"
+                    fullWidth
+                    value={newAliasInput}
+                    onChange={(e) => setNewAliasInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddAlias();
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleAddAlias}
+                    disabled={!newAliasInput.trim()}
+                    sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
+                  >
+                    Tambah
+                  </Button>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 0.8,
+                    p: 1.2,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'background.paper',
+                    minHeight: 40,
+                  }}
+                >
+                  {aliases.map((alias, aIdx) => (
+                    <Chip
+                      key={aIdx}
+                      label={alias}
+                      size="small"
+                      onDelete={() => handleRemoveAlias(aIdx)}
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.72rem',
+                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(251, 191, 36, 0.15)' : 'rgba(245, 158, 11, 0.1)',
+                        color: '#D97706',
+                        border: 1,
+                        borderColor: 'rgba(245, 158, 11, 0.3)',
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            </Grid>
+
+            {/* SECTION 6: PRINSIP REKAYASA SISTEM */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(15, 23, 42, 0.03)',
+                  borderRadius: 3,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <ShieldIcon fontSize="small" sx={{ color: '#10B981' }} /> 6. Prinsip Rekayasa Sistem (Core Values)
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Kartu nilai dan prinsip kerja teknik rekayasa yang tampil pada seksi About Me halaman publik.
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<AddCircleOutlineIcon sx={{ fontSize: 18 }} />}
+                    onClick={handleAddPrinciple}
+                    sx={{ textTransform: 'none', fontWeight: 700 }}
+                  >
+                    Tambah Prinsip
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {engineeringPrinciples.map((principle, pIdx) => (
+                    <Card
+                      key={pIdx}
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'background.paper',
+                        border: 1,
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Grid container spacing={1.5} alignItems="flex-start">
+                        <Grid item xs={12} sm={4}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label="Judul Prinsip"
+                            placeholder="Contoh: Architecture First"
+                            value={principle.title}
+                            onChange={(e) => handleUpdatePrinciple(pIdx, 'title', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={11} sm={7}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label="Deskripsi / Penjelasan"
+                            placeholder="Contoh: Desain database relasional kokoh, query terindeks, dan skema bersih."
+                            value={principle.desc}
+                            onChange={(e) => handleUpdatePrinciple(pIdx, 'desc', e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={1} sm={1} sx={{ textAlign: 'center', pt: { xs: 0, sm: 0.5 } }}>
+                          <Tooltip title="Hapus Prinsip">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemovePrinciple(pIdx)}
+                              sx={{
+                                p: 0.7,
+                                color: 'error.main',
+                                '&:hover': { bgcolor: 'error.main', color: '#fff' },
+                              }}
+                            >
+                              <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>
+                    </Card>
+                  ))}
+                </Box>
+              </Box>
+            </Grid>
+
+            {/* SECTION 7: INTERACTIVE TERMINAL WIDGET */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(15, 23, 42, 0.03)',
+                  borderRadius: 3,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <TerminalIcon fontSize="small" sx={{ color: '#F59E0B' }} /> 7. Widget Terminal Interaktif (Skills Arsenal)
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                  Kustomisasi prompt teks header dan baris-baris perintah shell terminal developer pada seksi Skills halaman depan.
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={5}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Prompt User / Hostname"
+                      placeholder="baydev@workstation:~$"
+                      value={formData.terminal_user_host}
+                      onChange={(e) => setFormData({ ...formData, terminal_user_host: e.target.value })}
+                      helperText="Contoh: baydev@workstation:~$"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={7}>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={4}
+                      size="small"
+                      label="Daftar Perintah Terminal (1 Perintah Per Baris)"
+                      placeholder="git checkout -b feature/high-performance&#10;composer check & npm test&#10;All 15+ production systems operational"
+                      value={formData.terminal_lines_text}
+                      onChange={(e) => setFormData({ ...formData, terminal_lines_text: e.target.value })}
+                      helperText="Tiap baris teks akan otomatis diberi ikon bullet shell ➜"
+                    />
+                  </Grid>
+                </Grid>
               </Box>
             </Grid>
 

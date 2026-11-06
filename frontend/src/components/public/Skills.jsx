@@ -2,8 +2,17 @@ import React from 'react';
 import { Cpu, Layers, Check, Terminal } from 'lucide-react';
 import { useLanguage } from '../../hooks';
 
-export default function Skills({ skills = [], techStack = [] }) {
+export default function Skills({ skills = [], techStack = [], biodata = null }) {
   const { t } = useLanguage();
+
+  const terminalHost = biodata?.terminal_widget?.user_host || 'baydev@workstation:~$';
+  const terminalLines = Array.isArray(biodata?.terminal_widget?.lines) && biodata.terminal_widget.lines.length > 0
+    ? biodata.terminal_widget.lines
+    : [
+        'git checkout -b feature/high-performance',
+        'composer check & npm test',
+        'All 15+ production systems operational',
+      ];
 
   return (
     <section id="skills" className="px-4 sm:px-8 py-16 max-w-7xl mx-auto border-t-4 border-black dark:border-slate-800 bg-white dark:bg-[#0B0F19] transition-colors duration-150">
@@ -101,12 +110,21 @@ export default function Skills({ skills = [], techStack = [] }) {
           <div className="border-3 border-black dark:border-slate-700 bg-black text-white p-5 shadow-neo-lg font-mono text-xs">
             <div className="flex items-center gap-2 pb-3 mb-3 border-b border-gray-800 text-neo-yellow">
               <Terminal className="w-4 h-4" />
-              <span className="font-bold">baydev@workstation:~$</span>
+              <span className="font-bold">{terminalHost}</span>
             </div>
             <div className="space-y-1 text-gray-300">
-              <p><span className="text-neo-mint">➜</span> git checkout -b feature/high-performance</p>
-              <p><span className="text-neo-pink">➜</span> composer check &amp; npm test</p>
-              <p><span className="text-neo-yellow">✔</span> All 15+ production systems operational</p>
+              {terminalLines.map((line, lIdx) => {
+                const bulletColors = ['text-neo-mint', 'text-neo-pink', 'text-neo-yellow', 'text-neo-cyan'];
+                const isCheck = line.toLowerCase().includes('operational') || line.toLowerCase().includes('ready') || line.toLowerCase().includes('success');
+                return (
+                  <p key={lIdx}>
+                    <span className={isCheck ? 'text-neo-yellow' : bulletColors[lIdx % bulletColors.length]}>
+                      {isCheck ? '✔' : '➜'}
+                    </span>{' '}
+                    {line}
+                  </p>
+                );
+              })}
             </div>
           </div>
         </div>

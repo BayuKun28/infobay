@@ -132,6 +132,7 @@ class ApiEndpointsTest extends TestCase
                 'github_url' => 'https://github.com/BayuKun28/test',
                 'is_featured' => true,
                 'metrics' => ['10K+ Users', '99.9% Uptime', 'Zero Downtime'],
+                'highlights' => ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE'],
                 'tech_stack' => ['Laravel 13', 'React 18'],
             ]);
 
@@ -139,7 +140,8 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data.project_role', 'Senior Architect')
             ->assertJsonPath('data.is_featured', true)
-            ->assertJsonPath('data.metrics', ['10K+ Users', '99.9% Uptime', 'Zero Downtime']);
+            ->assertJsonPath('data.metrics', ['10K+ Users', '99.9% Uptime', 'Zero Downtime'])
+            ->assertJsonPath('data.highlights', ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE']);
         $newId = $createRes->json('data.id');
 
         // 3. Update portfolio
@@ -147,12 +149,14 @@ class ApiEndpointsTest extends TestCase
             ->putJson("/api/v1/admin/portfolios/{$newId}", [
                 'title' => 'Test Project Automated Updated',
                 'metrics' => ['50K+ Active Users', 'Zero Downtime'],
+                'highlights' => ['⚡ HIGH PERFORMANCE', '📱 RESPONSIVE DESIGN'],
                 'is_featured' => false,
             ]);
         $updateRes->assertStatus(200)
             ->assertJsonPath('data.title', 'Test Project Automated Updated')
             ->assertJsonPath('data.is_featured', false)
-            ->assertJsonPath('data.metrics', ['50K+ Active Users', 'Zero Downtime']);
+            ->assertJsonPath('data.metrics', ['50K+ Active Users', 'Zero Downtime'])
+            ->assertJsonPath('data.highlights', ['⚡ HIGH PERFORMANCE', '📱 RESPONSIVE DESIGN']);
 
         // 4. Delete portfolio
         $deleteRes = $this->withHeader('Authorization', 'Bearer ' . $token)

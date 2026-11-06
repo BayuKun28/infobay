@@ -45,6 +45,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LayersIcon from '@mui/icons-material/Layers';
 import BoltIcon from '@mui/icons-material/Bolt';
 import StarIcon from '@mui/icons-material/Star';
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
@@ -81,9 +82,11 @@ export default function PortfolioManager({
     order_index: 1,
     tech_stack: [],
     metrics: [],
+    highlights: [],
   });
   const [newTechInput, setNewTechInput] = useState('');
   const [newMetricInput, setNewMetricInput] = useState('');
+  const [newHighlightInput, setNewHighlightInput] = useState('');
 
   // Local file upload state
   const [selectedFile, setSelectedFile] = useState(null);
@@ -178,6 +181,7 @@ export default function PortfolioManager({
       order_index: nextOrder,
       tech_stack: [],
       metrics: [],
+      highlights: ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN'],
     });
     setOpenForm(true);
   };
@@ -189,6 +193,7 @@ export default function PortfolioManager({
     setPreviewUrl(item.image || '');
     setNewTechInput('');
     setNewMetricInput('');
+    setNewHighlightInput('');
 
     const parsedTech = Array.isArray(item.tech_stack)
       ? item.tech_stack.map((t) => (typeof t === 'object' && t !== null ? t.name || t.tag || '' : String(t))).filter(Boolean)
@@ -209,6 +214,19 @@ export default function PortfolioManager({
         })()
       : [];
 
+    const parsedHighlights = Array.isArray(item.highlights)
+      ? item.highlights.map(String).filter(Boolean)
+      : typeof item.highlights === 'string'
+      ? (() => {
+          try {
+            const parsed = JSON.parse(item.highlights);
+            return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+          } catch {
+            return item.highlights.split(',').map((s) => s.trim()).filter(Boolean);
+          }
+        })()
+      : ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN'];
+
     setFormData({
       title: item.title || '',
       category: item.category || 'Web Development',
@@ -221,6 +239,7 @@ export default function PortfolioManager({
       order_index: item.order_index ?? 1,
       tech_stack: parsedTech,
       metrics: parsedMetrics,
+      highlights: parsedHighlights,
     });
     setOpenForm(true);
   };
@@ -258,6 +277,24 @@ export default function PortfolioManager({
     setFormData((prev) => ({
       ...prev,
       metrics: prev.metrics.filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
+
+  const handleAddHighlight = () => {
+    const trimmed = newHighlightInput.trim();
+    if (trimmed && !formData.highlights.includes(trimmed)) {
+      setFormData((prev) => ({
+        ...prev,
+        highlights: [...prev.highlights, trimmed],
+      }));
+      setNewHighlightInput('');
+    }
+  };
+
+  const handleRemoveHighlight = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      highlights: prev.highlights.filter((_, idx) => idx !== indexToRemove),
     }));
   };
 
@@ -308,6 +345,7 @@ export default function PortfolioManager({
         image: finalImageUrl,
         tech_stack: formData.tech_stack || [],
         metrics: formData.metrics || [],
+        highlights: formData.highlights || [],
         project_role: formData.project_role || '',
         github_url: formData.github_url || '',
         is_featured: Boolean(formData.is_featured),
@@ -1442,6 +1480,76 @@ export default function PortfolioManager({
                 ) : (
                   <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
                     Belum ada matriks metrik disematkan. Ketik di atas dan tekan Tambah atau Enter.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+
+            {/* Highlights Badges (Sorotan Keunggulan Proyek) */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <ShieldOutlinedIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+                SOROTAN KEUNGGULAN (HIGHLIGHTS BADGES MODAL)
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  placeholder="Contoh: ⚡ HIGH AVAILABILITY / 🔒 OJK COMPLIANT / 📱 RESPONSIVE"
+                  size="small"
+                  fullWidth
+                  value={newHighlightInput}
+                  onChange={(e) => setNewHighlightInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddHighlight();
+                    }
+                  }}
+                  helperText="Badge sorotan khusus yang akan tampil di bagian bawah modal proyek publik"
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAddHighlight}
+                  disabled={!newHighlightInput.trim()}
+                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
+                >
+                  Tambah
+                </Button>
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 0.8,
+                  minHeight: 38,
+                  p: 1.2,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
+                }}
+              >
+                {formData.highlights && formData.highlights.length > 0 ? (
+                  formData.highlights.map((hl, hIdx) => (
+                    <Chip
+                      key={hIdx}
+                      label={hl}
+                      size="small"
+                      onDelete={() => handleRemoveHighlight(hIdx)}
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: '0.7rem',
+                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(14, 165, 233, 0.1)',
+                        color: (th) => th.palette.mode === 'dark' ? '#7DD3FC' : '#0369A1',
+                        border: 1,
+                        borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(56, 189, 248, 0.3)' : 'rgba(14, 165, 233, 0.25)',
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
+                    Belum ada badge sorotan. Ketik di atas dan tekan Tambah atau Enter.
                   </Typography>
                 )}
               </Box>

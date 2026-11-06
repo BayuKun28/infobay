@@ -217,6 +217,9 @@ export async function getPublicProfile() {
       metrics: item.metrics && item.metrics.length > 0
         ? item.metrics
         : ['100% Production Ready', 'High Performance'],
+      highlights: Array.isArray(item.highlights) && item.highlights.length > 0
+        ? item.highlights
+        : ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN'],
       github_url: item.github_url || 'https://github.com/BayuKun28',
       featured: item.is_featured ?? item.featured ?? false,
       description: item.description || '',

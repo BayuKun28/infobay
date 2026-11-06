@@ -32,11 +32,19 @@ class Biodata extends Model
         'projects_completed_text',
         'cv_file_url',
         'marquee_items',
+        'specialization',
+        'work_status',
+        'aliases',
+        'engineering_principles',
+        'terminal_widget',
     ];
 
     protected $casts = [
         'social_links' => 'array',
         'tech_stack' => 'array',
         'marquee_items' => 'array',
+        'aliases' => 'array',
+        'engineering_principles' => 'array',
+        'terminal_widget' => 'array',
     ];
 }

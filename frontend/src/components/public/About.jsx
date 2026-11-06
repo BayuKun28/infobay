@@ -50,13 +50,13 @@ export default function About({ biodata, education = [], experience = [] }) {
                 <span className="text-xs text-gray-600 dark:text-slate-400 block uppercase">
                   {t('about.specialization_label', 'Spesialisasi:')}
                 </span>
-                {t('about.specialization_value', 'Web Application & API Systems')}
+                {biodata?.specialization || t('about.specialization_value', 'Web Application & API Systems')}
               </div>
               <div className="p-3 bg-neo-mint-light dark:bg-[#123028] border-2 border-black dark:border-slate-700 text-black dark:text-emerald-200">
                 <span className="text-xs text-gray-600 dark:text-slate-400 block uppercase">
                   {t('about.work_status_label', 'Status Kerja:')}
                 </span>
-                {t('about.work_status_value', 'Open for Remote & Hybrid Roles')}
+                {biodata?.work_status || t('about.work_status_value', 'Open for Remote & Hybrid Roles')}
               </div>
             </div>
 
@@ -66,17 +66,20 @@ export default function About({ biodata, education = [], experience = [] }) {
                 {t('about.known_as_title', 'Dikenal Juga Sebagai (Online Monikers & Aliases):')}
               </span>
               <div className="flex flex-wrap gap-2 text-xs font-black">
-                <span className="bg-neo-yellow border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-                  🏷️ baydev
-                </span>
-                <span className="bg-neo-mint border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-                  🏷️ bayukun (BayuKun28)
-                </span>
-                <span className="bg-neo-pink border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-                  🏷️ masbay (Mas Bayu)
-                </span>
+                {(Array.isArray(biodata?.aliases) && biodata.aliases.length > 0
+                  ? biodata.aliases
+                  : ['baydev', 'bayukun (BayuKun28)', 'masbay (Mas Bayu)']
+                ).map((alias, aIdx) => {
+                  const colors = ['bg-neo-yellow', 'bg-neo-mint', 'bg-neo-pink', 'bg-neo-cyan', 'bg-neo-lilac'];
+                  const colorClass = colors[aIdx % colors.length];
+                  return (
+                    <span key={aIdx} className={`${colorClass} border-2 border-black text-black px-2.5 py-1 shadow-neo-sm`}>
+                      🏷️ {alias}
+                    </span>
+                  );
+                })}
                 <span className="bg-neo-cyan border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-                  📍 Yogyakarta &amp; Karanganyar
+                  📍 {biodata?.location || 'Yogyakarta & Karanganyar'}
                 </span>
               </div>
             </div>
@@ -88,27 +91,22 @@ export default function About({ biodata, education = [], experience = [] }) {
               {t('about.principles_title', '⚡ PRINSIP REKAYASA SISTEM')}
             </h4>
             <ul className="space-y-2.5 font-bold text-sm text-gray-900 dark:text-slate-200">
-              <li className="flex items-start gap-2 bg-white dark:bg-[#151D2F] p-2 border-2 border-black dark:border-slate-700 shadow-neo-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-700 dark:text-green-400 shrink-0" />
-                <span>
-                  <strong className="text-black dark:text-white">{t('about.principle_1_title', 'Architecture First:')} </strong>
-                  {t('about.principle_1_desc', 'Desain database relasional kokoh, query terindeks, dan skema bersih.')}
-                </span>
-              </li>
-              <li className="flex items-start gap-2 bg-white dark:bg-[#151D2F] p-2 border-2 border-black dark:border-slate-700 shadow-neo-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-700 dark:text-green-400 shrink-0" />
-                <span>
-                  <strong className="text-black dark:text-white">{t('about.principle_2_title', 'Authentic UX:')} </strong>
-                  {t('about.principle_2_desc', 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.')}
-                </span>
-              </li>
-              <li className="flex items-start gap-2 bg-white dark:bg-[#151D2F] p-2 border-2 border-black dark:border-slate-700 shadow-neo-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-700 dark:text-green-400 shrink-0" />
-                <span>
-                  <strong className="text-black dark:text-white">{t('about.principle_3_title', 'Rock-Solid Security:')} </strong>
-                  {t('about.principle_3_desc', 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.')}
-                </span>
-              </li>
+              {(Array.isArray(biodata?.engineering_principles) && biodata.engineering_principles.length > 0
+                ? biodata.engineering_principles
+                : [
+                    { title: 'Architecture First:', desc: 'Desain database relasional kokoh, query terindeks, dan skema bersih.' },
+                    { title: 'Authentic UX:', desc: 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.' },
+                    { title: 'Rock-Solid Security:', desc: 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.' },
+                  ]
+              ).map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2 bg-white dark:bg-[#151D2F] p-2 border-2 border-black dark:border-slate-700 shadow-neo-sm">
+                  <CheckCircle2 className="w-5 h-5 text-green-700 dark:text-green-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-black dark:text-white">{item.title} </strong>
+                    {item.desc}
+                  </span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

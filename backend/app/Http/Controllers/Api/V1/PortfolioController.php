@@ -88,9 +88,22 @@ class PortfolioController extends Controller
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable',
+            'highlights' => 'nullable',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize highlights (support array, JSON string, or comma/newline-separated string)
+        if (isset($validated['highlights'])) {
+            if (is_string($validated['highlights'])) {
+                $decoded = json_decode($validated['highlights'], true);
+                $validated['highlights'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', $validated['highlights']))));
+            } elseif (!is_array($validated['highlights'])) {
+                $validated['highlights'] = [];
+            }
+        }
 
         // Normalize metrics (support array, JSON string, or newline-separated string)
         if (isset($validated['metrics'])) {
@@ -165,9 +178,22 @@ class PortfolioController extends Controller
             'github_url' => 'nullable|string',
             'project_role' => 'nullable|string|max:255',
             'metrics' => 'nullable',
+            'highlights' => 'nullable',
             'is_featured' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
+
+        // Normalize highlights (support array, JSON string, or comma/newline-separated string)
+        if (isset($validated['highlights'])) {
+            if (is_string($validated['highlights'])) {
+                $decoded = json_decode($validated['highlights'], true);
+                $validated['highlights'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', $validated['highlights']))));
+            } elseif (!is_array($validated['highlights'])) {
+                $validated['highlights'] = [];
+            }
+        }
 
         // Normalize metrics (support array, JSON string, or newline-separated string)
         if (isset($validated['metrics'])) {

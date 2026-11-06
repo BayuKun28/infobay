@@ -19,6 +19,7 @@ class Portfolio extends Model
         'github_url',
         'project_role',
         'metrics',
+        'highlights',
         'is_featured',
         'order_index',
     ];
@@ -26,6 +27,7 @@ class Portfolio extends Model
     protected $casts = [
         'tech_stack' => 'array',
         'metrics' => 'array',
+        'highlights' => 'array',
         'is_featured' => 'boolean',
         'order_index' => 'integer',
     ];

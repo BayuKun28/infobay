@@ -33,6 +33,22 @@ class BiodataController extends Controller
         $response['social_links'] = $biodata->social_links ?? [];
         $response['tech_stack'] = $biodata->tech_stack ?? [];
         $response['marquee_items'] = $biodata->marquee_items ?? [];
+        $response['specialization'] = $biodata->specialization ?? 'Web Application & API Systems';
+        $response['work_status'] = $biodata->work_status ?? 'Open for Remote & Hybrid Roles';
+        $response['aliases'] = $biodata->aliases ?? ['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28'];
+        $response['engineering_principles'] = $biodata->engineering_principles ?? [
+            ['title' => 'Architecture First', 'desc' => 'Desain database relasional kokoh, query terindeks, dan skema bersih.'],
+            ['title' => 'Authentic UX', 'desc' => 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.'],
+            ['title' => 'Rock-Solid Security', 'desc' => 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.'],
+        ];
+        $response['terminal_widget'] = $biodata->terminal_widget ?? [
+            'user_host' => 'baydev@workstation:~$',
+            'lines' => [
+                'git checkout -b feature/high-performance',
+                'composer check & npm test',
+                'All 15+ production systems operational',
+            ],
+        ];
 
         return response()->json([
             'status' => 'success',
@@ -68,6 +84,11 @@ class BiodataController extends Controller
             'cv_file_url' => 'nullable|string|max:500',
             'cv_file' => 'nullable|file|mimes:pdf|max:10240',
             'marquee_items' => 'nullable',
+            'specialization' => 'nullable|string|max:255',
+            'work_status' => 'nullable|string|max:255',
+            'aliases' => 'nullable',
+            'engineering_principles' => 'nullable',
+            'terminal_widget' => 'nullable',
         ]);
 
         $biodata = Biodata::first();
@@ -121,6 +142,38 @@ class BiodataController extends Controller
             }
         }
 
+        // Handle dynamic aliases (can be array or JSON string from FormData)
+        if (array_key_exists('aliases', $validated)) {
+            if (is_string($validated['aliases'])) {
+                $decoded = json_decode($validated['aliases'], true);
+                $validated['aliases'] = is_array($decoded)
+                    ? $decoded
+                    : array_values(array_filter(array_map('trim', explode(',', $validated['aliases']))));
+            } elseif (!is_array($validated['aliases'])) {
+                $validated['aliases'] = [];
+            }
+        }
+
+        // Handle dynamic engineering_principles (can be array or JSON string from FormData)
+        if (array_key_exists('engineering_principles', $validated)) {
+            if (is_string($validated['engineering_principles'])) {
+                $decoded = json_decode($validated['engineering_principles'], true);
+                $validated['engineering_principles'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['engineering_principles'])) {
+                $validated['engineering_principles'] = [];
+            }
+        }
+
+        // Handle dynamic terminal_widget (can be array or JSON string from FormData)
+        if (array_key_exists('terminal_widget', $validated)) {
+            if (is_string($validated['terminal_widget'])) {
+                $decoded = json_decode($validated['terminal_widget'], true);
+                $validated['terminal_widget'] = is_array($decoded) ? $decoded : [];
+            } elseif (!is_array($validated['terminal_widget'])) {
+                $validated['terminal_widget'] = [];
+            }
+        }
+
         $biodata->fill($validated);
         $biodata->save();
 
@@ -134,6 +187,22 @@ class BiodataController extends Controller
         $response['social_links'] = $biodata->social_links ?? [];
         $response['tech_stack'] = $biodata->tech_stack ?? [];
         $response['marquee_items'] = $biodata->marquee_items ?? [];
+        $response['specialization'] = $biodata->specialization ?? 'Web Application & API Systems';
+        $response['work_status'] = $biodata->work_status ?? 'Open for Remote & Hybrid Roles';
+        $response['aliases'] = $biodata->aliases ?? ['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28'];
+        $response['engineering_principles'] = $biodata->engineering_principles ?? [
+            ['title' => 'Architecture First', 'desc' => 'Desain database relasional kokoh, query terindeks, dan skema bersih.'],
+            ['title' => 'Authentic UX', 'desc' => 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.'],
+            ['title' => 'Rock-Solid Security', 'desc' => 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.'],
+        ];
+        $response['terminal_widget'] = $biodata->terminal_widget ?? [
+            'user_host' => 'baydev@workstation:~$',
+            'lines' => [
+                'git checkout -b feature/high-performance',
+                'composer check & npm test',
+                'All 15+ production systems operational',
+            ],
+        ];
 
         return response()->json([
             'status' => 'success',

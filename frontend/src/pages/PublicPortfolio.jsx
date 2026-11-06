@@ -66,7 +66,7 @@ export default function PublicPortfolio() {
       <Services services={data?.services} />
 
       {/* Skills Section */}
-      <Skills skills={data?.skills} techStack={data?.techStack} />
+      <Skills skills={data?.skills} techStack={data?.techStack} biodata={data?.biodata} />
 
       {/* Portfolio Showcase Section */}
       <Portfolio portfolios={data?.portfolios} />

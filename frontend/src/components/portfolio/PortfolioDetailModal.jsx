@@ -157,18 +157,24 @@ export default function PortfolioDetailModal({ project, onClose }) {
           </div>
         )}
 
-        {/* Highlights Badges */}
+        {/* Dynamic Highlights Badges */}
         <div className="flex flex-wrap gap-2 text-xs font-black pt-2 border-t-2 border-black/10 dark:border-slate-800">
-          <span className="bg-neo-mint border-2 border-black text-black px-2.5 py-1 shadow-neo-sm flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-black" />
-            <span>{t('portfolio.badge_prod', '⚡ PRODUCTION READY')}</span>
-          </span>
-          <span className="bg-neo-cyan border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-            {t('portfolio.badge_sec', '🔒 SECURE ARCHITECTURE')}
-          </span>
-          <span className="bg-neo-lilac border-2 border-black text-black px-2.5 py-1 shadow-neo-sm">
-            {t('portfolio.badge_resp', '📱 RESPONSIVE DESIGN')}
-          </span>
+          {((Array.isArray(project.highlights) && project.highlights.length > 0)
+            ? project.highlights
+            : ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN']
+          ).map((hl, hlIdx) => {
+            const colors = ['bg-neo-mint', 'bg-neo-cyan', 'bg-neo-lilac', 'bg-neo-yellow', 'bg-neo-pink'];
+            const colorClass = colors[hlIdx % colors.length];
+            return (
+              <span
+                key={hlIdx}
+                className={`${colorClass} border-2 border-black text-black px-2.5 py-1 shadow-neo-sm flex items-center gap-1 font-black text-xs uppercase tracking-wider`}
+              >
+                {hlIdx === 0 && <ShieldCheck className="w-3.5 h-3.5 text-black flex-shrink-0" />}
+                <span>{hl}</span>
+              </span>
+            );
+          })}
         </div>
       </div>
     </Modal>
