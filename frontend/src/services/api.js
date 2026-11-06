@@ -141,6 +141,36 @@ export function normalizeTechStack(raw) {
     .filter(Boolean);
 }
 
+// Dedicated Admin Data Loader (100% Direct from Database, Zero Seed Fallback)
+export async function getAdminAllData() {
+  const [bioRes, portRes, servRes, skillRes, eduRes, expRes, testRes, certRes] = await Promise.allSettled([
+    apiClient.get('/biodata'),
+    apiClient.get('/portfolios'),
+    apiClient.get('/services'),
+    apiClient.get('/skills'),
+    apiClient.get('/educations'),
+    apiClient.get('/experiences'),
+    apiClient.get('/admin/testimonials'),
+    apiClient.get('/admin/certifications'),
+  ]);
+
+  const bioData = bioRes.status === 'fulfilled' && bioRes.value.data?.data ? bioRes.value.data.data : null;
+  const rawTechStack = bioData?.tech_stack ? normalizeTechStack(bioData.tech_stack) : [];
+
+  return {
+    biodata: bioData,
+    portfolios: portRes.status === 'fulfilled' && Array.isArray(portRes.value.data?.data) ? portRes.value.data.data : [],
+    services: servRes.status === 'fulfilled' && Array.isArray(servRes.value.data?.data) ? servRes.value.data.data : [],
+    skills: skillRes.status === 'fulfilled' && Array.isArray(skillRes.value.data?.data) ? skillRes.value.data.data : [],
+    education: eduRes.status === 'fulfilled' && Array.isArray(eduRes.value.data?.data) ? eduRes.value.data.data : [],
+    experience: expRes.status === 'fulfilled' && Array.isArray(expRes.value.data?.data) ? expRes.value.data.data : [],
+    testimonials: testRes.status === 'fulfilled' && Array.isArray(testRes.value.data?.data) ? testRes.value.data.data : [],
+    certifications: certRes.status === 'fulfilled' && Array.isArray(certRes.value.data?.data) ? certRes.value.data.data : [],
+    techStack: rawTechStack,
+    isLiveApi: true,
+  };
+}
+
 // Public Services
 export async function getPublicProfile() {
   try {
@@ -156,7 +186,13 @@ export async function getPublicProfile() {
     ]);
 
     const isLive = bioRes.status === 'fulfilled' || portRes.status === 'fulfilled';
-    const bioData = bioRes.status === 'fulfilled' && bioRes.value.data?.data ? { ...bioRes.value.data.data } : { ...defaultProfileData.biodata };
+    if (!isLive) {
+      throw new Error('API server unreachable');
+    }
+
+    const bioData = bioRes.status === 'fulfilled' && bioRes.value.data?.data
+      ? { ...bioRes.value.data.data }
+      : { ...defaultProfileData.biodata };
 
     let dynamicTechStack = normalizeTechStack(defaultProfileData.techStack);
     if (bioData?.tech_stack) {
@@ -167,53 +203,36 @@ export async function getPublicProfile() {
       }
     }
 
-    // Enrich portfolios with granular case study metrics, tech stack, and role (HABIBIE PLAN-20261103-01)
-    const rawPortfolios = portRes.status === 'fulfilled' && portRes.value.data?.data && portRes.value.data.data.length > 0
+    // Direct Database Portfolios: never inject deleted items back!
+    const rawPortfolios = portRes.status === 'fulfilled' && Array.isArray(portRes.value.data?.data)
       ? portRes.value.data.data
       : defaultProfileData.portfolios;
 
-    const seedMap = new Map();
-    defaultProfileData.portfolios.forEach((p) => {
-      seedMap.set(p.id, p);
-      if (p.title) seedMap.set(p.title.toLowerCase().trim(), p);
-    });
-
-    const enrichedPortfolios = rawPortfolios.map((item) => {
-      const seedItem = seedMap.get(item.id) || (item.title ? seedMap.get(item.title.toLowerCase().trim()) : null) || {};
-      return {
-        ...item,
-        tech_stack: item.tech_stack && item.tech_stack.length > 0 
-          ? normalizeTechStack(item.tech_stack) 
-          : (seedItem.tech_stack || ['Web Application', 'Tailwind CSS', 'Responsive UI']),
-        project_role: item.project_role || seedItem.project_role || 'Full-Stack Software Engineer',
-        metrics: item.metrics && item.metrics.length > 0 
-          ? item.metrics 
-          : (seedItem.metrics || ['100% Production Ready', 'High Performance']),
-        github_url: item.github_url || seedItem.github_url || 'https://github.com/BayuKun28',
-        featured: item.featured ?? seedItem.featured ?? false,
-        description: item.description || seedItem.description || '',
-      };
-    });
-
-    // Ensure homeserver projects (Server .145 & Standby .146 HA mirror & BayOffice) are always present
-    const existingTitles = new Set(enrichedPortfolios.map((p) => p.title?.toLowerCase().trim()));
-    defaultProfileData.portfolios.forEach((seedItem) => {
-      if (seedItem.title && !existingTitles.has(seedItem.title.toLowerCase().trim())) {
-        enrichedPortfolios.push(seedItem);
-      }
-    });
+    const enrichedPortfolios = rawPortfolios.map((item) => ({
+      ...item,
+      tech_stack: item.tech_stack && item.tech_stack.length > 0
+        ? normalizeTechStack(item.tech_stack)
+        : ['Web Application', 'Tailwind CSS', 'Responsive UI'],
+      project_role: item.project_role || 'Full-Stack Software Engineer',
+      metrics: item.metrics && item.metrics.length > 0
+        ? item.metrics
+        : ['100% Production Ready', 'High Performance'],
+      github_url: item.github_url || 'https://github.com/BayuKun28',
+      featured: item.is_featured ?? item.featured ?? false,
+      description: item.description || '',
+    }));
 
     return {
       biodata: bioData,
       portfolios: enrichedPortfolios,
-      services: servRes.status === 'fulfilled' && servRes.value.data?.data ? servRes.value.data.data : defaultProfileData.services,
-      skills: skillRes.status === 'fulfilled' && skillRes.value.data?.data ? skillRes.value.data.data : defaultProfileData.skills,
-      education: eduRes.status === 'fulfilled' && eduRes.value.data?.data ? eduRes.value.data.data : defaultProfileData.education,
-      experience: expRes.status === 'fulfilled' && expRes.value.data?.data ? expRes.value.data.data : defaultProfileData.experience,
-      testimonials: testRes.status === 'fulfilled' && testRes.value.data?.data ? testRes.value.data.data : (defaultProfileData.testimonials || []),
-      certifications: certRes.status === 'fulfilled' && certRes.value.data?.data ? certRes.value.data.data : (defaultProfileData.certifications || []),
+      services: servRes.status === 'fulfilled' && Array.isArray(servRes.value.data?.data) ? servRes.value.data.data : defaultProfileData.services,
+      skills: skillRes.status === 'fulfilled' && Array.isArray(skillRes.value.data?.data) ? skillRes.value.data.data : defaultProfileData.skills,
+      education: eduRes.status === 'fulfilled' && Array.isArray(eduRes.value.data?.data) ? eduRes.value.data.data : defaultProfileData.education,
+      experience: expRes.status === 'fulfilled' && Array.isArray(expRes.value.data?.data) ? expRes.value.data.data : defaultProfileData.experience,
+      testimonials: testRes.status === 'fulfilled' && Array.isArray(testRes.value.data?.data) ? testRes.value.data.data : (defaultProfileData.testimonials || []),
+      certifications: certRes.status === 'fulfilled' && Array.isArray(certRes.value.data?.data) ? certRes.value.data.data : (defaultProfileData.certifications || []),
       techStack: dynamicTechStack,
-      isLiveApi: isLive,
+      isLiveApi: true,
     };
   } catch (err) {
     console.warn('API error, falling back to local seed:', err.message);

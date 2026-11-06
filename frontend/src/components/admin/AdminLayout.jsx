@@ -51,7 +51,7 @@ import MessageManager from './MessageManager';
 import TestimonialManager from './TestimonialManager';
 import CertificationManager from './CertificationManager';
 import AdminProfileModal from './AdminProfileModal';
-import { getPublicProfile, authService, messageService } from '../../services/api';
+import { getAdminAllData, authService, messageService } from '../../services/api';
 
 const DRAWER_WIDTH = 250;
 
@@ -120,7 +120,7 @@ export default function AdminLayout({
     setLoading(true);
     try {
       const [result, messagesRes] = await Promise.allSettled([
-        getPublicProfile(),
+        getAdminAllData(),
         messageService.getMessages({ per_page: 1 }),
       ]);
 
