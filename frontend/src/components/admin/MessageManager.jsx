@@ -76,6 +76,7 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
   const [retryAttempt, setRetryAttempt] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const readCount = Math.max(0, totalCount - unreadCount);
 
   // Filter & Search states
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'unread', 'read'
