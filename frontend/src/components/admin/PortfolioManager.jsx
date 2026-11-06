@@ -181,7 +181,7 @@ export default function PortfolioManager({
       order_index: nextOrder,
       tech_stack: [],
       metrics: [],
-      highlights: ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN'],
+      highlights: ['PRODUCTION READY', 'SECURE ARCHITECTURE', 'RESPONSIVE DESIGN'],
     });
     setOpenForm(true);
   };
@@ -225,7 +225,7 @@ export default function PortfolioManager({
             return item.highlights.split(',').map((s) => s.trim()).filter(Boolean);
           }
         })()
-      : ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN'];
+      : ['PRODUCTION READY', 'SECURE ARCHITECTURE', 'RESPONSIVE DESIGN'];
 
     setFormData({
       title: item.title || '',
@@ -605,16 +605,17 @@ export default function PortfolioManager({
                       </Typography>
                       {(item.is_featured ?? item.featured) && (
                         <Chip
-                          label="★"
+                          icon={<StarIcon sx={{ fontSize: '13px !important', color: '#D97706' }} />}
+                          label="Featured"
                           size="small"
                           sx={{
                             height: 18,
                             fontSize: '0.65rem',
-                            fontWeight: 800,
-                            bgcolor: '#FEF08A',
-                            color: '#854D0E',
+                            fontWeight: 700,
+                            bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.18)' : '#FEF3C7',
+                            color: (th) => th.palette.mode === 'dark' ? '#FDE68A' : '#92400E',
                             border: 1,
-                            borderColor: '#EAB308',
+                            borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.4)' : '#FCD34D',
                           }}
                           title="Featured Project"
                         />
@@ -886,16 +887,17 @@ export default function PortfolioManager({
                         </Typography>
                         {(item.is_featured ?? item.featured) && (
                           <Chip
-                            label="★ FEATURED"
+                            icon={<StarIcon sx={{ fontSize: '13px !important', color: '#D97706' }} />}
+                            label="FEATURED"
                             size="small"
                             sx={{
                               height: 18,
-                              fontSize: '0.6rem',
-                              fontWeight: 800,
-                              bgcolor: '#FEF08A',
-                              color: '#854D0E',
+                              fontSize: '0.62rem',
+                              fontWeight: 700,
+                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.18)' : '#FEF3C7',
+                              color: (th) => th.palette.mode === 'dark' ? '#FDE68A' : '#92400E',
                               border: 1,
-                              borderColor: '#EAB308',
+                              borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.4)' : '#FCD34D',
                             }}
                           />
                         )}
@@ -1194,7 +1196,7 @@ export default function PortfolioManager({
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                       <StarIcon sx={{ fontSize: 18, color: formData.is_featured ? '#F59E0B' : 'text.secondary' }} />
                       <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.82rem' }}>
-                        Tandai Proyek Unggulan (★ FEATURED)
+                        Tandai Proyek Unggulan (Featured Project)
                       </Typography>
                     </Box>
                   }
@@ -1493,7 +1495,7 @@ export default function PortfolioManager({
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
-                  placeholder="Contoh: ⚡ HIGH AVAILABILITY / 🔒 OJK COMPLIANT / 📱 RESPONSIVE"
+                  placeholder="Contoh: HIGH AVAILABILITY / OJK COMPLIANT / ENTERPRISE READY"
                   size="small"
                   fullWidth
                   value={newHighlightInput}

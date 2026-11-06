@@ -12,6 +12,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Paper,
   IconButton,
   Chip,
@@ -20,6 +21,7 @@ import {
   CircularProgress,
   Tooltip,
   Alert,
+  InputAdornment,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +30,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import CategoryIcon from '@mui/icons-material/Category';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SearchIcon from '@mui/icons-material/Search';
 import { categoryService } from '../../services/api';
 
 export default function CategoryManagerModal({
@@ -42,6 +45,25 @@ export default function CategoryManagerModal({
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  // Pagination & Search states
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCategories = React.useMemo(() => {
+    if (!searchQuery.trim()) return categories;
+    const q = searchQuery.toLowerCase();
+    return categories.filter(
+      (cat) =>
+        (cat.name && cat.name.toLowerCase().includes(q)) ||
+        (cat.slug && cat.slug.toLowerCase().includes(q))
+    );
+  }, [categories, searchQuery]);
+
+  const paginatedCategories = React.useMemo(() => {
+    return filteredCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [filteredCategories, page, rowsPerPage]);
 
   // Add new category
   const handleAdd = async (e) => {
@@ -221,6 +243,40 @@ export default function CategoryManagerModal({
           </Button>
         </Paper>
 
+        {/* Search Bar & Header */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'stretch', sm: 'center' },
+            mb: 1.5,
+            gap: 1.5,
+          }}
+        >
+          <Typography variant="subtitle2" fontWeight={700}>
+            Daftar Kategori ({filteredCategories.length})
+          </Typography>
+          <TextField
+            size="small"
+            placeholder="Cari kategori..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+              sx: { height: 34, fontSize: '0.8rem', borderRadius: 2 },
+            }}
+            sx={{ width: { xs: '100%', sm: 220 } }}
+          />
+        </Box>
+
         {/* Tabel Daftar Kategori */}
         <TableContainer
           component={Paper}
@@ -255,14 +311,14 @@ export default function CategoryManagerModal({
               </TableRow>
             </TableHead>
             <TableBody>
-              {categories.length === 0 ? (
+              {filteredCategories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    Belum ada data kategori di database.
+                    {searchQuery ? 'Tidak ada kategori yang cocok dengan pencarian.' : 'Belum ada data kategori di database.'}
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((cat, idx) => {
+                paginatedCategories.map((cat, idx) => {
                   const isEditingThis = editingId === cat.id;
                   const inUse = (cat.portfolios_count || 0) > 0;
 
@@ -276,7 +332,7 @@ export default function CategoryManagerModal({
                       }}
                     >
                       <TableCell align="center" sx={{ color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                        {idx + 1}
+                        {page * rowsPerPage + idx + 1}
                       </TableCell>
 
                       {/* Nama Kategori / Inline Edit */}
@@ -446,6 +502,33 @@ export default function CategoryManagerModal({
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* Table Pagination */}
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredCategories.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Baris per halaman:"
+          labelDisplayedRows={({ from, to, count }) => `${from}–${to} dari ${count}`}
+          sx={{
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+            '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: 'text.secondary',
+            },
+          }}
+        />
 
         {/* Info Note Footer */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary', px: 0.5 }}>

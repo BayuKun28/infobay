@@ -161,7 +161,7 @@ export default function PortfolioDetailModal({ project, onClose }) {
         <div className="flex flex-wrap gap-2 text-xs font-black pt-2 border-t-2 border-black/10 dark:border-slate-800">
           {((Array.isArray(project.highlights) && project.highlights.length > 0)
             ? project.highlights
-            : ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE', '📱 RESPONSIVE DESIGN']
+            : ['PRODUCTION READY', 'SECURE ARCHITECTURE', 'RESPONSIVE DESIGN']
           ).map((hl, hlIdx) => {
             const colors = ['bg-neo-mint', 'bg-neo-cyan', 'bg-neo-lilac', 'bg-neo-yellow', 'bg-neo-pink'];
             const colorClass = colors[hlIdx % colors.length];

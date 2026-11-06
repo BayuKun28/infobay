@@ -1011,7 +1011,7 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                       placeholder="git checkout -b feature/high-performance&#10;composer check & npm test&#10;All 15+ production systems operational"
                       value={formData.terminal_lines_text}
                       onChange={(e) => setFormData({ ...formData, terminal_lines_text: e.target.value })}
-                      helperText="Tiap baris teks akan otomatis diberi ikon bullet shell ➜"
+                      helperText="Tiap baris teks akan otomatis dieksekusi dalam simulasi console terminal."
                     />
                   </Grid>
                 </Grid>

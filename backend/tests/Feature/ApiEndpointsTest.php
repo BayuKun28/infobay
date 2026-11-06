@@ -132,7 +132,7 @@ class ApiEndpointsTest extends TestCase
                 'github_url' => 'https://github.com/BayuKun28/test',
                 'is_featured' => true,
                 'metrics' => ['10K+ Users', '99.9% Uptime', 'Zero Downtime'],
-                'highlights' => ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE'],
+                'highlights' => ['PRODUCTION READY', 'SECURE ARCHITECTURE'],
                 'tech_stack' => ['Laravel 13', 'React 18'],
             ]);
 
@@ -141,7 +141,7 @@ class ApiEndpointsTest extends TestCase
             ->assertJsonPath('data.project_role', 'Senior Architect')
             ->assertJsonPath('data.is_featured', true)
             ->assertJsonPath('data.metrics', ['10K+ Users', '99.9% Uptime', 'Zero Downtime'])
-            ->assertJsonPath('data.highlights', ['⚡ PRODUCTION READY', '🔒 SECURE ARCHITECTURE']);
+            ->assertJsonPath('data.highlights', ['PRODUCTION READY', 'SECURE ARCHITECTURE']);
         $newId = $createRes->json('data.id');
 
         // 3. Update portfolio

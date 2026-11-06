@@ -12,8 +12,10 @@ import {
   TextField,
   InputAdornment,
   Typography,
+  IconButton,
 } from '@mui/material';
-import { Search, X } from 'lucide-react';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function DataTable({
   columns = [],
@@ -58,11 +60,13 @@ export default function DataTable({
 
   return (
     <Paper
+      elevation={0}
       sx={{
-        border: '3px solid black',
-        boxShadow: '4px 4px 0px 0px #000000',
-        borderRadius: 0,
+        borderRadius: 3,
+        border: 1,
+        borderColor: 'divider',
         overflow: 'hidden',
+        bgcolor: 'background.paper',
       }}
     >
       {/* Table Toolbar */}
@@ -74,8 +78,10 @@ export default function DataTable({
           justifyContent: 'space-between',
           alignItems: { xs: 'stretch', sm: 'center' },
           gap: 2,
-          borderBottom: '2px solid black',
-          bgcolor: 'background.paper',
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: (theme) =>
+            theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(15, 23, 42, 0.02)',
         }}
       >
         <TextField
@@ -89,29 +95,26 @@ export default function DataTable({
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Search size={18} strokeWidth={2.5} />
+                <SearchIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
               </InputAdornment>
             ),
             endAdornment: search ? (
               <InputAdornment position="end">
-                <Box
-                  component="button"
-                  onClick={() => setSearch('')}
-                  sx={{
-                    border: 'none',
-                    bgcolor: 'transparent',
-                    cursor: 'pointer',
-                    p: 0.5,
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setSearch('');
+                    setPage(0);
                   }}
+                  sx={{ p: 0.5 }}
                 >
-                  <X size={16} strokeWidth={2.5} />
-                </Box>
+                  <CloseIcon sx={{ fontSize: 16 }} />
+                </IconButton>
               </InputAdornment>
             ) : null,
             sx: {
-              borderRadius: 0,
-              fontWeight: 700,
-              fontSize: '0.85rem',
+              borderRadius: 2,
+              fontSize: '0.84rem',
             },
           }}
           sx={{ maxWidth: { xs: '100%', sm: 320 } }}
@@ -121,23 +124,23 @@ export default function DataTable({
       </Box>
 
       {/* Table Content */}
-      <TableContainer>
-        <Table>
-          <TableHead sx={{ bgcolor: '#FFDE59', borderBottom: '2px solid black' }}>
+      <TableContainer sx={{ overflowX: 'auto' }}>
+        <Table size="small">
+          <TableHead sx={{ bgcolor: 'action.hover' }}>
             <TableRow>
               {columns.map((col, idx) => (
                 <TableCell
                   key={idx}
                   align={col.align || 'left'}
                   sx={{
-                    fontWeight: 900,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.05em',
-                    color: '#000000',
-                    borderBottom: '2px solid black',
+                    fontSize: '0.74rem',
+                    letterSpacing: '0.04em',
+                    color: 'text.secondary',
                     py: 1.5,
                     width: col.width,
+                    borderColor: 'divider',
                   }}
                 >
                   {col.label}
@@ -152,9 +155,9 @@ export default function DataTable({
                 <TableCell
                   colSpan={columns.length}
                   align="center"
-                  sx={{ py: 6, fontWeight: 700, color: 'text.secondary' }}
+                  sx={{ py: 6, color: 'text.secondary', borderColor: 'divider' }}
                 >
-                  <Typography variant="body1" sx={{ fontWeight: 800 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {emptyMessage}
                   </Typography>
                 </TableCell>
@@ -163,9 +166,16 @@ export default function DataTable({
               paginatedRows.map((row, idx) => renderRow(row, idx, page * rowsPerPage + idx))
             ) : (
               paginatedRows.map((row, idx) => (
-                <TableRow key={idx} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                <TableRow
+                  key={idx}
+                  hover
+                  sx={{
+                    '&:last-child td': { borderBottom: 0 },
+                    '& td': { borderColor: 'divider' },
+                  }}
+                >
                   {columns.map((col, cIdx) => (
-                    <TableCell key={cIdx} align={col.align || 'left'} sx={{ fontWeight: 600 }}>
+                    <TableCell key={cIdx} align={col.align || 'left'} sx={{ fontWeight: 500, fontSize: '0.84rem' }}>
                       {col.render ? col.render(row) : row[col.id]}
                     </TableCell>
                   ))}
@@ -186,9 +196,15 @@ export default function DataTable({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage="Baris per halaman:"
+        labelDisplayedRows={({ from, to, count }) => `${from}–${to} dari ${count !== -1 ? count : `lebih dari ${to}`}`}
         sx={{
-          borderTop: '2px solid black',
-          fontWeight: 700,
+          borderTop: 1,
+          borderColor: 'divider',
+          '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            color: 'text.secondary',
+          },
         }}
       />
     </Paper>

@@ -60,14 +60,38 @@ DB_PASSWORD=InfobaySecure2026!
    - Font heading tebal, punchy, badge dengan tag solid dan border hitam.
    - Kartu portofolio bertingkat dengan border tebal, tag kategori kontras, gambar berbingkai garis hitam tebal.
 
-### B. Admin Panel — Clean Enterprise (Material-UI / MUI)
+### B. Admin Panel — Clean Enterprise, Responsive, Anti-AI Slop & Zero Emoji (Material-UI / MUI)
+
+> [!IMPORTANT]
+> **ATURAN MUTLAK ADMIN PANEL: CLEAN LOOK, ULTRA-RESPONSIVE, ANTI-AI SLOP & ZERO EMOJI**
+> Seluruh antarmuka Admin Panel (`/admin`) wajib mengikuti standar enterprise profesional kelas dunia:
+> 1. **Clean Look & Typography:**
+>    - Desain minimalis, rapi, dan terstruktur dengan font modern (*Plus Jakarta Sans* / *Segoe UI*).
+>    - Menggunakan border halus (`1px solid divider`), elevasi halus, dan kontras warna tajam (WCAG AAA compliant) baik pada Mode Terang (Light Mode) maupun Mode Gelap (Dark Mode).
+>    - Dilarang keras menggunakan gaya neubrutalism/border hitam tebal kartun pada Admin Panel (Neubrutalism hanya untuk halaman publik).
+> 2. **Ultra-Responsive Layout:**
+>    - Tampilan wajib responsif sempurna pada mobile (< 600px), tablet (600px - 960px), dan desktop (> 960px).
+>    - Sidebar/Drawer otomatis menjadi collapsible drawer dengan overlay di mobile, dan persistent drawer di desktop.
+>    - Tabel data wajib memiliki pembungkus responsif (`TableContainer` horizontal scrollable) atau fallback tampilan kartu responsif pada layar kecil (*mobile card view*).
+> 3. **Anti-AI Slop & ZERO EMOJI (Strictly Enforced):**
+>    - **DILARANG KERAS** menggunakan emoji apapun (seperti ⚡, 🔒, 📱, 📊, 🚀, 💻, ★, ➜, dll.) di seluruh elemen Admin Panel — termasuk judul, subjudul, label input, placeholder, tombol, kartu metrik, chip status, badge, tabel, dialog, dan helper text.
+>    - Gunakan ikon vektor SVG resmi Material-UI (`@mui/icons-material`) atau Lucide Icons dengan ukuran proporsional (16px–24px).
+> 4. **Dukungan Universal Pagination untuk Seluruh Tabel Data:**
+>    - Setiap modul data berbentuk tabel atau list (Portofolio, Layanan, Keahlian, Pengalaman, Pendidikan, Pesan, Testimoni, Sertifikasi, Kategori, Log Aktivitas) **WAJIB mendukung pagination** (`TablePagination` dari Material-UI).
+>    - Dilengkapi kontrol jumlah baris per halaman (misal: 5, 10, 25), tombol navigasi halaman sebelumnya/selanjutnya, serta label terjemahan bahasa Indonesia yang rapi.
+>    - Filter pencarian atau tab kategori wajib otomatis me-reset pagination ke halaman pertama (`page = 0`).
+
 - Menggunakan pustaka resmi `@mui/material`, `@mui/icons-material`, `@emotion/react`, `@emotion/styled`.
 - Tata letak profesional: Sidebar/Drawer navigasi, AppBar header, Data Tables / Cards untuk CRUD, Dialog konfirmasi hapus/edit, Snackbar notifikasi.
 - Modul Admin:
   1. Login Admin (Autentikasi API Sanctum).
-  2. Manajemen Biodata (Profil, About, Kontak, Media Sosial).
-  3. Manajemen Portofolio (Tambah, Edit, Hapus data portofolio, upload/link gambar).
-  4. Manajemen Layanan (Services) & Keahlian (Skills).
+  2. Manajemen Biodata (Profil, About, Kontak, Media Sosial, Monikers, Engineering Principles, Terminal Widget).
+  3. Manajemen Portofolio (Tambah, Edit, Hapus, Urutan Tampil, Highlights Badges, Metrik Capaian, Filter Kategori).
+  4. Manajemen Kategori Portofolio (CRUD Kategori dengan Table Pagination).
+  5. Manajemen Layanan (Services) & Keahlian (Skills) dengan Table Pagination.
+  6. Manajemen Pengalaman Kerja & Pendidikan dengan Table Pagination.
+  7. Manajemen Testimoni Klien & Sertifikasi dengan Table Pagination.
+  8. Manajemen Pesan Masuk (Inbox) dengan Table Pagination.
 
 ---
 
