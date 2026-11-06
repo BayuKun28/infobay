@@ -26,6 +26,7 @@ export default function DataTable({
   defaultRowsPerPage = 10,
   emptyMessage = 'Tidak ada data ditemukan.',
   renderRow,
+  filterSlot,
   actionSlot,
 }) {
   const [search, setSearch] = useState('');
@@ -69,7 +70,7 @@ export default function DataTable({
         bgcolor: 'background.paper',
       }}
     >
-      {/* Table Toolbar */}
+      {/* Table Toolbar: Filter Combobox Left, Search & Actions Right */}
       <Box
         sx={{
           p: 2,
@@ -84,43 +85,51 @@ export default function DataTable({
             theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(15, 23, 42, 0.02)',
         }}
       >
-        <TextField
-          size="small"
-          placeholder={searchPlaceholder}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(0);
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-              </InputAdornment>
-            ),
-            endAdornment: search ? (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    setSearch('');
-                    setPage(0);
-                  }}
-                  sx={{ p: 0.5 }}
-                >
-                  <CloseIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
-            sx: {
-              borderRadius: 2,
-              fontSize: '0.84rem',
-            },
-          }}
-          sx={{ maxWidth: { xs: '100%', sm: 320 } }}
-        />
+        {/* LEFT: Filter ComboBox Slot */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+          {filterSlot}
+        </Box>
 
-        {actionSlot && <Box sx={{ display: 'flex', gap: 1 }}>{actionSlot}</Box>}
+        {/* RIGHT: Search Input & Action Slot */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', sm: 'flex-end' }, flexWrap: 'wrap' }}>
+          <TextField
+            size="small"
+            placeholder={searchPlaceholder}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+              endAdornment: search ? (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setSearch('');
+                      setPage(0);
+                    }}
+                    sx={{ p: 0.5 }}
+                  >
+                    <CloseIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
+              sx: {
+                borderRadius: 2,
+                fontSize: '0.84rem',
+              },
+            }}
+            sx={{ width: { xs: '100%', sm: 280 } }}
+          />
+
+          {actionSlot && <Box sx={{ display: 'flex', gap: 1 }}>{actionSlot}</Box>}
+        </Box>
       </Box>
 
       {/* Table Content */}

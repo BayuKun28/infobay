@@ -25,6 +25,10 @@ import {
   FormControlLabel,
   Rating,
   InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Grid,
   Card,
   CardContent,
@@ -47,6 +51,7 @@ export default function TestimonialManager({ testimonials = [], onRefresh, showT
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterRating, setFilterRating] = useState('ALL');
 
   // Pagination states
   const [page, setPage] = useState(0);
@@ -211,8 +216,12 @@ export default function TestimonialManager({ testimonials = [], onRefresh, showT
     }
   };
 
-  // Filter items based on search query
+  // Filter items based on rating filter and search query
   const filteredItems = items.filter((item) => {
+    if (filterRating === '5' && item.rating !== 5) return false;
+    if (filterRating === '4' && item.rating < 4) return false;
+    if (filterRating === 'ACTIVE' && !item.is_active) return false;
+
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -228,57 +237,92 @@ export default function TestimonialManager({ testimonials = [], onRefresh, showT
   return (
     <Box sx={{ py: 1 }}>
       <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 3, border: 1, borderColor: 'divider' }}>
-        {/* Header Title & Action */}
+        {/* Header Title */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+            <FormatQuoteIcon color="primary" sx={{ fontSize: 28 }} />
+            <Typography variant="h6" fontWeight="800">
+              Manajemen Testimoni Klien ({items.length})
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Ulasan, rekomendasi profesional, dan rating kepuasan dari klien atau mitra proyek.
+          </Typography>
+        </Box>
+
+        {/* Standardized Table Toolbar: Filter Combobox Left, Search & Action Right */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
+            alignItems: { xs: 'stretch', md: 'center' },
             gap: 2,
-            mb: 3,
+            mb: 2.5,
           }}
         >
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <FormatQuoteIcon color="primary" sx={{ fontSize: 28 }} />
-              <Typography variant="h6" fontWeight="800">
-                Manajemen Testimoni Klien ({items.length})
-              </Typography>
-            </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Ulasan, rekomendasi profesional, dan rating kepuasan dari klien atau mitra proyek.
-            </Typography>
+          {/* LEFT: Filter Combobox */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="testi-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Ulasan
+              </InputLabel>
+              <Select
+                labelId="testi-filter-label"
+                id="testi-filter"
+                value={filterRating}
+                label="Filter Ulasan"
+                onChange={(e) => {
+                  setFilterRating(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>
+                  Semua Rating ({items.length})
+                </MenuItem>
+                <MenuItem value="5" sx={{ fontSize: '0.82rem' }}>
+                  Bintang 5 ({items.filter((i) => i.rating === 5).length})
+                </MenuItem>
+                <MenuItem value="4" sx={{ fontSize: '0.82rem' }}>
+                  Bintang 4+ ({items.filter((i) => i.rating >= 4).length})
+                </MenuItem>
+                <MenuItem value="ACTIVE" sx={{ fontSize: '0.82rem' }}>
+                  Status Aktif ({items.filter((i) => i.is_active).length})
+                </MenuItem>
+              </Select>
+            </FormControl>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
-            sx={{ fontWeight: 700, textTransform: 'none', px: 2.5, whiteSpace: 'nowrap' }}
-          >
-            Tambah Testimoni
-          </Button>
-        </Box>
 
-        {/* Search Bar */}
-        <Box sx={{ mb: 2.5, maxWidth: { xs: '100%', sm: 380 } }}>
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Cari nama klien, instansi, atau ulasan..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(0);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          {/* RIGHT: Search Bar & Add Action */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' }, flexWrap: 'wrap' }}>
+            <TextField
+              size="small"
+              placeholder="Cari nama klien, instansi, atau ulasan..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ width: { xs: '100%', sm: 260 }, '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
+            />
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAdd}
+              sx={{ fontWeight: 700, textTransform: 'none', px: 2.5, height: 40, whiteSpace: 'nowrap' }}
+            >
+              Tambah Testimoni
+            </Button>
+          </Box>
         </Box>
 
         {/* Content View: Desktop Table vs Mobile Cards */}

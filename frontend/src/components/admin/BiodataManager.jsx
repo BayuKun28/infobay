@@ -25,12 +25,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PublicIcon from '@mui/icons-material/Public';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import LabelIcon from '@mui/icons-material/Label';
-import ShieldIcon from '@mui/icons-material/Shield';
 import { getStorageUrl } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -410,8 +405,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
           <Grid container spacing={3}>
             {/* SECTION 1: BIODATA DASAR */}
             <Grid item xs={12}>
-              <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <PersonIcon fontSize="small" /> 1. Data Personal &amp; Kontak Utama
+              <Typography variant="subtitle1" fontWeight={800} color="primary">
+                1. Data Personal &amp; Kontak Utama
               </Typography>
             </Grid>
 
@@ -523,8 +518,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
             {/* SECTION 2: HERO SECTION CUSTOMIZER */}
             <Grid item xs={12}>
               <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                <AutoAwesomeIcon fontSize="small" /> 2. Hero Section Customizer (Halaman Depan)
+              <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ mt: 1 }}>
+                2. Hero Section Customizer (Halaman Depan)
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Sesuaikan teks headline utama, pengantar, badge ketersediaan, dan counter statistik pada banner atas halaman depan.
@@ -593,8 +588,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
             {/* SECTION 3: CV / RESUME MANAGER */}
             <Grid item xs={12}>
               <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                <PictureAsPdfIcon fontSize="small" /> 3. Manajemen Berkas CV / Resume (PDF)
+              <Typography variant="subtitle1" fontWeight={800} color="primary" sx={{ mt: 1 }}>
+                3. Manajemen Berkas CV / Resume (PDF)
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Unggah berkas CV terbaru dalam format PDF (maks. 10MB). Tautan unduh akan otomatis muncul pada tombol di halaman publik.
@@ -817,8 +812,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                   borderColor: 'divider',
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LabelIcon fontSize="small" sx={{ color: 'primary.main' }} /> 5. Kata Kunci Monikers &amp; Alias ("Known As")
+                <Typography variant="subtitle1" fontWeight="800" color="text.primary">
+                  5. Kata Kunci Monikers &amp; Alias ("Known As")
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
                   Tag sebutan atau nama panggung developer yang tampil di Hero Section dan About Section untuk optimasi kata kunci pencarian SEO.
@@ -896,8 +891,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                   <Box>
-                    <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <ShieldIcon fontSize="small" sx={{ color: '#10B981' }} /> 6. Prinsip Rekayasa Sistem (Core Values)
+                    <Typography variant="subtitle1" fontWeight="800" color="text.primary">
+                      6. Prinsip Rekayasa Sistem (Core Values)
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       Kartu nilai dan prinsip kerja teknik rekayasa yang tampil pada seksi About Me halaman publik.
@@ -982,8 +977,8 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                   borderColor: 'divider',
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                  <TerminalIcon fontSize="small" sx={{ color: '#F59E0B' }} /> 7. Widget Terminal Interaktif (Skills Arsenal)
+                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ mb: 0.5 }}>
+                  7. Widget Terminal Interaktif (Skills Arsenal)
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
                   Kustomisasi prompt teks header dan baris-baris perintah shell terminal developer pada seksi Skills halaman depan.

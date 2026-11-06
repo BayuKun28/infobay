@@ -23,8 +23,10 @@ import {
   Card,
   CardContent,
   CardActions,
-  Tabs,
-  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CircularProgress,
   Divider,
   useTheme,
@@ -301,7 +303,7 @@ export default function ExperienceEducationManager({
         </Box>
       </Box>
 
-      {/* Tabs & Search Box */}
+      {/* Standardized Table Toolbar: Filter Combobox Left, Search & Action Right */}
       <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
         <Box
           sx={{
@@ -312,56 +314,65 @@ export default function ExperienceEducationManager({
             gap: 2,
           }}
         >
-          <Tabs
-            value={currentTab}
-            onChange={(e, val) => {
-              setCurrentTab(val);
-              setSearchQuery('');
-            }}
-            textColor="primary"
-            indicatorColor="primary"
-            sx={{
-              minHeight: 38,
-              '& .MuiTab-root': {
-                minHeight: 38,
-                py: 0.5,
-                px: 2,
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                textTransform: 'none',
-              },
-            }}
-          >
-            <Tab
-              icon={<BriefcaseIcon sx={{ fontSize: 18 }} />}
-              iconPosition="start"
-              label={`Pengalaman Kerja (${experiences.length})`}
-            />
-            <Tab
-              icon={<SchoolIcon sx={{ fontSize: 18 }} />}
-              iconPosition="start"
-              label={`Riwayat Pendidikan (${educations.length})`}
-            />
-          </Tabs>
+          {/* LEFT: Filter Combobox */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <FormControl size="small" sx={{ minWidth: 220 }}>
+              <InputLabel id="exp-edu-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Kategori Data
+              </InputLabel>
+              <Select
+                labelId="exp-edu-filter-label"
+                id="exp-edu-filter"
+                value={currentTab}
+                label="Filter Kategori Data"
+                onChange={(e) => {
+                  setCurrentTab(Number(e.target.value));
+                  setSearchQuery('');
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value={0} sx={{ fontSize: '0.82rem' }}>
+                  Pengalaman Kerja ({experiences.length})
+                </MenuItem>
+                <MenuItem value={1} sx={{ fontSize: '0.82rem' }}>
+                  Riwayat Pendidikan ({educations.length})
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
-          <TextField
-            size="small"
-            placeholder={currentTab === 0 ? 'Cari perusahaan, posisi, atau periode...' : 'Cari sekolah, jurusan, atau periode...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: {
-                borderRadius: 2,
-                fontSize: '0.82rem',
-                width: { xs: '100%', md: 320 },
-              },
-            }}
-          />
+          {/* RIGHT: Search Box & Action */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' } }}>
+            <TextField
+              size="small"
+              placeholder={currentTab === 0 ? 'Cari perusahaan, posisi, atau periode...' : 'Cari sekolah, jurusan, atau periode...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: 2,
+                  fontSize: '0.82rem',
+                },
+              }}
+              sx={{ width: { xs: '100%', md: 300 } }}
+            />
+
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon sx={{ fontSize: 16 }} />}
+              onClick={currentTab === 0 ? handleOpenAddExp : handleOpenAddEdu}
+              sx={{ fontWeight: 600, fontSize: '0.78rem', height: 40, whiteSpace: 'nowrap' }}
+            >
+              {currentTab === 0 ? 'Tambah Pengalaman' : 'Tambah Pendidikan'}
+            </Button>
+          </Box>
         </Box>
       </Paper>
 

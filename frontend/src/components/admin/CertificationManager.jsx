@@ -24,6 +24,10 @@ import {
   Switch,
   FormControlLabel,
   InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Grid,
   Card,
   CardContent,
@@ -48,6 +52,7 @@ export default function CertificationManager({ certifications = [], onRefresh, s
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('ALL');
 
   // Pagination states
   const [page, setPage] = useState(0);
@@ -215,8 +220,12 @@ export default function CertificationManager({ certifications = [], onRefresh, s
     }
   };
 
-  // Filter items based on search query
+  // Filter items based on type filter and search query
   const filteredItems = items.filter((item) => {
+    if (filterType === 'WITH_URL' && !item.credential_url) return false;
+    if (filterType === 'WITH_ID' && !item.credential_id) return false;
+    if (filterType === 'ACTIVE' && !item.is_active) return false;
+
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -231,57 +240,92 @@ export default function CertificationManager({ certifications = [], onRefresh, s
   return (
     <Box sx={{ py: 1 }}>
       <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 3, border: 1, borderColor: 'divider' }}>
-        {/* Header Title & Action */}
+        {/* Header Title */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+            <WorkspacePremiumIcon color="primary" sx={{ fontSize: 28 }} />
+            <Typography variant="h6" fontWeight="800">
+              Manajemen Sertifikasi &amp; Lisensi ({items.length})
+            </Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Kredensial keahlian resmi, sertifikat profesional, dan lisensi industri terverifikasi.
+          </Typography>
+        </Box>
+
+        {/* Standardized Table Toolbar: Filter Combobox Left, Search & Action Right */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
+            alignItems: { xs: 'stretch', md: 'center' },
             gap: 2,
-            mb: 3,
+            mb: 2.5,
           }}
         >
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <WorkspacePremiumIcon color="primary" sx={{ fontSize: 28 }} />
-              <Typography variant="h6" fontWeight="800">
-                Manajemen Sertifikasi &amp; Lisensi ({items.length})
-              </Typography>
-            </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Kredensial keahlian resmi, sertifikat profesional, dan lisensi industri terverifikasi.
-            </Typography>
+          {/* LEFT: Filter Combobox */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="cert-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Kategori
+              </InputLabel>
+              <Select
+                labelId="cert-filter-label"
+                id="cert-filter"
+                value={filterType}
+                label="Filter Kategori"
+                onChange={(e) => {
+                  setFilterType(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>
+                  Semua Kredensial ({items.length})
+                </MenuItem>
+                <MenuItem value="WITH_URL" sx={{ fontSize: '0.82rem' }}>
+                  Memiliki URL Verifikasi ({items.filter((i) => i.credential_url).length})
+                </MenuItem>
+                <MenuItem value="WITH_ID" sx={{ fontSize: '0.82rem' }}>
+                  Memiliki Kredensial ID ({items.filter((i) => i.credential_id).length})
+                </MenuItem>
+                <MenuItem value="ACTIVE" sx={{ fontSize: '0.82rem' }}>
+                  Status Aktif ({items.filter((i) => i.is_active).length})
+                </MenuItem>
+              </Select>
+            </FormControl>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
-            sx={{ fontWeight: 700, textTransform: 'none', px: 2.5, whiteSpace: 'nowrap' }}
-          >
-            Tambah Sertifikasi
-          </Button>
-        </Box>
 
-        {/* Search Bar */}
-        <Box sx={{ mb: 2.5, maxWidth: { xs: '100%', sm: 380 } }}>
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Cari sertifikasi, penerbit, ID..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(0);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          {/* RIGHT: Search Bar & Add Action */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' }, flexWrap: 'wrap' }}>
+            <TextField
+              size="small"
+              placeholder="Cari sertifikasi, penerbit, ID..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ width: { xs: '100%', sm: 260 }, '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
+            />
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAdd}
+              sx={{ fontWeight: 700, textTransform: 'none', px: 2.5, height: 40, whiteSpace: 'nowrap' }}
+            >
+              Tambah Sertifikasi
+            </Button>
+          </Box>
         </Box>
 
         {/* Content View: Desktop Table vs Mobile Cards */}

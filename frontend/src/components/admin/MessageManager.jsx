@@ -23,8 +23,10 @@ import {
   Card,
   CardContent,
   CardActions,
-  Tabs,
-  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CircularProgress,
   Divider,
   Alert,
@@ -320,7 +322,7 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
         </Box>
       </Box>
 
-      {/* Filter Tabs & Search Bar */}
+      {/* Standardized Table Toolbar: Filter Combobox Left, Search Right */}
       <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
         <Box
           sx={{
@@ -331,77 +333,60 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
             gap: 2,
           }}
         >
-          {/* Status Tabs */}
-          <Tabs
-            value={statusFilter}
-            onChange={(e, val) => {
-              setStatusFilter(val);
-              setPage(0);
-            }}
-            textColor="primary"
-            indicatorColor="primary"
-            sx={{
-              minHeight: 38,
-              '& .MuiTab-root': {
-                minHeight: 38,
-                py: 0.5,
-                px: 2,
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                textTransform: 'none',
-              },
-            }}
-          >
-            <Tab value="all" label={`Semua (${totalCount})`} />
-            <Tab
-              value="unread"
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                  <span>Belum Dibaca</span>
-                  {unreadCount > 0 && (
-                    <Box
-                      component="span"
-                      sx={{
-                        px: 0.8,
-                        py: 0.1,
-                        borderRadius: 1,
-                        bgcolor: 'error.main',
-                        color: 'white',
-                        fontSize: '0.65rem',
-                        fontWeight: 800,
-                      }}
-                    >
-                      {unreadCount}
-                    </Box>
-                  )}
-                </Box>
-              }
-            />
-            <Tab value="read" label="Sudah Dibaca" />
-          </Tabs>
+          {/* LEFT: Filter Combobox */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="message-status-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Status
+              </InputLabel>
+              <Select
+                labelId="message-status-filter-label"
+                id="message-status-filter"
+                value={statusFilter}
+                label="Filter Status"
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value="all" sx={{ fontSize: '0.82rem' }}>
+                  Semua Pesan ({totalCount})
+                </MenuItem>
+                <MenuItem value="unread" sx={{ fontSize: '0.82rem' }}>
+                  Belum Dibaca ({unreadCount})
+                </MenuItem>
+                <MenuItem value="read" sx={{ fontSize: '0.82rem' }}>
+                  Sudah Dibaca ({readCount})
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
-          {/* Search Box */}
-          <TextField
-            size="small"
-            placeholder="Cari pengirim, email, subjek, atau isi pesan..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(0);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: {
-                borderRadius: 2,
-                fontSize: '0.82rem',
-                width: { xs: '100%', md: 320 },
-              },
-            }}
-          />
+          {/* RIGHT: Search Box */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' } }}>
+            <TextField
+              size="small"
+              placeholder="Cari pengirim, email, subjek, atau isi pesan..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: 2,
+                  fontSize: '0.82rem',
+                },
+              }}
+              sx={{ width: { xs: '100%', md: 320 } }}
+            />
+          </Box>
         </Box>
       </Paper>
 

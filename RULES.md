@@ -80,6 +80,13 @@ DB_PASSWORD=InfobaySecure2026!
 >    - Setiap modul data berbentuk tabel atau list (Portofolio, Layanan, Keahlian, Pengalaman, Pendidikan, Pesan, Testimoni, Sertifikasi, Kategori, Log Aktivitas) **WAJIB mendukung pagination** (`TablePagination` dari Material-UI).
 >    - Dilengkapi kontrol jumlah baris per halaman (misal: 5, 10, 25), tombol navigasi halaman sebelumnya/selanjutnya, serta label terjemahan bahasa Indonesia yang rapi.
 >    - Filter pencarian atau tab kategori wajib otomatis me-reset pagination ke halaman pertama (`page = 0`).
+> 5. **Standarisasi Filter & Search Table (Filter Kiri, Search Kanan):**
+>    - Seluruh bilah alat tabel (*table toolbar*) wajib mengikuti tata letak standar:
+>      - **Sisi Kiri (Left):** Komponen filter berbentuk **ComboBox** (`FormControl` dengan `Select`), seperti filter kategori, status pesan, atau kelompok data, disertai tombol manajer sekunder jika relevan.
+>      - **Sisi Kanan (Right):** Kolom input pencarian teks (`TextField` dengan ikon pencarian & tombol bersihkan), tombol aksi utama (*Tambah Data*), dan tombol *Refresh*.
+> 6. **Eliminasi Ikon Tidak Perlu pada Form Input & Tampilan Polos (Zero AI Slop / Plain Neutral):**
+>    - Dilarang menempatkan ikon dekoratif yang tidak perlu pada judul seksi form input atau di dalam kotak input field. Form input harus bersih (*clean look*) dengan label teks tegas dan mudah dibaca.
+>    - Fitur penanda unggulan (*Featured Project*) dan sorotan (*Highlights Badges*) pada portofolio **dilarang menggunakan emoji, dilarang menggunakan ikon bintang/petir, dan dilarang menggunakan warna oranye neon / kuning menyala**. Tampilan wajib berformat polos (*plain neutral*): chip *outlined* netral dengan border halus, tanpa warna neon mencolok.
 
 - Menggunakan pustaka resmi `@mui/material`, `@mui/icons-material`, `@emotion/react`, `@emotion/styled`.
 - Tata letak profesional: Sidebar/Drawer navigasi, AppBar header, Data Tables / Cards untuk CRUD, Dialog konfirmasi hapus/edit, Snackbar notifikasi.

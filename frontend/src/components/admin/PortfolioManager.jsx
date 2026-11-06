@@ -27,6 +27,9 @@ import {
   CardMedia,
   useTheme,
   useMediaQuery,
+  FormControl,
+  InputLabel,
+  Select,
   FormControlLabel,
   Switch,
 } from '@mui/material';
@@ -42,10 +45,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CategoryIcon from '@mui/icons-material/Category';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import LayersIcon from '@mui/icons-material/Layers';
-import BoltIcon from '@mui/icons-material/Bolt';
-import StarIcon from '@mui/icons-material/Star';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
@@ -438,17 +437,82 @@ export default function PortfolioManager({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-      {/* Search, Category Segmented Control & Action Header */}
+      {/* Standardized Table Toolbar: Filter Combobox Left, Search & Actions Right */}
       <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 2, alignItems: { xs: 'stretch', lg: 'center' }, justifyContent: 'space-between' }}>
-          {/* Search Input */}
-          <Box sx={{ display: 'flex', gap: 1.5, flex: 1, maxWidth: { lg: 360 } }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', lg: 'row' },
+            gap: 2,
+            alignItems: { xs: 'stretch', lg: 'center' },
+            justifyContent: 'space-between',
+          }}
+        >
+          {/* LEFT: Filter Combobox & Category Manager */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel id="portfolio-category-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Kategori
+              </InputLabel>
+              <Select
+                labelId="portfolio-category-filter-label"
+                id="portfolio-category-filter"
+                value={filterCat}
+                label="Filter Kategori"
+                onChange={(e) => {
+                  setFilterCat(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>
+                  Semua Kategori ({categoryCounts.ALL || 0})
+                </MenuItem>
+                {allCategoryNames.map((cat) => (
+                  <MenuItem key={cat} value={cat} sx={{ fontSize: '0.82rem' }}>
+                    {cat} ({categoryCounts[cat] || 0})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setOpenCategoryModal(true)}
+              sx={{
+                fontWeight: 600,
+                fontSize: '0.78rem',
+                borderColor: 'divider',
+                color: 'text.secondary',
+                height: 40,
+                whiteSpace: 'nowrap',
+                '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary', color: 'text.primary' },
+              }}
+            >
+              Kelola Kategori
+            </Button>
+          </Box>
+
+          {/* RIGHT: Search Input & Primary Actions */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.2,
+              flexWrap: 'wrap',
+              justifyContent: { xs: 'stretch', lg: 'flex-end' },
+            }}
+          >
             <TextField
               size="small"
               placeholder="Cari karya portofolio..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              fullWidth
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
+              sx={{ width: { xs: '100%', sm: 260 }, '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -457,95 +521,41 @@ export default function PortfolioManager({
                 ),
                 endAdornment: search ? (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setSearch('')}>
+                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
                       <ClearIcon fontSize="small" />
                     </IconButton>
                   </InputAdornment>
                 ) : null,
               }}
             />
-          </Box>
 
-          {/* Category Filter Pills (Functional & High Contrast) */}
-          <Box sx={{ display: 'flex', gap: 0.8, overflowX: 'auto', py: 0.2 }}>
-            <Chip
-              label={`Semua (${categoryCounts.ALL || 0})`}
-              size="small"
-              onClick={() => setFilterCat('ALL')}
-              sx={{
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                bgcolor: filterCat === 'ALL' ? 'primary.main' : 'action.selected',
-                color: filterCat === 'ALL' ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF' : 'text.primary',
-                border: 1,
-                borderColor: filterCat === 'ALL' ? 'primary.main' : 'divider',
-                '&:hover': {
-                  bgcolor: filterCat === 'ALL' ? 'primary.dark' : 'action.hover',
-                  borderColor: 'primary.main',
-                  color: 'text.primary',
-                },
-              }}
-            />
-            {allCategoryNames.map((cat) => (
-              <Chip
-                key={cat}
-                label={`${cat} (${categoryCounts[cat] || 0})`}
-                size="small"
-                onClick={() => setFilterCat(cat)}
-                sx={{
-                  fontWeight: 700,
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  bgcolor: filterCat === cat ? 'primary.main' : 'transparent',
-                  color: filterCat === cat ? (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF' : 'text.primary',
-                  border: 1,
-                  borderColor: filterCat === cat ? 'primary.main' : 'divider',
-                  '&:hover': {
-                    bgcolor: filterCat === cat ? 'primary.dark' : 'action.hover',
-                    borderColor: 'primary.main',
-                    color: 'text.primary',
-                  },
-                }}
-              />
-            ))}
-          </Box>
-
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<CategoryIcon sx={{ fontSize: 16 }} />}
-              onClick={() => setOpenCategoryModal(true)}
-              sx={{
-                fontWeight: 700,
-                fontSize: '0.78rem',
-                borderColor: 'divider',
-                color: 'text.primary',
-                '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary' },
-              }}
-            >
-              Kelola Kategori
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<RefreshIcon sx={{ fontSize: 16 }} />}
-              onClick={handleRefreshAll}
-              sx={{ fontWeight: 600, fontSize: '0.78rem' }}
-            >
-              Refresh
-            </Button>
             <Button
               variant="contained"
               size="small"
               startIcon={<AddIcon sx={{ fontSize: 16 }} />}
               onClick={handleOpenCreate}
-              sx={{ fontWeight: 600, fontSize: '0.78rem' }}
+              sx={{ fontWeight: 600, fontSize: '0.78rem', height: 40, whiteSpace: 'nowrap' }}
             >
               Tambah Portofolio
             </Button>
+
+            <Tooltip title="Muat ulang data">
+              <IconButton
+                size="small"
+                onClick={handleRefreshAll}
+                sx={{
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  height: 40,
+                  width: 40,
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
+                }}
+              >
+                <RefreshIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
           </Box>
         </Box>
       </Paper>
@@ -605,19 +615,17 @@ export default function PortfolioManager({
                       </Typography>
                       {(item.is_featured ?? item.featured) && (
                         <Chip
-                          icon={<StarIcon sx={{ fontSize: '13px !important', color: '#D97706' }} />}
                           label="Featured"
                           size="small"
+                          variant="outlined"
                           sx={{
                             height: 18,
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
-                            bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.18)' : '#FEF3C7',
-                            color: (th) => th.palette.mode === 'dark' ? '#FDE68A' : '#92400E',
-                            border: 1,
-                            borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.4)' : '#FCD34D',
+                            fontSize: '0.62rem',
+                            fontWeight: 600,
+                            color: 'text.secondary',
+                            borderColor: 'divider',
                           }}
-                          title="Featured Project"
+                          title="Proyek Unggulan"
                         />
                       )}
                     </Box>
@@ -658,17 +666,15 @@ export default function PortfolioManager({
                     })}
                     {Array.isArray(item.metrics) && item.metrics.length > 0 && (
                       <Chip
-                        icon={<BoltIcon sx={{ fontSize: '11px !important' }} />}
                         label={`${item.metrics.length} Metrik`}
                         size="small"
+                        variant="outlined"
                         sx={{
                           height: 16,
                           fontSize: '0.6rem',
-                          fontWeight: 700,
-                          bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)',
-                          color: '#D97706',
-                          border: 1,
-                          borderColor: 'rgba(245, 158, 11, 0.3)',
+                          fontWeight: 600,
+                          color: 'text.secondary',
+                          borderColor: 'divider',
                         }}
                       />
                     )}
@@ -887,17 +893,15 @@ export default function PortfolioManager({
                         </Typography>
                         {(item.is_featured ?? item.featured) && (
                           <Chip
-                            icon={<StarIcon sx={{ fontSize: '13px !important', color: '#D97706' }} />}
                             label="FEATURED"
                             size="small"
+                            variant="outlined"
                             sx={{
                               height: 18,
                               fontSize: '0.62rem',
-                              fontWeight: 700,
-                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.18)' : '#FEF3C7',
-                              color: (th) => th.palette.mode === 'dark' ? '#FDE68A' : '#92400E',
-                              border: 1,
-                              borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.4)' : '#FCD34D',
+                              fontWeight: 600,
+                              color: 'text.secondary',
+                              borderColor: 'divider',
                             }}
                           />
                         )}
@@ -941,17 +945,15 @@ export default function PortfolioManager({
                           })}
                         {Array.isArray(item.metrics) && item.metrics.length > 0 && (
                           <Chip
-                            icon={<BoltIcon sx={{ fontSize: '12px !important' }} />}
                             label={`${item.metrics.length} Metrik`}
                             size="small"
+                            variant="outlined"
                             sx={{
                               height: 18,
                               fontSize: '0.62rem',
-                              fontWeight: 700,
-                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)',
-                              color: '#D97706',
-                              border: 1,
-                              borderColor: 'rgba(245, 158, 11, 0.3)',
+                              fontWeight: 600,
+                              color: 'text.secondary',
+                              borderColor: 'divider',
                             }}
                           />
                         )}
@@ -1175,11 +1177,9 @@ export default function PortfolioManager({
                   p: 1,
                   px: 1.5,
                   border: 1,
-                  borderColor: formData.is_featured ? '#F59E0B' : 'divider',
+                  borderColor: 'divider',
                   borderRadius: 2,
-                  bgcolor: formData.is_featured
-                    ? (th) => th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.08)'
-                    : 'transparent',
+                  bgcolor: 'transparent',
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -1189,16 +1189,14 @@ export default function PortfolioManager({
                     <Switch
                       checked={formData.is_featured}
                       onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                      color="warning"
+                      color="primary"
+                      size="small"
                     />
                   }
                   label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                      <StarIcon sx={{ fontSize: 18, color: formData.is_featured ? '#F59E0B' : 'text.secondary' }} />
-                      <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.82rem' }}>
-                        Tandai Proyek Unggulan (Featured Project)
-                      </Typography>
-                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
+                      Proyek Unggulan (Featured)
+                    </Typography>
                   }
                   sx={{ m: 0 }}
                 />
@@ -1316,9 +1314,8 @@ export default function PortfolioManager({
 
             {/* Tech Stack & Frameworks Input */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <LayersIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                TECH STACK &amp; FRAMEWORKS
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Tech Stack &amp; Frameworks
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
@@ -1391,9 +1388,8 @@ export default function PortfolioManager({
 
             {/* Matrix Informasi & Metrik Kunci Input */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <BoltIcon sx={{ fontSize: 16, color: '#F59E0B' }} />
-                DAMPAK &amp; METRIK KUNCI (MATRIX INFORMASI)
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Dampak &amp; Metrik Kunci (Matrix Informasi)
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
@@ -1489,9 +1485,8 @@ export default function PortfolioManager({
 
             {/* Highlights Badges (Sorotan Keunggulan Proyek) */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <ShieldOutlinedIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                SOROTAN KEUNGGULAN (HIGHLIGHTS BADGES MODAL)
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Sorotan Keunggulan (Highlights Badges)
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
@@ -1538,14 +1533,12 @@ export default function PortfolioManager({
                       key={hIdx}
                       label={hl}
                       size="small"
+                      variant="outlined"
                       onDelete={() => handleRemoveHighlight(hIdx)}
                       sx={{
-                        fontWeight: 800,
-                        fontSize: '0.7rem',
-                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(14, 165, 233, 0.1)',
-                        color: (th) => th.palette.mode === 'dark' ? '#7DD3FC' : '#0369A1',
-                        border: 1,
-                        borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(56, 189, 248, 0.3)' : 'rgba(14, 165, 233, 0.25)',
+                        fontWeight: 600,
+                        fontSize: '0.72rem',
+                        borderColor: 'divider',
                       }}
                     />
                   ))
