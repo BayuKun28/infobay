@@ -66,57 +66,92 @@ export default function PortfolioEditorScreen({
   onPreview,
 }) {
   return (
-    <Box component="form" onSubmit={onSave} sx={{ width: '100%', maxWidth: 1400, mx: 'auto', pb: 8 }}>
-      {/* Sticky Top Header Navigation */}
+    <Box component="form" onSubmit={onSave} sx={{ width: '100%', maxWidth: 1400, mx: 'auto', pb: 4, boxSizing: 'border-box' }}>
+      {/* Top Header Navigation Paper (Non-sticky to prevent viewport blockage & container collisions) */}
       <Paper
         elevation={0}
         sx={{
-          position: 'sticky',
-          top: { xs: 56, sm: 64 },
-          zIndex: 10,
-          p: { xs: 1.5, sm: 2 },
+          position: 'relative',
+          p: { xs: 2, sm: 2.5 },
           mb: 3,
           borderRadius: 2.5,
           border: 1,
           borderColor: 'divider',
           bgcolor: (th) =>
-            th.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 253, 240, 0.95)',
-          backdropFilter: 'blur(8px)',
+            th.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+          boxShadow: (th) =>
+            th.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.04)',
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
+          flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', sm: 'center' },
-          gap: 1.5,
+          alignItems: { xs: 'stretch', md: 'center' },
+          gap: 2,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
           <Button
             variant="outlined"
             size="small"
             startIcon={<ArrowBackIcon />}
             onClick={onCancel}
-            sx={{ fontWeight: 700, fontSize: '0.78rem' }}
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              borderRadius: 2,
+              px: 1.8,
+              py: 0.8,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
           >
             Kembali
           </Button>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.2rem' }, lineHeight: 1.2 }}>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: '1.05rem', sm: '1.25rem' },
+                lineHeight: 1.3,
+                color: 'text.primary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: { xs: 'normal', sm: 'nowrap' },
+                wordBreak: 'break-word',
+              }}
+            >
               {isEditing ? `Edit Proyek: ${formData.title || 'Portofolio'}` : 'Tambah Proyek Portofolio Baru'}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.75rem', mt: 0.3 }}>
               Layar editor mandiri &bull; Data tersimpan aman di PostgreSQL
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1.5,
+            alignItems: 'center',
+            justifyContent: { xs: 'stretch', md: 'flex-end' },
+            flexWrap: 'wrap',
+          }}
+        >
           <Button
             type="button"
             variant="outlined"
             size="small"
             startIcon={<VisibilityIcon />}
             onClick={onPreview}
-            sx={{ fontWeight: 700, fontSize: '0.78rem' }}
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              borderRadius: 2,
+              px: 2,
+              py: 0.8,
+              flex: { xs: 1, sm: 'none' },
+              whiteSpace: 'nowrap',
+            }}
           >
             Pratinjau Publik
           </Button>
@@ -126,15 +161,24 @@ export default function PortfolioEditorScreen({
             size="small"
             disabled={loading || uploadingImage}
             startIcon={loading || uploadingImage ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
-            sx={{ fontWeight: 700, fontSize: '0.78rem', px: 2.5 }}
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              borderRadius: 2,
+              px: 3,
+              py: 0.8,
+              flex: { xs: 1, sm: 'none' },
+              whiteSpace: 'nowrap',
+            }}
           >
             {loading ? 'Menyimpan...' : isEditing ? 'Perbarui Proyek' : 'Simpan Proyek'}
           </Button>
         </Box>
       </Paper>
 
-      {/* Main Form 2-Column Grid */}
-      <Grid container spacing={3}>
+      {/* Main Form 2-Column Grid Wrapper (Isolates negative margin) */}
+      <Box sx={{ width: '100%', mt: 0.5 }}>
+        <Grid container spacing={{ xs: 2.5, md: 3 }}>
         {/* LEFT COLUMN: Main Information, Gallery, Links */}
         <Grid item xs={12} lg={8}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -160,7 +204,7 @@ export default function PortfolioEditorScreen({
                 />
 
                 {/* Dynamic Category Selector & Manage Button */}
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   <TextField
                     select
                     label="Kategori Portofolio"
@@ -202,9 +246,10 @@ export default function PortfolioEditorScreen({
                     sx={{
                       height: 40,
                       whiteSpace: 'nowrap',
-                      minWidth: 100,
+                      minWidth: { xs: 80, sm: 100 },
                       fontWeight: 700,
                       fontSize: '0.75rem',
+                      flexShrink: 0,
                     }}
                   >
                     Kelola
@@ -259,7 +304,16 @@ export default function PortfolioEditorScreen({
 
             {/* CARD 2: Multi-Screenshot Galeri & Arsitektur */}
             <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  justifyContent: 'space-between',
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  mb: 2,
+                  gap: 1.5,
+                }}
+              >
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CollectionsOutlinedIcon color="primary" sx={{ fontSize: 22 }} />
@@ -272,14 +326,14 @@ export default function PortfolioEditorScreen({
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
                   <Button
                     variant="outlined"
                     color="secondary"
                     size="small"
                     startIcon={<CollectionsOutlinedIcon fontSize="small" />}
                     onClick={() => onOpenMediaSelector('gallery')}
-                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem', flex: { xs: 1, sm: 'none' }, whiteSpace: 'nowrap' }}
                   >
                     Pilih dari Galeri
                   </Button>
@@ -289,7 +343,7 @@ export default function PortfolioEditorScreen({
                     size="small"
                     disabled={uploadingGallery}
                     startIcon={<CloudUploadIcon fontSize="small" />}
-                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem', flex: { xs: 1, sm: 'none' }, whiteSpace: 'nowrap' }}
                   >
                     {uploadingGallery ? 'Mengunggah...' : '+ Unggah Gambar'}
                     <input
@@ -317,14 +371,14 @@ export default function PortfolioEditorScreen({
                   size="small"
                   value={newGalleryCaption}
                   onChange={(e) => setNewGalleryCaption(e.target.value)}
-                  sx={{ width: { xs: '100%', sm: 200 }, '.MuiInputBase-input': { fontSize: '0.82rem' } }}
+                  sx={{ width: { xs: '100%', sm: 220 }, flexShrink: 0, '.MuiInputBase-input': { fontSize: '0.82rem' } }}
                 />
                 <Button
                   variant="contained"
                   size="small"
                   onClick={() => handleAddGalleryItem()}
                   disabled={!newGalleryUrl.trim()}
-                  sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2.5, whiteSpace: 'nowrap' }}
+                  sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2.5, whiteSpace: 'nowrap', height: 40, width: { xs: '100%', sm: 'auto' }, flexShrink: 0 }}
                 >
                   Tambah
                 </Button>
@@ -332,7 +386,7 @@ export default function PortfolioEditorScreen({
 
               {/* Gallery Items Grid */}
               {formData.gallery && formData.gallery.length > 0 ? (
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
                   {formData.gallery.map((gItem, gIdx) => {
                     const gUrl = typeof gItem === 'string' ? gItem : gItem.url;
                     const gCaption = typeof gItem === 'object' ? gItem.caption : '';
@@ -348,16 +402,17 @@ export default function PortfolioEditorScreen({
                           borderColor: 'divider',
                           borderRadius: 2,
                           bgcolor: (th) => (th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)'),
+                          overflow: 'hidden',
                         }}
                       >
                         <Box
                           component="img"
                           src={gUrl}
                           alt="thumb"
-                          sx={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 1.5, border: 1, borderColor: 'divider' }}
+                          sx={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 1.5, border: 1, borderColor: 'divider', flexShrink: 0 }}
                           onError={(e) => { e.target.style.display = 'none'; }}
                         />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                           <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 700 }} noWrap>
                             {gCaption || `Screenshot #${gIdx + 1}`}
                           </Typography>
@@ -370,6 +425,7 @@ export default function PortfolioEditorScreen({
                           color="error"
                           onClick={() => handleRemoveGalleryItem(gIdx)}
                           title="Hapus screenshot"
+                          sx={{ flexShrink: 0 }}
                         >
                           <DeleteOutlineIcon sx={{ fontSize: 18 }} />
                         </IconButton>
@@ -779,40 +835,71 @@ export default function PortfolioEditorScreen({
           </Box>
         </Grid>
       </Grid>
+    </Box>
 
-      {/* Sticky Bottom Bar */}
+      {/* Bottom Form Actions Card (Non-sticky to prevent viewport blockage & keyboard collisions) */}
       <Paper
-        elevation={3}
+        elevation={0}
         sx={{
-          position: 'sticky',
-          bottom: 16,
-          zIndex: 10,
-          p: 2,
           mt: 4,
+          p: { xs: 2, sm: 2.5 },
           borderRadius: 2.5,
           border: 1,
           borderColor: 'divider',
           bgcolor: (th) =>
-            th.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(8px)',
+            th.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+          boxShadow: (th) =>
+            th.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.04)',
           display: 'flex',
+          flexDirection: { xs: 'column-reverse', sm: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 1.5,
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2,
         }}
       >
-        <Button onClick={onCancel} color="inherit" size="small" sx={{ fontWeight: 600 }}>
+        <Button
+          onClick={onCancel}
+          color="inherit"
+          variant="outlined"
+          size="small"
+          sx={{
+            fontWeight: 600,
+            fontSize: '0.8rem',
+            borderRadius: 2,
+            px: 2,
+            py: 0.8,
+            borderColor: 'divider',
+            width: { xs: '100%', sm: 'auto' },
+          }}
+        >
           Batal &amp; Kembali ke Daftar
         </Button>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1.5,
+            alignItems: 'center',
+            justifyContent: { xs: 'stretch', sm: 'flex-end' },
+            flexWrap: 'wrap',
+            width: { xs: '100%', sm: 'auto' },
+          }}
+        >
           <Button
             type="button"
             variant="outlined"
             size="small"
             startIcon={<VisibilityIcon />}
             onClick={onPreview}
-            sx={{ fontWeight: 700 }}
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              borderRadius: 2,
+              px: 2,
+              py: 0.8,
+              flex: { xs: 1, sm: 'none' },
+              whiteSpace: 'nowrap',
+            }}
           >
             Pratinjau Publik
           </Button>
@@ -822,7 +909,15 @@ export default function PortfolioEditorScreen({
             size="small"
             disabled={loading || uploadingImage}
             startIcon={loading || uploadingImage ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
-            sx={{ fontWeight: 700, px: 3 }}
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              borderRadius: 2,
+              px: 3,
+              py: 0.8,
+              flex: { xs: 1, sm: 'none' },
+              whiteSpace: 'nowrap',
+            }}
           >
             {loading ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Terbitkan Portofolio'}
           </Button>

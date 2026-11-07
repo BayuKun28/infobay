@@ -18,6 +18,10 @@ import {
   CircularProgress,
   Tooltip,
   Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -35,6 +39,7 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'oldest' | 'size_desc' | 'size_asc' | 'name_asc' | 'name_desc'
   const [deletingFile, setDeletingFile] = useState(null);
 
   const fetchMedia = async () => {
@@ -54,14 +59,37 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
     if (open) {
       fetchMedia();
       setSearch('');
+      setSortBy('newest');
     }
   }, [open]);
 
   const filteredMedia = useMemo(() => {
-    if (!search.trim()) return mediaList;
-    const q = search.toLowerCase();
-    return mediaList.filter((m) => (m.filename || '').toLowerCase().includes(q));
-  }, [mediaList, search]);
+    let result = [...mediaList];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((m) => (m.filename || '').toLowerCase().includes(q));
+    }
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return (a.modified_at || '').localeCompare(b.modified_at || '');
+        case 'size_desc':
+          return (b.size_kb || 0) - (a.size_kb || 0);
+        case 'size_asc':
+          return (a.size_kb || 0) - (b.size_kb || 0);
+        case 'name_asc':
+          return (a.filename || '').localeCompare(b.filename || '');
+        case 'name_desc':
+          return (b.filename || '').localeCompare(a.filename || '');
+        case 'newest':
+        default:
+          return (b.modified_at || '').localeCompare(a.modified_at || '');
+      }
+    });
+
+    return result;
+  }, [mediaList, search, sortBy]);
 
   const handleUploadFromModal = async (e) => {
     const file = e.target.files?.[0];
@@ -162,16 +190,16 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
       </DialogTitle>
 
       {/* Modal Content with Generous Spacing */}
-      <DialogContent sx={{ px: 3, pt: 2.5, pb: 2 }}>
-        {/* Search & Upload Action Bar */}
+      <DialogContent sx={{ px: { xs: 2, sm: 3.5 }, pt: 3.5, pb: 2.5 }}>
+        {/* Search, Sort & Upload Action Toolbar */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             gap: 1.5,
             alignItems: 'center',
-            mb: 2,
-            mt: 0.5,
+            mb: 2.5,
+            mt: 1,
           }}
         >
           <TextField
@@ -194,8 +222,26 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
                 </InputAdornment>
               ) : null,
             }}
-            sx={{ '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
+            sx={{ flex: 1, '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
           />
+
+          <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 170 }, flexShrink: 0 }}>
+            <InputLabel id="media-modal-sort-label">Urutan</InputLabel>
+            <Select
+              labelId="media-modal-sort-label"
+              value={sortBy}
+              label="Urutan"
+              onChange={(e) => setSortBy(e.target.value)}
+              sx={{ fontSize: '0.82rem' }}
+            >
+              <MenuItem value="newest">Terbaru Diunggah</MenuItem>
+              <MenuItem value="oldest">Terlama Diunggah</MenuItem>
+              <MenuItem value="size_desc">Ukuran Terbesar</MenuItem>
+              <MenuItem value="size_asc">Ukuran Terkecil</MenuItem>
+              <MenuItem value="name_asc">Nama File (A &rarr; Z)</MenuItem>
+              <MenuItem value="name_desc">Nama File (Z &rarr; A)</MenuItem>
+            </Select>
+          </FormControl>
 
           <Button
             component="label"
@@ -209,7 +255,9 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
               fontWeight: 600,
               fontSize: '0.78rem',
               px: 2,
-              height: 38,
+              height: 40,
+              width: { xs: '100%', sm: 'auto' },
+              flexShrink: 0,
             }}
           >
             {uploading ? 'Mengunggah...' : '+ Unggah Baru'}
