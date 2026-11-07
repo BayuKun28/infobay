@@ -358,30 +358,47 @@ export default function PortfolioEditorScreen({
               </Box>
 
               {/* Manual URL & Caption Input */}
-              <Box sx={{ display: 'flex', gap: 1, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 1.5,
+                  mb: 2,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: 'center',
+                }}
+              >
                 <TextField
-                  placeholder="URL Screenshot (/storage/... atau https://...)"
+                  label="URL Screenshot / Galeri"
+                  placeholder="https://... atau /storage/..."
                   size="small"
                   fullWidth
                   value={newGalleryUrl}
                   onChange={(e) => setNewGalleryUrl(e.target.value)}
-                  sx={{ '.MuiInputBase-input': { fontSize: '0.82rem' } }}
                 />
                 <TextField
-                  placeholder="Keterangan singkat"
+                  label="Keterangan Singkat"
+                  placeholder="Contoh: Tampilan Dasbor"
                   size="small"
                   value={newGalleryCaption}
                   onChange={(e) => setNewGalleryCaption(e.target.value)}
-                  sx={{ width: { xs: '100%', sm: 220 }, flexShrink: 0, '.MuiInputBase-input': { fontSize: '0.82rem' } }}
+                  sx={{ width: { xs: '100%', sm: 220 }, flexShrink: 0 }}
                 />
                 <Button
                   variant="contained"
                   size="small"
                   onClick={() => handleAddGalleryItem()}
                   disabled={!newGalleryUrl.trim()}
-                  sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2.5, whiteSpace: 'nowrap', height: 40, width: { xs: '100%', sm: 'auto' }, flexShrink: 0 }}
+                  sx={{
+                    height: 40,
+                    px: 2.5,
+                    whiteSpace: 'nowrap',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    width: { xs: '100%', sm: 'auto' },
+                    flexShrink: 0,
+                  }}
                 >
-                  Tambah
+                  + Tambah
                 </Button>
               </Box>
 
@@ -708,9 +725,10 @@ export default function PortfolioEditorScreen({
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+              <Box sx={{ display: 'flex', gap: 1, mb: 1.5, alignItems: 'center' }}>
                 <TextField
-                  placeholder="Ketik teknologi (Laravel, React...)"
+                  label="Tambah Teknologi"
+                  placeholder="Contoh: Laravel, React, PostgreSQL"
                   size="small"
                   fullWidth
                   value={newTechInput}
@@ -721,14 +739,19 @@ export default function PortfolioEditorScreen({
                       handleAddTechTag();
                     }
                   }}
-                  sx={{ '.MuiInputBase-input': { fontSize: '0.8rem' } }}
                 />
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={handleAddTechTag}
                   disabled={!newTechInput.trim()}
-                  sx={{ fontWeight: 700 }}
+                  sx={{
+                    height: 40,
+                    minWidth: 44,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    flexShrink: 0,
+                  }}
                 >
                   +
                 </Button>
@@ -762,8 +785,9 @@ export default function PortfolioEditorScreen({
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+              <Box sx={{ display: 'flex', gap: 1, mb: 1.5, alignItems: 'center' }}>
                 <TextField
+                  label="Tambah Metrik / Dampak"
                   placeholder="Contoh: 10K+ Transaksi Bulanan"
                   size="small"
                   fullWidth
@@ -775,14 +799,19 @@ export default function PortfolioEditorScreen({
                       handleAddMetric();
                     }
                   }}
-                  sx={{ '.MuiInputBase-input': { fontSize: '0.8rem' } }}
                 />
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={handleAddMetric}
                   disabled={!newMetricInput.trim()}
-                  sx={{ fontWeight: 700 }}
+                  sx={{
+                    height: 40,
+                    minWidth: 44,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    flexShrink: 0,
+                  }}
                 >
                   +
                 </Button>
@@ -830,8 +859,9 @@ export default function PortfolioEditorScreen({
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+              <Box sx={{ display: 'flex', gap: 1, mb: 1.5, alignItems: 'center' }}>
                 <TextField
+                  label="Tambah Sorotan Keunggulan"
                   placeholder="Contoh: HIGH AVAILABILITY"
                   size="small"
                   fullWidth
@@ -843,14 +873,19 @@ export default function PortfolioEditorScreen({
                       handleAddHighlight();
                     }
                   }}
-                  sx={{ '.MuiInputBase-input': { fontSize: '0.8rem' } }}
                 />
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={handleAddHighlight}
                   disabled={!newHighlightInput.trim()}
-                  sx={{ fontWeight: 700 }}
+                  sx={{
+                    height: 40,
+                    minWidth: 44,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    flexShrink: 0,
+                  }}
                 >
                   +
                 </Button>
