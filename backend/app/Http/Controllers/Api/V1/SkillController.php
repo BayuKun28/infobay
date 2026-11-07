@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Skill;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,8 @@ class SkillController extends Controller
         ]);
 
         $skill = Skill::create($validated);
+
+        ActivityLog::record('skill.create', "Keahlian '{$skill->name}' ({$skill->percentage}%) berhasil ditambahkan.");
 
         return response()->json([
             'status' => 'success',
@@ -53,6 +56,8 @@ class SkillController extends Controller
 
         $skill->update($validated);
 
+        ActivityLog::record('skill.update', "Keahlian '{$skill->name}' (ID: {$skill->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Skill berhasil diperbarui.',
@@ -71,7 +76,10 @@ class SkillController extends Controller
             ], 404);
         }
 
+        $name = $skill->name;
         $skill->delete();
+
+        ActivityLog::record('skill.delete', "Keahlian '{$name}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

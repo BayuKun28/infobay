@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Experience;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,8 @@ class ExperienceController extends Controller
 
         $experience = Experience::create($validated);
 
+        ActivityLog::record('experience.create', "Pengalaman '{$experience->title}' ({$experience->role}) berhasil ditambahkan.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Pengalaman kerja berhasil ditambahkan.',
@@ -89,6 +92,8 @@ class ExperienceController extends Controller
 
         $experience->update($validated);
 
+        ActivityLog::record('experience.update', "Pengalaman '{$experience->title}' (ID: {$experience->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Pengalaman kerja berhasil diperbarui.',
@@ -110,7 +115,10 @@ class ExperienceController extends Controller
             ], 404);
         }
 
+        $title = $experience->title;
         $experience->delete();
+
+        ActivityLog::record('experience.delete', "Pengalaman '{$title}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

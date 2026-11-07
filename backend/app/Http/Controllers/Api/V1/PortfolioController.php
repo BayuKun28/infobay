@@ -65,23 +65,18 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Dedicated image upload endpoint with auto WebP compression pipeline (Admin protected).
+     * Reusable image upload & WebP conversion helper.
      */
-    public function uploadImage(Request $request): JsonResponse
+    private function processImageUpload($file): array
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
-        ]);
-
-        $file = $request->file('image');
-        $mime = $file->getMimeType();
-        $filename = 'img_' . time() . '_' . Str::random(8) . '.webp';
-        $fullDir = storage_path('app/public/portfolios');
-
+        $dir = 'portfolios';
+        $fullDir = storage_path('app/public/' . $dir);
         if (!file_exists($fullDir)) {
             mkdir($fullDir, 0755, true);
         }
 
+        $mime = $file->getMimeType();
+        $filename = 'img_' . time() . '_' . Str::random(8) . '.webp';
         $fullPath = $fullDir . '/' . $filename;
         $converted = false;
 
@@ -114,12 +109,54 @@ class PortfolioController extends Controller
 
         $url = '/storage/' . $path;
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Gambar berhasil diunggah' . ($converted ? ' dan dikonversi ke WebP otomatis.' : '.'),
+        return [
             'url' => $url,
             'path' => $path,
             'is_webp' => $converted,
+            'filename' => basename($path),
+        ];
+    }
+
+    /**
+     * Dedicated image upload endpoint with auto WebP compression pipeline (Admin protected).
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
+        ]);
+
+        $res = $this->processImageUpload($request->file('image'));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Gambar berhasil diunggah' . ($res['is_webp'] ? ' dan dikonversi ke WebP otomatis.' : '.'),
+            'url' => $res['url'],
+            'path' => $res['path'],
+            'is_webp' => $res['is_webp'],
+        ]);
+    }
+
+    /**
+     * Dedicated media upload endpoint for Media Manager (Admin protected).
+     */
+    public function uploadMedia(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image_file' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
+        ]);
+
+        $res = $this->processImageUpload($request->file('image_file'));
+        $safeName = $res['filename'];
+
+        ActivityLog::record('media.upload', "Berkas media baru diunggah ke server: {$safeName}.");
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berkas media berhasil diunggah' . ($res['is_webp'] ? ' dan dikompresi ke WebP.' : '.'),
+            'url' => $res['url'],
+            'filename' => $safeName,
+            'is_webp' => $res['is_webp'],
         ]);
     }
 
@@ -166,6 +203,7 @@ class PortfolioController extends Controller
 
         if (file_exists($filepath)) {
             unlink($filepath);
+            ActivityLog::record('media.delete', "Berkas media '{$safeName}' berhasil dihapus permanen.");
             return response()->json([
                 'status' => 'success',
                 'message' => 'Berkas media berhasil dihapus permanen.',
@@ -249,19 +287,23 @@ class PortfolioController extends Controller
             }
         }
 
-        // Auto-assign order_index if not provided
-        if (!isset($validated['order_index'])) {
+        // Auto-assign and ripple shift order_index
+        if (isset($validated['order_index']) && (int) $validated['order_index'] > 0) {
+            $newOrder = (int) $validated['order_index'];
+            Portfolio::where('order_index', '>=', $newOrder)->increment('order_index');
+            $validated['order_index'] = $newOrder;
+        } else {
             $maxOrder = Portfolio::max('order_index') ?? 0;
             $validated['order_index'] = $maxOrder + 1;
         }
 
-        // Handle uploaded image file
+        // Handle uploaded image file with WebP auto-compression
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('portfolios', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $uploaded = $this->processImageUpload($request->file('image_file'));
+            $validated['image'] = $uploaded['url'];
         } elseif ($request->hasFile('image')) {
-            $path = $request->file('image')->store('portfolios', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $uploaded = $this->processImageUpload($request->file('image'));
+            $validated['image'] = $uploaded['url'];
         }
 
         $portfolio = Portfolio::create($validated);
@@ -355,13 +397,30 @@ class PortfolioController extends Controller
             }
         }
 
-        // Handle uploaded image file
+        // Handle order_index ripple shift if changed
+        if (isset($validated['order_index'])) {
+            $newOrder = (int) $validated['order_index'];
+            $oldOrder = (int) ($portfolio->order_index ?? 0);
+            if ($newOrder > 0 && $newOrder !== $oldOrder) {
+                if ($newOrder < $oldOrder) {
+                    Portfolio::where('id', '!=', $portfolio->id)
+                        ->whereBetween('order_index', [$newOrder, $oldOrder - 1])
+                        ->increment('order_index');
+                } else {
+                    Portfolio::where('id', '!=', $portfolio->id)
+                        ->whereBetween('order_index', [$oldOrder + 1, $newOrder])
+                        ->decrement('order_index');
+                }
+            }
+        }
+
+        // Handle uploaded image file with WebP auto-compression
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('portfolios', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $uploaded = $this->processImageUpload($request->file('image_file'));
+            $validated['image'] = $uploaded['url'];
         } elseif ($request->hasFile('image')) {
-            $path = $request->file('image')->store('portfolios', 'public');
-            $validated['image'] = '/storage/' . $path;
+            $uploaded = $this->processImageUpload($request->file('image'));
+            $validated['image'] = $uploaded['url'];
         }
 
         $portfolio->update($validated);
@@ -397,6 +456,64 @@ class PortfolioController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Urutan portofolio berhasil diperbarui.',
+        ]);
+    }
+
+    /**
+     * Reorder single portfolio up/down with adjacent swap (Admin protected).
+     */
+    public function moveOrder(Request $request, int $id): JsonResponse
+    {
+        $portfolio = Portfolio::find($id);
+
+        if (!$portfolio) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Portofolio tidak ditemukan.',
+            ], 404);
+        }
+
+        $direction = $request->input('direction', 'up');
+        if (!in_array($direction, ['up', 'down'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Arah pergeseran harus up atau down.',
+            ], 422);
+        }
+
+        $currentOrder = $portfolio->order_index ?? $portfolio->id;
+
+        DB::transaction(function () use ($portfolio, $direction, $currentOrder) {
+            if ($direction === 'up') {
+                // Move to smaller order_index
+                $target = Portfolio::where('order_index', '<', $currentOrder)
+                    ->orderBy('order_index', 'desc')
+                    ->first();
+            } else {
+                // Move to larger order_index
+                $target = Portfolio::where('order_index', '>', $currentOrder)
+                    ->orderBy('order_index', 'asc')
+                    ->first();
+            }
+
+            if ($target) {
+                $targetOrder = $target->order_index;
+                $target->order_index = $currentOrder;
+                $target->save();
+
+                $portfolio->order_index = $targetOrder;
+                $portfolio->save();
+
+                ActivityLog::record('portfolio.move_order', "Urutan portofolio '{$portfolio->title}' digeser ({$direction}) bertukar dengan '{$target->title}'.");
+            }
+        });
+
+        $portfolios = Portfolio::orderBy('order_index', 'asc')->orderBy('id', 'desc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Urutan portofolio berhasil disesuaikan.',
+            'data' => $portfolios,
         ]);
     }
 

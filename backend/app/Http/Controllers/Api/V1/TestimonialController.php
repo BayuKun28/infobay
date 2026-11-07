@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Testimonial;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -130,6 +131,8 @@ class TestimonialController extends Controller
 
         $testimonial = Testimonial::create($validated);
 
+        ActivityLog::record('testimonial.create', "Testimoni dari '{$testimonial->client_name}' ({$testimonial->company}) berhasil ditambahkan.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Testimoni berhasil ditambahkan.',
@@ -170,6 +173,8 @@ class TestimonialController extends Controller
 
         $testimonial->update($validated);
 
+        ActivityLog::record('testimonial.update', "Testimoni '{$testimonial->client_name}' (ID: {$testimonial->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Testimoni berhasil diperbarui.',
@@ -194,6 +199,8 @@ class TestimonialController extends Controller
         $testimonial->is_active = !$testimonial->is_active;
         $testimonial->save();
 
+        ActivityLog::record('testimonial.toggle', "Status testimoni '{$testimonial->client_name}' diubah menjadi: " . ($testimonial->is_active ? 'Aktif' : 'Nonaktif'));
+
         return response()->json([
             'status' => 'success',
             'message' => $testimonial->is_active ? 'Testimoni diaktifkan.' : 'Testimoni dinonaktifkan.',
@@ -215,7 +222,10 @@ class TestimonialController extends Controller
             ], 404);
         }
 
+        $clientName = $testimonial->client_name;
         $testimonial->delete();
+
+        ActivityLog::record('testimonial.delete', "Testimoni dari '{$clientName}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

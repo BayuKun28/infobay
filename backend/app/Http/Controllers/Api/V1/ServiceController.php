@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Service;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -28,6 +29,8 @@ class ServiceController extends Controller
         ]);
 
         $service = Service::create($validated);
+
+        ActivityLog::record('service.create', "Layanan '{$service->title}' berhasil ditambahkan.");
 
         return response()->json([
             'status' => 'success',
@@ -55,6 +58,8 @@ class ServiceController extends Controller
 
         $service->update($validated);
 
+        ActivityLog::record('service.update', "Layanan '{$service->title}' (ID: {$service->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Layanan berhasil diperbarui.',
@@ -73,7 +78,10 @@ class ServiceController extends Controller
             ], 404);
         }
 
+        $title = $service->title;
         $service->delete();
+
+        ActivityLog::record('service.delete', "Layanan '{$title}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

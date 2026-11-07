@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Biodata;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -204,6 +205,8 @@ class BiodataController extends Controller
             ],
         ];
 
+        ActivityLog::record('biodata.update', "Profil pengembang '{$biodata->name}' ({$biodata->title}) berhasil diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Biodata profil berhasil diperbarui.',
@@ -228,6 +231,8 @@ class BiodataController extends Controller
             $biodata->cv_file_url = $url;
             $biodata->save();
         }
+
+        ActivityLog::record('biodata.upload_cv', "Berkas resume CV baru berhasil diunggah: {$url}.");
 
         return response()->json([
             'status' => 'success',

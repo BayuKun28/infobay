@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certification;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -126,6 +127,8 @@ class CertificationController extends Controller
 
         $certification = Certification::create($validated);
 
+        ActivityLog::record('certification.create', "Sertifikasi '{$certification->title}' ({$certification->issuer}) berhasil ditambahkan.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Sertifikasi berhasil ditambahkan.',
@@ -167,6 +170,8 @@ class CertificationController extends Controller
 
         $certification->update($validated);
 
+        ActivityLog::record('certification.update', "Sertifikasi '{$certification->title}' (ID: {$certification->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Sertifikasi berhasil diperbarui.',
@@ -191,6 +196,8 @@ class CertificationController extends Controller
         $certification->is_active = !$certification->is_active;
         $certification->save();
 
+        ActivityLog::record('certification.toggle', "Status sertifikasi '{$certification->title}' diubah menjadi: " . ($certification->is_active ? 'Aktif' : 'Nonaktif'));
+
         return response()->json([
             'status' => 'success',
             'message' => $certification->is_active ? 'Sertifikasi diaktifkan.' : 'Sertifikasi dinonaktifkan.',
@@ -212,7 +219,10 @@ class CertificationController extends Controller
             ], 404);
         }
 
+        $title = $certification->title;
         $certification->delete();
+
+        ActivityLog::record('certification.delete', "Sertifikasi '{$title}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

@@ -654,7 +654,7 @@ export default function ServicesSkillsManager({
       </Grid>
 
       {/* Tech Stack & Tools Arsenal Manager */}
-      <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
+      <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: 1, borderColor: 'divider', mt: { xs: 3, md: 4 } }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 2 }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

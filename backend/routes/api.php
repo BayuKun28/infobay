@@ -81,6 +81,7 @@ Route::prefix('v1')->group(function () {
             // Media Upload & Asset Explorer
             Route::post('/upload', [PortfolioController::class, 'uploadImage']);
             Route::get('/media', [PortfolioController::class, 'listMedia']);
+            Route::post('/media/upload', [PortfolioController::class, 'uploadMedia']);
             Route::delete('/media/{filename}', [PortfolioController::class, 'deleteMedia']);
 
             // System Maintenance & Health
@@ -104,6 +105,7 @@ Route::prefix('v1')->group(function () {
             // Portfolios
             Route::post('/portfolios', [PortfolioController::class, 'store']);
             Route::post('/portfolios/reorder', [PortfolioController::class, 'reorder']);
+            Route::post('/portfolios/{id}/move-order', [PortfolioController::class, 'moveOrder']);
             Route::put('/portfolios/{id}', [PortfolioController::class, 'update']);
             Route::delete('/portfolios/{id}', [PortfolioController::class, 'destroy']);
 

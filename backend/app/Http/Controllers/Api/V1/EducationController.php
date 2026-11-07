@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Education;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,8 @@ class EducationController extends Controller
 
         $education = Education::create($validated);
 
+        ActivityLog::record('education.create', "Pendidikan '{$education->title}' ({$education->period}) berhasil ditambahkan.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Riwayat pendidikan berhasil ditambahkan.',
@@ -89,6 +92,8 @@ class EducationController extends Controller
 
         $education->update($validated);
 
+        ActivityLog::record('education.update', "Pendidikan '{$education->title}' (ID: {$education->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Riwayat pendidikan berhasil diperbarui.',
@@ -110,7 +115,10 @@ class EducationController extends Controller
             ], 404);
         }
 
+        $title = $education->title;
         $education->delete();
+
+        ActivityLog::record('education.delete', "Pendidikan '{$title}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

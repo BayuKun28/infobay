@@ -358,6 +358,15 @@ export const adminService = {
     return res.data?.data || [];
   },
 
+  async uploadMedia(file) {
+    const formData = new FormData();
+    formData.append('image_file', file);
+    const res = await apiClient.post('/admin/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
   async deleteMedia(filename) {
     const res = await apiClient.delete(`/admin/media/${encodeURIComponent(filename)}`);
     return res.data;
@@ -392,6 +401,11 @@ export const adminService = {
 
   async reorderPortfolios(items) {
     const res = await apiClient.post('/admin/portfolios/reorder', { items });
+    return res.data;
+  },
+
+  async movePortfolioOrder(id, direction) {
+    const res = await apiClient.post(`/admin/portfolios/${id}/move-order`, { direction });
     return res.data;
   },
 

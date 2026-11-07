@@ -41,6 +41,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
 
 import DashboardOverview from './DashboardOverview';
 import PortfolioManager from './PortfolioManager';
@@ -50,6 +51,7 @@ import ExperienceEducationManager from './ExperienceEducationManager';
 import MessageManager from './MessageManager';
 import TestimonialManager from './TestimonialManager';
 import CertificationManager from './CertificationManager';
+import MediaManager from './MediaManager';
 import AdminProfileModal from './AdminProfileModal';
 import { getAdminAllData, authService, messageService } from '../../services/api';
 
@@ -156,6 +158,7 @@ export default function AdminLayout({
     { text: 'Pengalaman & Edu', desc: 'Karier & Pendidikan', icon: <SchoolIcon sx={{ fontSize: 20 }} />, tab: 5 },
     { text: 'Testimoni Klien', desc: 'Ulasan & Rating Bintang', icon: <FormatQuoteIcon sx={{ fontSize: 20 }} />, tab: 6 },
     { text: 'Sertifikasi', desc: 'Lisensi & Kredensial', icon: <WorkspacePremiumIcon sx={{ fontSize: 20 }} />, tab: 7 },
+    { text: 'Pustaka Media', desc: 'Upload & Eksplorer Berkas', icon: <PermMediaOutlinedIcon sx={{ fontSize: 20 }} />, tab: 8 },
     {
       text: 'Pesan Masuk',
       desc: messageStats.unread > 0 ? `${messageStats.unread} Belum Dibaca` : 'Kotak Masuk Kontak',
@@ -322,7 +325,9 @@ export default function AdminLayout({
 
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>Domain Layanan</Typography>
-            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary', fontFamily: 'monospace', fontSize: '0.72rem' }}>info.baydev.my.id</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary', fontFamily: 'monospace', fontSize: '0.72rem' }}>
+              {typeof window !== 'undefined' ? window.location.host : 'baydev.my.id'}
+            </Typography>
           </Box>
         </Box>
       </Box>
@@ -740,6 +745,10 @@ export default function AdminLayout({
             onRefresh={loadAllData}
             showToast={showToast}
           />
+        )}
+
+        {currentTab === 8 && (
+          <MediaManager showToast={showToast} />
         )}
       </Box>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -21,16 +21,19 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import ClearIcon from '@mui/icons-material/Clear';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PermMediaIcon from '@mui/icons-material/PermMedia';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { adminService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 
 export default function MediaSelectorModal({ open, onClose, onSelect, showToast }) {
   const [mediaList, setMediaList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState('');
   const [deletingFile, setDeletingFile] = useState(null);
 
@@ -54,9 +57,38 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
     }
   }, [open]);
 
-  const filteredMedia = mediaList.filter((m) =>
-    m.filename.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredMedia = useMemo(() => {
+    if (!search.trim()) return mediaList;
+    const q = search.toLowerCase();
+    return mediaList.filter((m) => (m.filename || '').toLowerCase().includes(q));
+  }, [mediaList, search]);
+
+  const handleUploadFromModal = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast?.('Ukuran file maksimal 10MB.', 'warning');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const res = await adminService.uploadMedia(file);
+      showToast?.('Berkas media berhasil diunggah!', 'success');
+      await fetchMedia();
+      if (res?.url) {
+        onSelect(res.url);
+        onClose();
+      }
+    } catch (err) {
+      console.error('Upload in modal failed:', err);
+      showToast?.('Gagal mengunggah berkas media.', 'error');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
 
   const handleDelete = async (filename, e) => {
     if (e) e.stopPropagation();
@@ -75,16 +107,51 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 2.5 } }}>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <PermMediaIcon fontSize="small" sx={{ color: 'primary.main' }} />
-          <Typography variant="subtitle1" fontWeight={800}>
-            Pustaka Media Server
-          </Typography>
-          <Chip label={`${mediaList.length} Berkas`} size="small" sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }} />
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2.5,
+          overflow: 'hidden',
+          border: 1,
+          borderColor: 'divider',
+        },
+      }}
+    >
+      {/* Modal Header */}
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: 3,
+          py: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: (th) => (th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(15, 23, 42, 0.02)'),
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+          <PermMediaIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+          <Box>
+            <Typography variant="subtitle1" fontWeight={800} sx={{ lineHeight: 1.2 }}>
+              Pustaka Media Server
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Pilih gambar yang sudah ada atau unggah langsung
+            </Typography>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Chip
+            label={`${mediaList.length} Berkas`}
+            size="small"
+            variant="outlined"
+            sx={{ height: 22, fontSize: '0.7rem', fontWeight: 700 }}
+          />
           <IconButton size="small" onClick={fetchMedia} disabled={loading} title="Segarkan">
             <RefreshIcon fontSize="small" />
           </IconButton>
@@ -94,9 +161,19 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 2.5 }}>
-        {/* Search Bar */}
-        <Box sx={{ mb: 2 }}>
+      {/* Modal Content with Generous Spacing */}
+      <DialogContent sx={{ px: 3, pt: 2.5, pb: 2 }}>
+        {/* Search & Upload Action Bar */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 1.5,
+            alignItems: 'center',
+            mb: 2,
+            mt: 0.5,
+          }}
+        >
           <TextField
             size="small"
             fullWidth
@@ -109,115 +186,204 @@ export default function MediaSelectorModal({ open, onClose, onSelect, showToast 
                   <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
+              endAdornment: search ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearch('')}>
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
             }}
             sx={{ '& .MuiOutlinedInput-root': { fontSize: '0.82rem' } }}
           />
+
+          <Button
+            component="label"
+            variant="outlined"
+            size="small"
+            disabled={uploading}
+            startIcon={uploading ? <CircularProgress size={16} /> : <CloudUploadIcon fontSize="small" />}
+            sx={{
+              whiteSpace: 'nowrap',
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.78rem',
+              px: 2,
+              height: 38,
+            }}
+          >
+            {uploading ? 'Mengunggah...' : '+ Unggah Baru'}
+            <input
+              type="file"
+              hidden
+              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+              onChange={handleUploadFromModal}
+            />
+          </Button>
         </Box>
 
+        {/* Counter Info */}
+        <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="caption" color="text.secondary">
+            Menampilkan <strong>{filteredMedia.length}</strong> dari {mediaList.length} media server
+          </Typography>
+          {search && (
+            <Button size="small" color="inherit" onClick={() => setSearch('')} sx={{ fontSize: '0.7rem', p: 0 }}>
+              Reset Pencarian
+            </Button>
+          )}
+        </Box>
+
+        {/* Media Grid / Empty State */}
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8, gap: 1.5 }}>
-            <CircularProgress size={24} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 8, gap: 1.5 }}>
+            <CircularProgress size={28} />
             <Typography variant="body2" color="text.secondary">
-              Memuat berkas media...
+              Memuat berkas media dari server...
             </Typography>
           </Box>
         ) : filteredMedia.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 6, border: '1px dashed', borderColor: 'divider', borderRadius: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {search ? 'Tidak ada berkas yang cocok dengan pencarian.' : 'Belum ada berkas media di server.'}
+          <Box sx={{ textAlign: 'center', py: 6, border: '1.5px dashed', borderColor: 'divider', borderRadius: 2 }}>
+            <PermMediaIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
+            <Typography variant="subtitle2" fontWeight={700}>
+              {search ? 'Tidak ada berkas yang cocok dengan pencarian' : 'Belum ada berkas media di server'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              {search
+                ? `Kata kunci "${search}" tidak ditemukan. Coba reset pencarian.`
+                : 'Klik tombol "+ Unggah Baru" di atas untuk menambahkan gambar.'}
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={1.5} sx={{ maxHeight: 420, overflowY: 'auto', p: 0.5 }}>
-            {filteredMedia.map((item) => (
-              <Grid item xs={6} sm={4} md={3} key={item.filename}>
-                <Card
-                  elevation={0}
-                  onClick={() => {
-                    onSelect(item.url);
-                    onClose();
-                  }}
-                  sx={{
-                    border: 1.5,
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    image={getStorageUrl(item.url)}
-                    alt={item.filename}
+          <Grid container spacing={1.5} sx={{ maxHeight: 420, overflowY: 'auto', pr: 0.5 }}>
+            {filteredMedia.map((item) => {
+              const isWebp = item.filename?.toLowerCase().endsWith('.webp');
+              return (
+                <Grid item xs={6} sm={4} md={3} key={item.filename}>
+                  <Card
+                    elevation={0}
+                    onClick={() => {
+                      onSelect(item.url);
+                      onClose();
+                    }}
                     sx={{
-                      height: 110,
-                      objectFit: 'cover',
-                      bgcolor: 'action.hover',
+                      border: 1.5,
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        boxShadow: (th) => th.shadows[3],
+                        transform: 'translateY(-2px)',
+                      },
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%',
                     }}
-                    onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&auto=format&fit=crop&q=80';
-                    }}
-                  />
-                  <CardContent sx={{ p: 1, flex: 1 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: '0.72rem',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        lineHeight: 1.2,
-                      }}
-                      title={item.filename}
-                    >
-                      {item.filename}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.65rem', mt: 0.3 }}>
-                      {item.size_kb} KB • {item.modified_at?.slice(0, 10)}
-                    </Typography>
-                  </CardContent>
-                  <CardActions sx={{ p: 0.8, pt: 0, justifyContent: 'space-between' }} onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => {
-                        onSelect(item.url);
-                        onClose();
-                      }}
-                      sx={{ fontSize: '0.68rem', py: 0.2, px: 1, minWidth: 0, fontWeight: 700 }}
-                    >
-                      Pilih
-                    </Button>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={(e) => handleDelete(item.filename, e)}
-                      disabled={deletingFile === item.filename}
-                      sx={{ p: 0.4 }}
-                      title="Hapus berkas"
-                    >
-                      <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+                  >
+                    <Box sx={{ position: 'relative', height: 110, bgcolor: 'action.hover' }}>
+                      <CardMedia
+                        component="img"
+                        image={getStorageUrl(item.url)}
+                        alt={item.filename}
+                        sx={{
+                          height: '100%',
+                          width: '100%',
+                          objectFit: 'cover',
+                        }}
+                        onError={(e) => {
+                          e.target.src = '/favicon.svg';
+                        }}
+                      />
+                      {isWebp && (
+                        <Chip
+                          label="WEBP"
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            top: 6,
+                            right: 6,
+                            fontSize: '0.62rem',
+                            fontWeight: 800,
+                            height: 18,
+                            bgcolor: 'success.main',
+                            color: '#fff',
+                          }}
+                        />
+                      )}
+                    </Box>
+
+                    <CardContent sx={{ p: 1, pb: 0.5, flex: 1 }}>
+                      <Tooltip title={item.filename} arrow>
+                        <Typography
+                          variant="caption"
+                          noWrap
+                          display="block"
+                          sx={{ fontWeight: 700, fontSize: '0.75rem', lineHeight: 1.3 }}
+                        >
+                          {item.filename}
+                        </Typography>
+                      </Tooltip>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>
+                          {item.size_kb} KB
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                          {item.modified_at?.split(' ')[0]}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+
+                    <CardActions sx={{ p: 0.8, pt: 0, justifyContent: 'space-between' }}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<CheckCircleIcon sx={{ fontSize: 13 }} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelect(item.url);
+                          onClose();
+                        }}
+                        sx={{
+                          fontSize: '0.68rem',
+                          py: 0.2,
+                          px: 1,
+                          fontWeight: 700,
+                          textTransform: 'none',
+                        }}
+                      >
+                        Pilih
+                      </Button>
+                      <Tooltip title="Hapus Berkas">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          disabled={deletingFile === item.filename}
+                          onClick={(e) => handleDelete(item.filename, e)}
+                        >
+                          {deletingFile === item.filename ? (
+                            <CircularProgress size={14} color="inherit" />
+                          ) : (
+                            <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                          )}
+                        </IconButton>
+                      </Tooltip>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 2.5, py: 1.5, borderTop: 1, borderColor: 'divider' }}>
-        <Button onClick={onClose} color="inherit" size="small" sx={{ fontWeight: 600 }}>
-          Batal
+      {/* Modal Actions */}
+      <DialogActions sx={{ px: 3, py: 1.5, borderTop: 1, borderColor: 'divider', bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)' }}>
+        <Button onClick={onClose} color="inherit" size="small" sx={{ fontWeight: 600, fontSize: '0.78rem' }}>
+          Tutup
         </Button>
       </DialogActions>
     </Dialog>

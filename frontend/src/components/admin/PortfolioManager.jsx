@@ -51,6 +51,7 @@ import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
 import MediaSelectorModal from './MediaSelectorModal';
+import PortfolioEditorScreen from './PortfolioEditorScreen';
 
 export default function PortfolioManager({
   portfolios = [],
@@ -77,7 +78,10 @@ export default function PortfolioManager({
   const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
   const [mediaSelectorTarget, setMediaSelectorTarget] = useState('cover'); // 'cover' | 'gallery'
 
-  // Form Dialog state
+  // View Mode: 'list' (Table) vs 'editor' (Full-Page Screen)
+  const [viewMode, setViewMode] = useState('list');
+
+  // Form state
   const [openForm, setOpenForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -213,6 +217,8 @@ export default function PortfolioManager({
     setNewGalleryUrl('');
     setNewGalleryCaption('');
     setOpenForm(true);
+    setViewMode('editor');
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenEdit = (item) => {
@@ -290,6 +296,8 @@ export default function PortfolioManager({
       highlights: parsedHighlights,
     });
     setOpenForm(true);
+    setViewMode('editor');
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAddTechTag = () => {
@@ -450,6 +458,7 @@ export default function PortfolioManager({
         showToast('Portofolio baru berhasil ditambahkan', 'success');
       }
       setOpenForm(false);
+      setViewMode('list');
       if (onRefresh) onRefresh();
       loadCategories();
     } catch (err) {
@@ -483,36 +492,13 @@ export default function PortfolioManager({
     }
   };
 
-  // Quick Reorder: swap order with adjacent item in full sorted list
+  // Quick Reorder: atomic move-order via backend endpoint
   const handleMoveOrder = async (item, direction) => {
-    const sorted = [...portfolios].sort((a, b) => {
-      const orderA = a.order_index ?? a.id ?? 0;
-      const orderB = b.order_index ?? b.id ?? 0;
-      if (orderA !== orderB) return orderA - orderB;
-      return (a.id ?? 0) - (b.id ?? 0);
-    });
-
-    const currentIndex = sorted.findIndex((p) => p.id === item.id);
-    if (currentIndex === -1) return;
-
-    const targetIndex = currentIndex + direction;
-    if (targetIndex < 0 || targetIndex >= sorted.length) return;
-
-    const targetItem = sorted[targetIndex];
-    let currentOrder = item.order_index ?? currentIndex + 1;
-    let targetOrder = targetItem.order_index ?? targetIndex + 1;
-
-    if (currentOrder === targetOrder) {
-      targetOrder = currentOrder + direction;
-    }
-
     setLoading(true);
     try {
-      await adminService.reorderPortfolios([
-        { id: item.id, order_index: targetOrder },
-        { id: targetItem.id, order_index: currentOrder },
-      ]);
-      showToast('Urutan portofolio berhasil diperbarui', 'success');
+      const dir = direction < 0 ? 'up' : 'down';
+      await adminService.movePortfolioOrder(item.id, dir);
+      showToast('Urutan portofolio berhasil disesuaikan', 'success');
       if (onRefresh) await onRefresh();
     } catch (err) {
       console.error('Reorder error:', err);
@@ -529,7 +515,55 @@ export default function PortfolioManager({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-      {/* Standardized Table Toolbar: Filter Combobox Left, Search & Actions Right */}
+      {viewMode === 'editor' ? (
+        <PortfolioEditorScreen
+          formData={formData}
+          setFormData={setFormData}
+          isEditing={isEditing}
+          onSave={handleSave}
+          onCancel={() => setViewMode('list')}
+          loading={loading}
+          uploadingImage={uploadingImage}
+          allCategoryNames={allCategoryNames}
+          setOpenCategoryModal={setOpenCategoryModal}
+          selectedFile={selectedFile}
+          previewUrl={previewUrl}
+          handleFileChange={handleFileChange}
+          newTechInput={newTechInput}
+          setNewTechInput={setNewTechInput}
+          handleAddTechTag={handleAddTechTag}
+          handleRemoveTechTag={handleRemoveTechTag}
+          newMetricInput={newMetricInput}
+          setNewMetricInput={setNewMetricInput}
+          handleAddMetric={handleAddMetric}
+          handleRemoveMetric={handleRemoveMetric}
+          newHighlightInput={newHighlightInput}
+          setNewHighlightInput={setNewHighlightInput}
+          handleAddHighlight={handleAddHighlight}
+          handleRemoveHighlight={handleRemoveHighlight}
+          newGalleryUrl={newGalleryUrl}
+          setNewGalleryUrl={setNewGalleryUrl}
+          newGalleryCaption={newGalleryCaption}
+          setNewGalleryCaption={setNewGalleryCaption}
+          handleAddGalleryItem={handleAddGalleryItem}
+          handleRemoveGalleryItem={handleRemoveGalleryItem}
+          handleUploadGalleryFile={handleUploadGalleryFile}
+          uploadingGallery={uploadingGallery}
+          onOpenMediaSelector={(target) => {
+            setMediaSelectorTarget(target);
+            setMediaSelectorOpen(true);
+          }}
+          onPreview={() => {
+            setPreviewData({
+              ...formData,
+              image: previewUrl || formData.image,
+            });
+            setPreviewModalOpen(true);
+          }}
+        />
+      ) : (
+        <>
+          {/* Standardized Table Toolbar: Filter Combobox Left, Search & Actions Right */}
       <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
         <Box
           sx={{
@@ -1282,712 +1316,8 @@ export default function PortfolioManager({
         </Paper>
       )}
 
-      {/* Form Dialog: Create & Edit with Direct Image Upload */}
-      <Dialog
-        open={openForm}
-        onClose={() => setOpenForm(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 2.5 } }}
-      >
-        <form onSubmit={handleSave}>
-          <DialogTitle sx={{ fontWeight: 700, fontSize: '1.05rem', pb: 1 }}>
-            {isEditing ? 'Perbarui Portofolio' : 'Tambah Portofolio Baru'}
-          </DialogTitle>
-          <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="Judul Proyek"
-              fullWidth
-              required
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              size="small"
-            />
-
-            {/* Dynamic Category Selector & Manage Button */}
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-              <TextField
-                select
-                label="Kategori Portofolio"
-                fullWidth
-                required
-                value={formData.category}
-                onChange={(e) => {
-                  if (e.target.value === '__NEW__') {
-                    setOpenCategoryModal(true);
-                  } else {
-                    setFormData({ ...formData, category: e.target.value });
-                  }
-                }}
-                size="small"
-              >
-                {allCategoryNames.map((cat) => (
-                  <MenuItem key={cat} value={cat}>
-                    {cat}
-                  </MenuItem>
-                ))}
-                <MenuItem
-                  value="__NEW__"
-                  sx={{
-                    fontStyle: 'italic',
-                    color: 'primary.main',
-                    fontWeight: 700,
-                    borderTop: '1px dashed',
-                    borderColor: 'divider',
-                  }}
-                >
-                  + Tambah / Kelola Kategori...
-                </MenuItem>
-              </TextField>
-
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => setOpenCategoryModal(true)}
-                sx={{
-                  height: 40,
-                  whiteSpace: 'nowrap',
-                  minWidth: 100,
-                  fontWeight: 700,
-                  fontSize: '0.75rem',
-                }}
-              >
-                Kelola
-              </Button>
-            </Box>
-
-            {/* Client Name & Project Year */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 2 }}>
-              <TextField
-                label="Nama Klien / Lembaga Mitra"
-                fullWidth
-                value={formData.client_name}
-                onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                size="small"
-                placeholder="Contoh: PT Jamkrida Jatim, Diskominfo"
-                helperText="Nama klien atau lembaga pemilik sistem (opsional)"
-              />
-              <TextField
-                label="Tahun Rilis"
-                fullWidth
-                value={formData.project_year}
-                onChange={(e) => setFormData({ ...formData, project_year: e.target.value })}
-                size="small"
-                placeholder="Contoh: 2024"
-                helperText="Tahun pengerjaan / rilis sistem"
-              />
-            </Box>
-
-            {/* Project Role & Toggles (Published & Featured) */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center' }}>
-              <TextField
-                label="Peran Proyek (Project Role)"
-                fullWidth
-                value={formData.project_role}
-                onChange={(e) => setFormData({ ...formData, project_role: e.target.value })}
-                size="small"
-                placeholder="Contoh: Senior Web Programmer / Lead Architect"
-                helperText="Peran pada proyek ini (default: Senior Software Engineer)"
-              />
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box
-                  sx={{
-                    p: 0.8,
-                    px: 1.5,
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    bgcolor: 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={formData.is_published}
-                        onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                        color="success"
-                        size="small"
-                      />
-                    }
-                    label={
-                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
-                        Publikasikan ({formData.is_published ? 'Aktif' : 'Draf'})
-                      </Typography>
-                    }
-                    sx={{ m: 0 }}
-                  />
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 0.8,
-                    px: 1.5,
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    bgcolor: 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={formData.is_featured}
-                        onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                        color="primary"
-                        size="small"
-                      />
-                    }
-                    label={
-                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
-                        Proyek Unggulan (Featured)
-                      </Typography>
-                    }
-                    sx={{ m: 0 }}
-                  />
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Order Index Input */}
-            <TextField
-              label="Urutan Tampil (Order Index)"
-              type="number"
-              fullWidth
-              value={formData.order_index}
-              onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value, 10) || 0 })}
-              size="small"
-              helperText="Angka lebih kecil tampil lebih dulu (contoh: 1, 2, 3...)"
-            />
-
-            {/* Direct Image Upload Dropzone */}
-            <Box
-              sx={{
-                p: 2.5,
-                borderRadius: 2.5,
-                border: '2px dashed',
-                borderColor: selectedFile ? 'primary.main' : 'divider',
-                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(15, 23, 42, 0.03)',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.08)' : 'rgba(67, 56, 202, 0.05)',
-                },
-              }}
-            >
-              {previewUrl ? (
-                <Box sx={{ mb: 1.5 }}>
-                  <Box
-                    component="img"
-                    src={previewUrl}
-                    alt="Preview"
-                    sx={{
-                      maxHeight: 140,
-                      maxWidth: '100%',
-                      borderRadius: 1.5,
-                      objectFit: 'contain',
-                      border: 1,
-                      borderColor: 'divider',
-                    }}
-                  />
-                  <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-                    {selectedFile ? `File baru: ${selectedFile.name}` : 'Gambar saat ini'}
-                  </Typography>
-                </Box>
-              ) : (
-                <ImageOutlinedIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
-              )}
-
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="admin-portfolio-upload-input"
-                  type="file"
-                  onChange={handleFileChange}
-                />
-                <label htmlFor="admin-portfolio-upload-input">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    size="small"
-                    startIcon={<CloudUploadIcon />}
-                    sx={{ fontWeight: 600, fontSize: '0.78rem' }}
-                  >
-                    {previewUrl ? 'Ganti File Gambar' : 'Pilih Berkas Gambar'}
-                  </Button>
-                </label>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  startIcon={<CollectionsOutlinedIcon />}
-                  onClick={() => {
-                    setMediaSelectorTarget('cover');
-                    setMediaSelectorOpen(true);
-                  }}
-                  sx={{ fontWeight: 600, fontSize: '0.78rem' }}
-                >
-                  Pilih dari Galeri Server
-                </Button>
-              </Box>
-              <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.8, fontSize: '0.7rem' }}>
-                Format didukung: JPG, PNG, WEBP, GIF, SVG (Maks. 10MB) &bull; Otomatis dikompresi ke WebP 80%
-              </Typography>
-            </Box>
-
-            <TextField
-              label="URL Gambar Manual (Opsional jika tidak upload berkas)"
-              fullWidth
-              value={formData.image}
-              onChange={(e) => {
-                setFormData({ ...formData, image: e.target.value });
-                if (!selectedFile) setPreviewUrl(e.target.value);
-              }}
-              size="small"
-              placeholder="https://..."
-              helperText="Bisa diisi URL gambar eksternal atau biarkan kosong jika mengunggah file di atas."
-            />
-
-            {/* Multi-Screenshot Gallery Section (Studi Kasus Detail) */}
-            <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.88rem' }}>
-                    Galeri Screenshot &amp; Arsitektur
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Tangkapan layar tambahan untuk studi kasus detail pada modal portofolio publik.
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    size="small"
-                    startIcon={<CollectionsOutlinedIcon fontSize="small" />}
-                    onClick={() => {
-                      setMediaSelectorTarget('gallery');
-                      setMediaSelectorOpen(true);
-                    }}
-                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
-                  >
-                    Pilih dari Galeri
-                  </Button>
-                  <Button
-                    component="label"
-                    variant="outlined"
-                    size="small"
-                    disabled={uploadingGallery}
-                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
-                  >
-                    {uploadingGallery ? 'Mengunggah...' : '+ Unggah Gambar'}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleUploadGalleryFile}
-                    />
-                  </Button>
-                </Box>
-              </Box>
-
-              {/* Input manual URL / Caption */}
-              <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <TextField
-                  placeholder="URL Screenshot (/storage/... atau https://...)"
-                  size="small"
-                  fullWidth
-                  value={newGalleryUrl}
-                  onChange={(e) => setNewGalleryUrl(e.target.value)}
-                  sx={{ '.MuiInputBase-input': { fontSize: '0.82rem' } }}
-                />
-                <TextField
-                  placeholder="Keterangan singkat"
-                  size="small"
-                  value={newGalleryCaption}
-                  onChange={(e) => setNewGalleryCaption(e.target.value)}
-                  sx={{ width: { xs: '100%', sm: 180 }, '.MuiInputBase-input': { fontSize: '0.82rem' } }}
-                />
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleAddGalleryItem()}
-                  disabled={!newGalleryUrl.trim()}
-                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem', px: 2, whiteSpace: 'nowrap' }}
-                >
-                  Tambah
-                </Button>
-              </Box>
-
-              {/* Gallery Items Grid */}
-              {formData.gallery && formData.gallery.length > 0 ? (
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
-                  {formData.gallery.map((gItem, gIdx) => {
-                    const gUrl = typeof gItem === 'string' ? gItem : gItem.url;
-                    const gCaption = typeof gItem === 'object' ? gItem.caption : '';
-                    return (
-                      <Box
-                        key={gIdx}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          p: 1,
-                          border: 1,
-                          borderColor: 'divider',
-                          borderRadius: 1.5,
-                          bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.01)',
-                        }}
-                      >
-                        <Box
-                          component="img"
-                          src={gUrl}
-                          alt="thumb"
-                          sx={{ width: 56, height: 40, objectFit: 'cover', borderRadius: 1, border: 1, borderColor: 'divider' }}
-                          onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="body2" sx={{ fontSize: '0.78rem', fontWeight: 600 }} noWrap>
-                            {gCaption || `Screenshot #${gIdx + 1}`}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap display="block">
-                            {gUrl}
-                          </Typography>
-                        </Box>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleRemoveGalleryItem(gIdx)}
-                          title="Hapus screenshot"
-                        >
-                          <DeleteOutlineIcon sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              ) : (
-                <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic', display: 'block', textAlign: 'center', py: 1 }}>
-                  Belum ada screenshot tambahan.
-                </Typography>
-              )}
-            </Box>
-
-            {/* Links: Demo Link & GitHub Source Code in 2-column Grid */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-              <TextField
-                label="Tautan Proyek / Demo"
-                fullWidth
-                value={formData.link}
-                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                size="small"
-                placeholder="https://..."
-                helperText="Tautan website live / tombol KUNJUNGI WEBSITE"
-              />
-
-              <TextField
-                label="Tautan GitHub / Source Code"
-                fullWidth
-                value={formData.github_url}
-                onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
-                size="small"
-                placeholder="https://github.com/..."
-                helperText="Tautan repositori / tombol LIHAT SOURCE CODE"
-              />
-            </Box>
-
-            {/* Tech Stack & Frameworks Input */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Tech Stack &amp; Frameworks
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  placeholder="Ketik teknologi (contoh: Laravel, React, Tailwind) lalu tekan Enter"
-                  size="small"
-                  fullWidth
-                  value={newTechInput}
-                  onChange={(e) => setNewTechInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTechTag();
-                    }
-                  }}
-                  helperText="Tekan Enter atau klik Tambah untuk menyematkan tag teknologi pada portofolio ini"
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={handleAddTechTag}
-                  disabled={!newTechInput.trim()}
-                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
-                >
-                  Tambah
-                </Button>
-              </Box>
-
-              {/* Chips Display */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 0.8,
-                  minHeight: 38,
-                  p: 1.2,
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
-                }}
-              >
-                {formData.tech_stack && formData.tech_stack.length > 0 ? (
-                  formData.tech_stack.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={`#${tag}`}
-                      size="small"
-                      onDelete={() => handleRemoveTechTag(tag)}
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: '0.72rem',
-                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
-                        color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
-                        border: 1,
-                        borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
-                        '& .MuiChip-deleteIcon': {
-                          color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
-                          '&:hover': { color: 'error.main' },
-                        },
-                      }}
-                    />
-                  ))
-                ) : (
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
-                    Belum ada tech stack disematkan. Ketik di atas dan tekan Tambah atau Enter.
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-
-            {/* Matrix Informasi & Metrik Kunci Input */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Dampak &amp; Metrik Kunci (Matrix Informasi)
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  placeholder="Ketik capaian/metrik (contoh: Rp 100M+ Plafon Kredit Terkelola / 10K+ Transaksi Bulanan)"
-                  size="small"
-                  fullWidth
-                  value={newMetricInput}
-                  onChange={(e) => setNewMetricInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddMetric();
-                    }
-                  }}
-                  helperText="Tekan Enter atau klik Tambah untuk menyematkan kartu matriks metrik ke modal proyek publik"
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={handleAddMetric}
-                  disabled={!newMetricInput.trim()}
-                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
-                >
-                  Tambah
-                </Button>
-              </Box>
-
-              {/* Metrics List Display */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 0.8,
-                  minHeight: 38,
-                  p: 1.2,
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
-                }}
-              >
-                {formData.metrics && formData.metrics.length > 0 ? (
-                  formData.metrics.map((metric, mIdx) => (
-                    <Box
-                      key={mIdx}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        px: 1.5,
-                        py: 0.8,
-                        borderRadius: 1.5,
-                        border: 1,
-                        borderColor: 'divider',
-                        bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#FFFFFF',
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Chip
-                          label={`METRIC #${mIdx + 1}`}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: '0.65rem',
-                            fontWeight: 800,
-                            bgcolor: '#FEF08A',
-                            color: '#854D0E',
-                            border: 1,
-                            borderColor: '#EAB308',
-                          }}
-                        />
-                        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-                          {metric}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveMetric(mIdx)}
-                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, p: 0.4 }}
-                        title="Hapus Metrik"
-                      >
-                        <ClearIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </Box>
-                  ))
-                ) : (
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
-                    Belum ada matriks metrik disematkan. Ketik di atas dan tekan Tambah atau Enter.
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-
-            {/* Highlights Badges (Sorotan Keunggulan Proyek) */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Sorotan Keunggulan (Highlights Badges)
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  placeholder="Contoh: HIGH AVAILABILITY / OJK COMPLIANT / ENTERPRISE READY"
-                  size="small"
-                  fullWidth
-                  value={newHighlightInput}
-                  onChange={(e) => setNewHighlightInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddHighlight();
-                    }
-                  }}
-                  helperText="Badge sorotan khusus yang akan tampil di bagian bawah modal proyek publik"
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={handleAddHighlight}
-                  disabled={!newHighlightInput.trim()}
-                  sx={{ height: 40, minWidth: 85, fontWeight: 700 }}
-                >
-                  Tambah
-                </Button>
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 0.8,
-                  minHeight: 38,
-                  p: 1.2,
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
-                }}
-              >
-                {formData.highlights && formData.highlights.length > 0 ? (
-                  formData.highlights.map((hl, hIdx) => (
-                    <Chip
-                      key={hIdx}
-                      label={hl}
-                      size="small"
-                      variant="outlined"
-                      onDelete={() => handleRemoveHighlight(hIdx)}
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '0.72rem',
-                        borderColor: 'divider',
-                      }}
-                    />
-                  ))
-                ) : (
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', alignSelf: 'center', px: 0.5 }}>
-                    Belum ada badge sorotan. Ketik di atas dan tekan Tambah atau Enter.
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-
-            <TextField
-              label="Deskripsi Proyek"
-              fullWidth
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              size="small"
-            />
-          </DialogContent>
-          <DialogActions sx={{ px: 2.5, py: 1.5, display: 'flex', justifyContent: 'space-between' }}>
-            <Button
-              type="button"
-              variant="outlined"
-              size="small"
-              startIcon={<VisibilityIcon fontSize="small" />}
-              onClick={() => {
-                setPreviewData({
-                  ...formData,
-                  image: previewUrl || formData.image,
-                });
-                setPreviewModalOpen(true);
-              }}
-              sx={{ fontWeight: 600, fontSize: '0.78rem' }}
-            >
-              Pratinjau Publik
-            </Button>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button onClick={() => setOpenForm(false)} disabled={loading} color="inherit" size="small">
-                Batal
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={loading}
-                size="small"
-                sx={{ fontWeight: 600, px: 2.5 }}
-              >
-                {loading || uploadingImage ? (
-                  <CircularProgress size={18} color="inherit" />
-                ) : (
-                  'Simpan Data'
-                )}
-              </Button>
-            </Box>
-          </DialogActions>
-        </form>
-      </Dialog>
+        </>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)} PaperProps={{ sx: { borderRadius: 2.5 } }}>

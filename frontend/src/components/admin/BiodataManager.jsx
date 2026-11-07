@@ -372,10 +372,6 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                 Kelola identitas publik, tampilan Hero Section, berkas CV, dan tautan sosial media.
               </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mt: 1.5, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-                <Chip size="small" label="Dynamic API Sync" color="info" variant="outlined" />
-                <Chip size="small" label="PostgreSQL 17 Linked" color="success" variant="outlined" />
-              </Box>
             </Box>
 
             {onOpenProfileModal && (

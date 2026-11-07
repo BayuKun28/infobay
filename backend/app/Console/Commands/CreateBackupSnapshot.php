@@ -120,6 +120,8 @@ class CreateBackupSnapshot extends Command
                 $this->info("Rotasi snapshot selesai: {$deletedCount} berkas lama dibersihkan.");
             }
 
+            ActivityLog::record('system.backup_snapshot', "Snapshot cadangan database berhasil dibuat: {$filename} ({$fileSizeKb} KB).");
+
             Log::info("Infobay snapshot created: {$filename} ({$fileSizeKb} KB)");
             return Command::SUCCESS;
 
