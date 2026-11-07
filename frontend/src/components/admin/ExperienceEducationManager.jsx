@@ -36,6 +36,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import BriefcaseIcon from '@mui/icons-material/WorkOutline';
 import SchoolIcon from '@mui/icons-material/School';
 import ScheduleIcon from '@mui/icons-material/Schedule';
@@ -279,27 +280,16 @@ export default function ExperienceEducationManager({
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
-          {currentTab === 0 ? (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon fontSize="small" />}
-              onClick={handleOpenAddExp}
-              sx={{ flex: { xs: 1, sm: 'none' }, fontWeight: 700, fontSize: '0.8rem' }}
-            >
-              Tambah Pengalaman
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon fontSize="small" />}
-              onClick={handleOpenAddEdu}
-              sx={{ flex: { xs: 1, sm: 'none' }, fontWeight: 700, fontSize: '0.8rem' }}
-            >
-              Tambah Pendidikan
-            </Button>
-          )}
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<RefreshIcon fontSize="small" />}
+            onClick={() => onRefresh && onRefresh()}
+            disabled={loading}
+            sx={{ flex: { xs: 1, sm: 'none' }, fontWeight: 700, fontSize: '0.8rem' }}
+          >
+            Segarkan
+          </Button>
         </Box>
       </Box>
 
@@ -315,8 +305,8 @@ export default function ExperienceEducationManager({
           }}
         >
           {/* LEFT: Filter Combobox */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <FormControl size="small" sx={{ minWidth: 220 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: { xs: '100%', md: 'auto' } }}>
+            <FormControl size="small" sx={{ width: { xs: '100%', sm: 220 } }}>
               <InputLabel id="exp-edu-filter-label" sx={{ fontSize: '0.82rem' }}>
                 Filter Kategori Data
               </InputLabel>
@@ -343,7 +333,7 @@ export default function ExperienceEducationManager({
           </Box>
 
           {/* RIGHT: Search Box & Action */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' }, flexWrap: 'wrap', width: { xs: '100%', md: 'auto' } }}>
             <TextField
               size="small"
               placeholder={currentTab === 0 ? 'Cari perusahaan, posisi, atau periode...' : 'Cari sekolah, jurusan, atau periode...'}
@@ -360,7 +350,7 @@ export default function ExperienceEducationManager({
                   fontSize: '0.82rem',
                 },
               }}
-              sx={{ width: { xs: '100%', md: 300 } }}
+              sx={{ width: { xs: '100%', sm: 260 } }}
             />
 
             <Button
@@ -368,7 +358,7 @@ export default function ExperienceEducationManager({
               size="small"
               startIcon={<AddIcon sx={{ fontSize: 16 }} />}
               onClick={currentTab === 0 ? handleOpenAddExp : handleOpenAddEdu}
-              sx={{ fontWeight: 600, fontSize: '0.78rem', height: 40, whiteSpace: 'nowrap' }}
+              sx={{ fontWeight: 600, fontSize: '0.78rem', height: 40, whiteSpace: 'nowrap', flex: { xs: 1, sm: 'none' } }}
             >
               {currentTab === 0 ? 'Tambah Pengalaman' : 'Tambah Pendidikan'}
             </Button>
