@@ -8,8 +8,9 @@ import {
   Button,
   Box,
   Typography,
+  CircularProgress,
 } from '@mui/material';
-import { AlertTriangle } from 'lucide-react';
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 
 export default function ConfirmDialog({
   open,
@@ -28,9 +29,11 @@ export default function ConfirmDialog({
       onClose={loading ? undefined : onClose}
       PaperProps={{
         sx: {
-          border: '3px solid black',
-          boxShadow: '6px 6px 0px 0px #000000',
-          borderRadius: 0,
+          borderRadius: 3,
+          border: 1,
+          borderColor: 'divider',
+          boxShadow: (th) =>
+            th.palette.mode === 'dark' ? '0 8px 32px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.1)',
           p: 1,
           maxWidth: 440,
         },
@@ -40,26 +43,32 @@ export default function ConfirmDialog({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 36,
-              height: 36,
-              bgcolor: confirmColor === 'error' ? '#FF8080' : '#FFDE59',
-              border: '2px solid black',
+              width: 38,
+              height: 38,
+              borderRadius: 2,
+              bgcolor: (th) =>
+                confirmColor === 'error'
+                  ? (th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)')
+                  : (th.palette.mode === 'dark' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.1)'),
+              color: confirmColor === 'error' ? 'error.main' : 'warning.main',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '2px 2px 0px #000',
+              border: 1,
+              borderColor: 'divider',
+              flexShrink: 0,
             }}
           >
-            <AlertTriangle size={20} color="#000" strokeWidth={2.5} />
+            <WarningAmberOutlinedIcon sx={{ fontSize: 22 }} />
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 900 }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.1rem' }}>
             {title}
           </Typography>
         </Box>
       </DialogTitle>
 
       <DialogContent sx={{ py: 1.5 }}>
-        <DialogContentText sx={{ fontWeight: 600, color: 'text.primary' }}>
+        <DialogContentText sx={{ fontWeight: 500, color: 'text.secondary', fontSize: '0.88rem', lineHeight: 1.6 }}>
           {message}
         </DialogContentText>
       </DialogContent>
@@ -68,16 +77,14 @@ export default function ConfirmDialog({
         <Button
           onClick={onClose}
           disabled={loading}
+          variant="outlined"
+          size="small"
           sx={{
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            border: '2px solid black',
-            borderRadius: 0,
+            fontWeight: 600,
+            borderRadius: 2,
+            px: 2,
+            borderColor: 'divider',
             color: 'text.primary',
-            boxShadow: '2px 2px 0px #000',
-            '&:hover': {
-              bgcolor: 'action.hover',
-            },
           }}
         >
           {cancelText}
@@ -87,15 +94,15 @@ export default function ConfirmDialog({
           disabled={loading}
           variant="contained"
           color={confirmColor}
+          size="small"
+          startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
           sx={{
-            fontWeight: 900,
-            textTransform: 'uppercase',
-            border: '2px solid black',
-            borderRadius: 0,
-            boxShadow: '2px 2px 0px #000',
+            fontWeight: 700,
+            borderRadius: 2,
+            px: 2.5,
           }}
         >
-          {loading ? 'MEMPROSES...' : confirmText}
+          {loading ? 'Memproses...' : confirmText}
         </Button>
       </DialogActions>
     </Dialog>

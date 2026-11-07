@@ -199,26 +199,47 @@ export default function AdminLayout({
           borderColor: 'divider',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, flex: 1 }}>
           <Box
             sx={{
               width: 34,
               height: 34,
-              borderRadius: 2,
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText',
+              borderRadius: 1.5,
+              bgcolor: (th) => (th.palette.mode === 'dark' ? '#FFE17D' : '#FFDE59'),
+              color: '#000000',
+              border: '2px solid #000000',
+              boxShadow: (th) =>
+                th.palette.mode === 'dark' ? '2px 2px 0px rgba(255, 255, 255, 0.4)' : '2px 2px 0px #000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              fontWeight: 900,
+              fontSize: '0.9rem',
+              fontFamily: 'monospace, sans-serif',
+              letterSpacing: '-0.02em',
+              flexShrink: 0,
             }}
           >
-            <ShieldOutlinedIcon sx={{ fontSize: 20 }} />
+            BD
           </Box>
-          <Box>
-            <Typography variant="subtitle2" fontWeight={800} sx={{ letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              infobay
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="subtitle2"
+              fontWeight={800}
+              noWrap
+              sx={{
+                letterSpacing: '-0.01em',
+                lineHeight: 1.2,
+                fontFamily: 'monospace, sans-serif',
+                fontSize: '0.82rem',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+              title={typeof window !== 'undefined' ? (window.location.host || window.location.hostname) : 'baydev.my.id'}
+            >
+              {typeof window !== 'undefined' ? (window.location.host || window.location.hostname) : 'baydev.my.id'}
             </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', display: 'block', lineHeight: 1.2 }}>
               Management Console
             </Typography>
           </Box>

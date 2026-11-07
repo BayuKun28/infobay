@@ -13,3 +13,7 @@ export { default as TestimonialManager } from './TestimonialManager';
 export { default as DataTable } from './DataTable';
 export { default as StatCard } from './StatCard';
 export { default as ConfirmDialog } from './ConfirmDialog';
+export { default as MediaManager } from './MediaManager';
+export { default as MediaSelectorModal } from './MediaSelectorModal';
+export { default as PortfolioEditorScreen } from './PortfolioEditorScreen';
+export { default as CategoryManagerModal } from './CategoryManagerModal';

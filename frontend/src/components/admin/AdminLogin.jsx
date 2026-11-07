@@ -121,24 +121,33 @@ export default function AdminLogin({
                   : 'linear-gradient(180deg, rgba(79,70,229,0.08) 0%, rgba(255,255,255,0) 100%)',
             }}
           >
-            <Avatar
+            <Box
               sx={{
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                bgcolor: '#FFDE59',
+                color: '#000000',
+                border: '2px solid #000000',
+                boxShadow: '3px 3px 0px #000000',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 900,
+                fontSize: '1.25rem',
+                fontFamily: 'monospace, sans-serif',
+                letterSpacing: '-0.02em',
                 mx: 'auto',
                 mb: 1.5,
-                width: 52,
-                height: 52,
-                boxShadow: '0 8px 16px -4px rgba(99, 102, 241, 0.4)',
               }}
             >
-              <ShieldIcon />
-            </Avatar>
-            <Typography variant="h5" fontWeight="800">
-              INFOBAY ADMIN
+              BD
+            </Box>
+            <Typography variant="h5" fontWeight="800" sx={{ letterSpacing: '-0.02em', fontFamily: 'monospace, sans-serif', fontSize: { xs: '1.15rem', sm: '1.35rem' } }}>
+              {typeof window !== 'undefined' ? (window.location.host || window.location.hostname) : 'BAYDEV ADMIN'}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Enterprise Portfolio &amp; CMS Panel
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.82rem' }}>
+              Management Console &amp; Admin Panel
             </Typography>
           </Box>
 

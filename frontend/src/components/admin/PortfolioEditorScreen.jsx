@@ -26,7 +26,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import LinkIcon from '@mui/icons-material/Link';
 import LayersIcon from '@mui/icons-material/Layers';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import { getStorageUrl } from '../../utils';
 
@@ -853,7 +853,7 @@ export default function PortfolioEditorScreen({
             {/* CARD 8: Sorotan Keunggulan (Highlights) */}
             <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                <StarOutlineIcon color="primary" sx={{ fontSize: 20 }} />
+                <BookmarkBorderIcon color="primary" sx={{ fontSize: 20 }} />
                 <Typography variant="subtitle2" fontWeight={800}>
                   Sorotan Keunggulan (Highlights)
                 </Typography>

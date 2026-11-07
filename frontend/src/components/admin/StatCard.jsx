@@ -6,24 +6,26 @@ export default function StatCard({
   value,
   subtitle,
   icon: Icon,
-  color = '#FFDE59',
-  border = '2px solid black',
+  color = 'primary.main',
   onClick,
 }) {
   return (
     <Card
+      elevation={0}
       onClick={onClick}
       sx={{
-        border,
-        boxShadow: '4px 4px 0px 0px #000000',
-        borderRadius: 0,
+        borderRadius: 2.5,
+        border: 1,
+        borderColor: 'divider',
         bgcolor: 'background.paper',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all 0.2s ease',
         '&:hover': onClick
           ? {
               transform: 'translateY(-2px)',
-              boxShadow: '6px 6px 0px 0px #000000',
+              boxShadow: (th) =>
+                th.palette.mode === 'dark' ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.06)',
+              borderColor: 'primary.main',
             }
           : {},
       }}
@@ -33,10 +35,11 @@ export default function StatCard({
           <Typography
             variant="caption"
             sx={{
-              fontWeight: 900,
+              fontWeight: 700,
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              letterSpacing: '0.04em',
               color: 'text.secondary',
+              fontSize: '0.72rem',
             }}
           >
             {title}
@@ -46,25 +49,28 @@ export default function StatCard({
               sx={{
                 width: 38,
                 height: 38,
-                bgcolor: color,
-                border: '2px solid black',
+                borderRadius: 2,
+                bgcolor: (th) =>
+                  th.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(79, 70, 229, 0.08)',
+                color: color || 'primary.main',
+                border: 1,
+                borderColor: 'divider',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '2px 2px 0px #000',
               }}
             >
-              <Icon size={20} color="#000000" strokeWidth={2.5} />
+              <Icon size={20} />
             </Box>
           )}
         </Box>
 
-        <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '1.75rem' } }}>
           {value}
         </Typography>
 
         {subtitle && (
-          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary', fontSize: '0.8rem' }}>
             {subtitle}
           </Typography>
         )}
