@@ -7,7 +7,7 @@ import { STORAGE_BASE_URL } from '../constants';
  */
 export function getStorageUrl(path) {
   if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
     return path;
   }
 

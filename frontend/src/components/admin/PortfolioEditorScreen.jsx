@@ -28,6 +28,7 @@ import LayersIcon from '@mui/icons-material/Layers';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import { getStorageUrl } from '../../utils';
 
 export default function PortfolioEditorScreen({
   formData,
@@ -171,7 +172,7 @@ export default function PortfolioEditorScreen({
               whiteSpace: 'nowrap',
             }}
           >
-            {loading ? 'Menyimpan...' : isEditing ? 'Perbarui Proyek' : 'Simpan Proyek'}
+            {loading ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Terbitkan Portofolio'}
           </Button>
         </Box>
       </Paper>
@@ -576,36 +577,78 @@ export default function PortfolioEditorScreen({
               {/* Dropzone Container */}
               <Box
                 sx={{
-                  p: 2,
+                  p: 2.5,
                   borderRadius: 2,
                   border: '2px dashed',
-                  borderColor: selectedFile ? 'primary.main' : 'divider',
+                  borderColor: selectedFile || previewUrl || formData.image ? 'primary.main' : 'divider',
                   bgcolor: (th) => (th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(15, 23, 42, 0.02)'),
                   textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   mb: 1.5,
                 }}
               >
-                {previewUrl ? (
-                  <Box sx={{ mb: 1.5 }}>
+                {previewUrl || formData.image ? (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
+                    }}
+                  >
                     <Box
-                      component="img"
-                      src={previewUrl}
-                      alt="Preview"
                       sx={{
-                        maxHeight: 140,
-                        maxWidth: '100%',
-                        borderRadius: 1.5,
-                        objectFit: 'contain',
-                        border: 1,
-                        borderColor: 'divider',
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        p: 0.5,
                       }}
-                    />
-                    <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-                      {selectedFile ? `File baru: ${selectedFile.name}` : 'Gambar saat ini'}
+                    >
+                      <Box
+                        component="img"
+                        src={getStorageUrl(previewUrl || formData.image)}
+                        alt="Preview Sampul"
+                        sx={{
+                          maxHeight: 180,
+                          maxWidth: '100%',
+                          display: 'block',
+                          mx: 'auto',
+                          borderRadius: 2,
+                          objectFit: 'contain',
+                          border: 1,
+                          borderColor: 'divider',
+                          boxShadow: (th) =>
+                            th.palette.mode === 'dark'
+                              ? '0 4px 14px rgba(0,0,0,0.5)'
+                              : '0 4px 14px rgba(0,0,0,0.06)',
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      color="text.secondary"
+                      sx={{ mt: 1, fontWeight: 600, textAlign: 'center' }}
+                    >
+                      {selectedFile ? `File baru: ${selectedFile.name}` : 'Pratinjau Sampul Aktif'}
                     </Typography>
                   </Box>
                 ) : (
-                  <ImageOutlinedIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1.5 }}>
+                    <ImageOutlinedIcon sx={{ fontSize: 44, color: 'text.secondary', mb: 0.5 }} />
+                    <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+                      Belum ada gambar sampul dipilih
+                    </Typography>
+                  </Box>
                 )}
 
                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -624,7 +667,7 @@ export default function PortfolioEditorScreen({
                       startIcon={<CloudUploadIcon fontSize="small" />}
                       sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                     >
-                      {previewUrl ? 'Ganti File' : 'Unggah Berkas'}
+                      {previewUrl || formData.image ? 'Ganti File' : 'Unggah Berkas'}
                     </Button>
                   </label>
                   <Button
@@ -638,7 +681,7 @@ export default function PortfolioEditorScreen({
                     Galeri Server
                   </Button>
                 </Box>
-                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1, fontSize: '0.68rem' }}>
+                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1, fontSize: '0.68rem', textAlign: 'center' }}>
                   Kompresi otomatis WebP 80% &bull; Maks. 10MB
                 </Typography>
               </Box>
@@ -836,93 +879,6 @@ export default function PortfolioEditorScreen({
         </Grid>
       </Grid>
     </Box>
-
-      {/* Bottom Form Actions Card (Non-sticky to prevent viewport blockage & keyboard collisions) */}
-      <Paper
-        elevation={0}
-        sx={{
-          mt: 4,
-          p: { xs: 2, sm: 2.5 },
-          borderRadius: 2.5,
-          border: 1,
-          borderColor: 'divider',
-          bgcolor: (th) =>
-            th.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.9)',
-          boxShadow: (th) =>
-            th.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.04)',
-          display: 'flex',
-          flexDirection: { xs: 'column-reverse', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', sm: 'center' },
-          gap: 2,
-        }}
-      >
-        <Button
-          onClick={onCancel}
-          color="inherit"
-          variant="outlined"
-          size="small"
-          sx={{
-            fontWeight: 600,
-            fontSize: '0.8rem',
-            borderRadius: 2,
-            px: 2,
-            py: 0.8,
-            borderColor: 'divider',
-            width: { xs: '100%', sm: 'auto' },
-          }}
-        >
-          Batal &amp; Kembali ke Daftar
-        </Button>
-
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 1.5,
-            alignItems: 'center',
-            justifyContent: { xs: 'stretch', sm: 'flex-end' },
-            flexWrap: 'wrap',
-            width: { xs: '100%', sm: 'auto' },
-          }}
-        >
-          <Button
-            type="button"
-            variant="outlined"
-            size="small"
-            startIcon={<VisibilityIcon />}
-            onClick={onPreview}
-            sx={{
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              borderRadius: 2,
-              px: 2,
-              py: 0.8,
-              flex: { xs: 1, sm: 'none' },
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Pratinjau Publik
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            size="small"
-            disabled={loading || uploadingImage}
-            startIcon={loading || uploadingImage ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
-            sx={{
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              borderRadius: 2,
-              px: 3,
-              py: 0.8,
-              flex: { xs: 1, sm: 'none' },
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {loading ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Terbitkan Portofolio'}
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+  </Box>
   );
 }
