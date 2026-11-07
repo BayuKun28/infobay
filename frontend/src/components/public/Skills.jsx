@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Cpu, Layers, Check, Terminal, Play, RotateCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Cpu, Layers, Terminal } from 'lucide-react';
 import { useLanguage } from '../../hooks';
 
 export default function Skills({ skills = [], techStack = [], biodata = null }) {
@@ -11,39 +11,134 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
     : [
         'git checkout -b feature/high-performance',
         'composer check & npm test',
-        'All 15+ production systems operational',
+        'All 19+ production systems operational',
       ];
 
   const [activeLines, setActiveLines] = useState(defaultTerminalLines);
-  const [executedCmd, setExecutedCmd] = useState('');
+  const [cliInput, setCliInput] = useState('');
+  const terminalEndRef = useRef(null);
 
-  const handleRunCommand = (cmd) => {
-    setExecutedCmd(cmd);
-    if (cmd === 'whoami') {
-      setActiveLines([
-        `$ ${cmd}`,
-        'baydev (Bayu Prastyo)',
-        'Role: Senior Programmer & Distributed API Systems Engineer',
-        'Status: Open for Contract, Remote, or High-Impact Engineering Roles',
-      ]);
-    } else if (cmd === 'uptime') {
-      setActiveLines([
-        `$ ${cmd}`,
-        'workstation up 1,520 days, load average: 0.12, 0.08, 0.05',
-        'Zero downtime record across 15+ government & corporate deployments',
-      ]);
-    } else if (cmd === 'curl /stack') {
-      setActiveLines([
-        `$ ${cmd}`,
-        'Backend: Laravel 12, PHP 8.4 (Ondemand FastCGI), Sanctum',
-        'Database: PostgreSQL 17 (Indexed & Relational Schema)',
-        'Frontend: React 18, Vite, Tailwind CSS Neubrutalism, Material-UI',
-        'Infrastructure: Debian GNU/Linux 12, Nginx Reverse-Proxy, Cloudflare Tunnel',
-      ]);
-    } else if (cmd === 'clear') {
-      setActiveLines(defaultTerminalLines);
-      setExecutedCmd('');
+  useEffect(() => {
+    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeLines]);
+
+  const executeCommand = (raw) => {
+    const cmd = (raw || '').trim().toLowerCase();
+    if (!cmd) return;
+
+    if (cmd === 'clear' || cmd === 'cls') {
+      setActiveLines([]);
+      setCliInput('');
+      return;
     }
+
+    if (cmd === 'reset') {
+      setActiveLines(defaultTerminalLines);
+      setCliInput('');
+      return;
+    }
+
+    let outputLines = [`$ ${raw}`];
+
+    switch (cmd) {
+      case 'help':
+        outputLines.push(
+          'Daftar Perintah Terminal:',
+          '  whoami     - Profil & ringkasan arsitek developer',
+          '  skills     - Kompetensi teknis & arsenal',
+          '  projects   - Daftar portofolio terbaru',
+          '  contact    - Saluran komunikasi & nomor WhatsApp',
+          '  uptime     - Rekor keandalan sistem & klaster',
+          '  neofetch   - Spesifikasi sistem & arsitektur server',
+          '  clear      - Membersihkan tampilan layar terminal'
+        );
+        break;
+
+      case 'whoami':
+        outputLines.push(
+          'baydev (Bayu Prastyo)',
+          'Role: Full-Stack Web Developer & Solutions Architect',
+          'Pengalaman: 7+ Tahun spesialisasi Laravel, PostgreSQL, & React',
+          'Lokasi: Yogyakarta / Karanganyar, Indonesia',
+          'Status: Tersedia untuk proyek kemitraan freelance & enterprise'
+        );
+        break;
+
+      case 'skills':
+        outputLines.push(
+          'Arsenal Teknologi Utama:',
+          '  - Backend   : Laravel 11/12, PHP 8.4 FastCGI, REST API, Sanctum',
+          '  - Database  : PostgreSQL 17 (Relational & Indexed Schema)',
+          '  - Frontend  : React 18, Vite, Tailwind CSS, Material-UI',
+          '  - Homelab   : Docker, Debian 12, Nginx, Dual-Server HA Cluster'
+        );
+        break;
+
+      case 'projects':
+        outputLines.push(
+          '19+ Proyek Portofolio Nyata:',
+          '  1. Jamkrida Jatim & Jamkrida Bali (Penjaminan BUMD)',
+          '  2. BayOffice AI Agent Orchestration (Workflow Automation)',
+          '  3. Dual-Server Homelab HA Cluster (Infrastruktur High-Availability)',
+          '  4. GIS Desa Pintar & CMS Portal (Sistem Informasi Geografis)',
+          '  Scroll ke seksi Portofolio di bawah untuk melihat rincian lengkap.'
+        );
+        break;
+
+      case 'contact':
+        outputLines.push(
+          'Hubungi Bayu Prastyo:',
+          `  - Email    : ${biodata?.email || 'bayukundev@gmail.com'}`,
+          `  - WhatsApp : ${biodata?.phone || '08991907216'}`,
+          '  - GitHub   : https://github.com/BayuKun28',
+          '  - Website  : https://info.baydev.my.id'
+        );
+        break;
+
+      case 'uptime':
+        outputLines.push(
+          'workstation up 1,520 days, load average: 0.12, 0.08, 0.05',
+          'Dual-Server Node 145 & 146: 100% Synced (Zero Downtime)'
+        );
+        break;
+
+      case 'curl /stack':
+        outputLines.push(
+          'HTTP/2 200 OK',
+          'Server: nginx/1.22 + php-fpm8.4',
+          'Database: PostgreSQL 17.0 on Linux Debian',
+          'Cache-Status: HIT'
+        );
+        break;
+
+      case 'neofetch':
+      case 'infobay':
+        outputLines.push(
+          '  [BD] baydev@infobay-cluster',
+          '  ---------------------------',
+          '  OS: Debian GNU/Linux 12 (bookworm) x86_64',
+          '  Host: Dual-Node Production Cluster (145 & 146)',
+          '  Kernel: Linux 6.1.0-amd64',
+          '  Database: PostgreSQL 17.0 (infobay)',
+          '  Runtime: PHP 8.4 Ondemand FastCGI + Node.js 20',
+          '  Framework: Laravel 12 + React 18 (Vite Neubrutalism)'
+        );
+        break;
+
+      default:
+        outputLines.push(
+          `bash: command not found: ${raw}`,
+          "Ketik 'help' untuk melihat daftar perintah yang tersedia."
+        );
+        break;
+    }
+
+    setActiveLines((prev) => [...prev, ...outputLines]);
+    setCliInput('');
+  };
+
+  const handleShortcutClick = (cmd) => {
+    executeCommand(cmd);
   };
 
   return (
@@ -108,7 +203,7 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
           </div>
         </div>
 
-        {/* Right Column: Tech Stack Badges */}
+        {/* Right Column: Tech Stack Badges & Interactive Terminal */}
         <div className="lg:col-span-5 space-y-6">
           <div className="border-3 border-black dark:border-slate-700 bg-neo-yellow dark:bg-[#151D2F] p-6 sm:p-8 shadow-neo-lg text-black dark:text-white">
             <h3 className="text-xl font-black mb-4 uppercase tracking-wider flex items-center gap-2 text-black dark:text-white">
@@ -138,31 +233,30 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
             </div>
           </div>
 
-          {/* Interactive Workstation Terminal Box */}
+          {/* Interactive Keyboard & Shortcut Workstation Terminal Box */}
           <div className="border-3 border-black dark:border-slate-700 bg-black text-white p-5 shadow-neo-lg font-mono text-xs">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-gray-800">
               <div className="flex items-center gap-2 text-neo-yellow">
                 <Terminal className="w-4 h-4" />
                 <span className="font-bold">{terminalHost}</span>
               </div>
+              {/* Shortcut buttons */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                {['whoami', 'uptime', 'curl /stack', 'clear'].map((cmd) => (
+                {['help', 'whoami', 'skills', 'uptime', 'neofetch', 'clear'].map((cmd) => (
                   <button
                     key={cmd}
                     type="button"
-                    onClick={() => handleRunCommand(cmd)}
-                    className={`px-2 py-0.5 border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
-                      executedCmd === cmd
-                        ? 'bg-neo-yellow text-black border-neo-yellow'
-                        : 'bg-gray-900 border-gray-700 text-gray-300 hover:border-neo-yellow hover:text-neo-yellow'
-                    }`}
+                    onClick={() => handleShortcutClick(cmd)}
+                    className="px-2 py-0.5 border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer bg-gray-900 border-gray-700 text-gray-300 hover:border-neo-yellow hover:text-neo-yellow"
                   >
-                    {cmd === 'clear' ? '↺ reset' : `$ ${cmd}`}
+                    {cmd === 'clear' ? '↺ clear' : `$ ${cmd}`}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="space-y-1.5 text-gray-300 min-h-[70px]">
+
+            {/* Terminal Output Stream */}
+            <div className="space-y-1.5 text-gray-300 max-h-56 overflow-y-auto mb-2 pr-1">
               {activeLines.map((line, lIdx) => {
                 const bulletColors = ['text-neo-mint', 'text-neo-pink', 'text-neo-yellow', 'text-neo-cyan'];
                 const isCheck = line.toLowerCase().includes('operational') || line.toLowerCase().includes('ready') || line.toLowerCase().includes('success') || line.toLowerCase().includes('zero downtime');
@@ -178,7 +272,34 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
                   </p>
                 );
               })}
+              <div ref={terminalEndRef} />
             </div>
+
+            {/* Active CLI Keyboard Input Line */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                executeCommand(cliInput);
+              }}
+              className="flex items-center gap-2 pt-2 border-t border-gray-800 text-neo-yellow"
+            >
+              <span className="font-bold flex-shrink-0">$</span>
+              <input
+                type="text"
+                value={cliInput}
+                onChange={(e) => setCliInput(e.target.value)}
+                placeholder="Ketik perintah (contoh: help, whoami, neofetch)..."
+                className="bg-transparent text-white placeholder-gray-600 focus:outline-none w-full font-mono text-xs"
+                spellCheck="false"
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                className="px-2 py-0.5 bg-neo-yellow text-black font-mono font-bold text-[10px] uppercase border border-black hover:bg-yellow-400 cursor-pointer"
+              >
+                Enter
+              </button>
+            </form>
           </div>
         </div>
       </div>

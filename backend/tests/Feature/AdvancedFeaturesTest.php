@@ -94,4 +94,30 @@ class AdvancedFeaturesTest extends TestCase
             ->assertJsonPath('status', 'success')
             ->assertJsonStructure(['data', 'meta']);
     }
+
+    public function test_export_csv_and_snapshot_endpoints(): void
+    {
+        // 1. Export visitors CSV
+        $resCsv = $this->actingAs($this->admin, 'sanctum')->get('/api/v1/admin/analytics/visitors/export');
+        $resCsv->assertStatus(200);
+        $this->assertStringContainsString('text/csv', $resCsv->headers->get('Content-Type'));
+
+        // 2. Export activity logs CSV
+        $resActCsv = $this->actingAs($this->admin, 'sanctum')->get('/api/v1/admin/activity-logs/export');
+        $resActCsv->assertStatus(200);
+        $this->assertStringContainsString('text/csv', $resActCsv->headers->get('Content-Type'));
+
+        // 3. Create database snapshot
+        $snapRes = $this->actingAs($this->admin, 'sanctum')->postJson('/api/v1/admin/system/snapshot');
+        $snapRes->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonStructure(['data' => ['filename', 'size_kb', 'download_url']]);
+
+        $filename = $snapRes->json('data.filename');
+        $this->assertNotNull($filename);
+
+        // 4. Download snapshot
+        $downRes = $this->actingAs($this->admin, 'sanctum')->get('/api/v1/admin/system/snapshot/download/' . $filename);
+        $downRes->assertStatus(200);
+    }
 }

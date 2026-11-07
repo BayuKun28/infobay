@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import NeubrutalismPagination from '../common/NeubrutalismPagination';
 import { PortfolioFilter, PortfolioGrid, PortfolioDetailModal } from '../portfolio';
 import { useLanguage } from '../../hooks';
+import { analyticsService } from '../../services/api';
 
 export default function Portfolio({ portfolios = [] }) {
   const { t } = useLanguage();
@@ -35,6 +36,21 @@ export default function Portfolio({ portfolios = [] }) {
       const url = new URL(window.location);
       url.searchParams.set('project', String(proj.id));
       window.history.replaceState({}, '', url);
+
+      // Track high-intent conversion event
+      try {
+        analyticsService.recordVisit({
+          event_type: 'project_view',
+          page: `/#portfolio?project=${proj.id}`,
+          event_data: {
+            project_id: proj.id,
+            project_title: proj.title,
+            category: proj.category,
+          },
+        });
+      } catch {
+        // Non-blocking catch
+      }
     }
   };
 
@@ -159,7 +175,7 @@ export default function Portfolio({ portfolios = [] }) {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white uppercase">
-            {t('portfolio.title', '17+ PORTOFOLIO NYATA')}
+            {portfolios.length ? `${portfolios.length}+ PROYEK NYATA` : t('portfolio.title', '19+ PROYEK NYATA')}
           </h2>
           <div className="bg-neo-yellow border-2 border-black text-black px-3 py-1 font-black text-xs uppercase shadow-neo-sm">
             {filteredPortfolios.length === portfolios.length

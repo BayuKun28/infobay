@@ -16,6 +16,11 @@ class SiteVisit extends Model
         'user_agent',
         'browser',
         'platform',
+        'city',
+        'country',
+        'country_code',
+        'event_type',
+        'event_data',
         'ip_hash',
         'visit_date',
         'created_at',
@@ -24,5 +29,6 @@ class SiteVisit extends Model
     protected $casts = [
         'visit_date' => 'date',
         'created_at' => 'datetime',
+        'event_data' => 'array',
     ];
 }

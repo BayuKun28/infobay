@@ -637,6 +637,25 @@ export const systemService = {
     const res = await apiClient.post('/admin/system/clear-cache');
     return res.data;
   },
+
+  async createSnapshot() {
+    const res = await apiClient.post('/admin/system/snapshot');
+    return res.data;
+  },
+
+  async downloadSnapshot(filename) {
+    const res = await apiClient.get(`/admin/system/snapshot/download/${filename}`, { responseType: 'blob' });
+    const blob = new Blob([res.data], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
+  },
 };
 
 // Activity Log & Audit Trail Service
@@ -644,6 +663,20 @@ export const activityLogService = {
   async getLogs(params = {}) {
     const res = await apiClient.get('/admin/activity-logs', { params });
     return res.data;
+  },
+
+  async exportLogsCsv() {
+    const res = await apiClient.get('/admin/activity-logs/export', { responseType: 'blob' });
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `audit_trail_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
   },
 };
 
@@ -654,6 +687,7 @@ export const analyticsService = {
       const payload = {
         page: window.location.pathname + window.location.hash,
         referer: document.referrer || undefined,
+        event_type: 'page_view',
         ...data,
       };
       await apiClient.post('/analytics/visit', payload);
@@ -670,6 +704,23 @@ export const analyticsService = {
   async getVisitors(params = {}) {
     const res = await apiClient.get('/admin/analytics/visitors', { params });
     return res.data;
+  },
+
+  async exportVisitorsCsv(params = {}) {
+    const res = await apiClient.get('/admin/analytics/visitors/export', {
+      params,
+      responseType: 'blob',
+    });
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `visitor_logs_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
   },
 
   async deleteVisitor(id) {

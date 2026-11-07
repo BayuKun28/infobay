@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle, RotateCcw, Sparkles } from 'lucide-react';
-import { messageService } from '../../services/api';
+import { messageService, analyticsService } from '../../services/api';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { useLanguage } from '../../hooks';
@@ -65,6 +65,15 @@ export default function ContactForm({ className = '' }) {
         project_type: projectType || undefined,
         website_hp: honeypot || undefined,
       });
+
+      try {
+        analyticsService.recordVisit({
+          event_type: 'contact_submit',
+          page: '/#contact',
+          event_data: { project_type: projectType || 'General' },
+        });
+      } catch (_) {}
+
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
       setProjectType('');

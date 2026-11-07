@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowDown, Mail, Phone, MapPin, Download, FileText, ExternalLink, Github, Sparkles } from 'lucide-react';
 import { getStorageUrl } from '../../utils';
 import { useLanguage } from '../../hooks';
+import { analyticsService } from '../../services/api';
 
 export default function Hero({ biodata }) {
   const { t, isEnglish } = useLanguage();
@@ -119,6 +120,11 @@ export default function Hero({ biodata }) {
             <a
               href={cvUrl || '/resume'}
               {...(cvUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              onClick={() => {
+                try {
+                  analyticsService.recordVisit({ event_type: 'download_cv', page: '/resume', event_data: { source: 'hero' } });
+                } catch (_) {}
+              }}
               className="neo-btn bg-neo-mint hover:bg-emerald-300 text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black font-black"
               title={cvUrl ? "Lihat & Unduh Curriculum Vitae (PDF)" : "Lihat Ringkasan ATS Resume / CV"}
             >

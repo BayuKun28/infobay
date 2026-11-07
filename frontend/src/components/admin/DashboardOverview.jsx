@@ -31,6 +31,7 @@ import LaptopIcon from '@mui/icons-material/Laptop';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import TabletMacIcon from '@mui/icons-material/TabletMac';
 import SecurityIcon from '@mui/icons-material/Security';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { systemService, backupService, activityLogService, analyticsService } from '../../services/api';
 
 export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
@@ -43,6 +44,8 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
   const [clearingCache, setClearingCache] = useState(false);
   const [exportingBackup, setExportingBackup] = useState(false);
   const [importingBackup, setImportingBackup] = useState(false);
+  const [creatingSnapshot, setCreatingSnapshot] = useState(false);
+  const [exportingActivityLogs, setExportingActivityLogs] = useState(false);
 
   // Analytics & Activity Log States
   const [analytics, setAnalytics] = useState(null);
@@ -147,6 +150,33 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
     } finally {
       setImportingBackup(false);
       e.target.value = '';
+    }
+  };
+
+  const handleCreateSnapshot = async () => {
+    setCreatingSnapshot(true);
+    try {
+      const res = await systemService.createSnapshot();
+      if (showToast) showToast(res?.message || 'Snapshot database berhasil dibuat!', 'success');
+      if (res?.data?.filename) {
+        await systemService.downloadSnapshot(res.data.filename);
+      }
+    } catch (err) {
+      if (showToast) showToast(err?.response?.data?.message || 'Gagal membuat snapshot database', 'error');
+    } finally {
+      setCreatingSnapshot(false);
+    }
+  };
+
+  const handleExportActivityLogs = async () => {
+    setExportingActivityLogs(true);
+    try {
+      await activityLogService.exportLogsCsv();
+      if (showToast) showToast('Berkas CSV log aktivitas berhasil diunduh', 'success');
+    } catch (err) {
+      if (showToast) showToast('Gagal mengekspor CSV log aktivitas', 'error');
+    } finally {
+      setExportingActivityLogs(false);
     }
   };
 
@@ -680,11 +710,23 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
               Catatan keamanan dan riwayat perubahan data administratif.
             </Typography>
           </Box>
-          <Chip
-            label={`${activityMeta?.total ?? 0} Tercatat`}
-            size="small"
-            sx={{ fontWeight: 700, fontSize: '0.68rem' }}
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={exportingActivityLogs ? <CircularProgress size={14} /> : <FileDownloadIcon sx={{ fontSize: 16 }} />}
+              onClick={handleExportActivityLogs}
+              disabled={exportingActivityLogs}
+              sx={{ textTransform: 'none', borderRadius: 2, fontSize: '0.72rem', fontWeight: 600 }}
+            >
+              {exportingActivityLogs ? 'Mengekspor...' : 'Ekspor CSV'}
+            </Button>
+            <Chip
+              label={`${activityMeta?.total ?? 0} Tercatat`}
+              size="small"
+              sx={{ fontWeight: 700, fontSize: '0.68rem' }}
+            />
+          </Box>
         </Box>
 
         {activityLoading ? (
@@ -912,7 +954,18 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
               <Button
                 variant="contained"
                 size="small"
-                startIcon={exportingBackup ? <CircularProgress size={14} color="inherit" /> : <CloudDownloadIcon sx={{ fontSize: 18 }} />}
+                startIcon={creatingSnapshot ? <CircularProgress size={14} color="inherit" /> : <StorageIcon sx={{ fontSize: 18 }} />}
+                onClick={handleCreateSnapshot}
+                disabled={creatingSnapshot}
+                sx={{ flex: { xs: '1 1 100%', sm: 1 }, textTransform: 'none', fontWeight: 700, fontSize: '0.78rem' }}
+              >
+                {creatingSnapshot ? 'Membuat Snapshot...' : 'Buat Snapshot DB Sekarang'}
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={exportingBackup ? <CircularProgress size={14} /> : <CloudDownloadIcon sx={{ fontSize: 18 }} />}
                 onClick={handleExportBackup}
                 disabled={exportingBackup}
                 sx={{ flex: 1, textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}

@@ -84,16 +84,20 @@ Route::prefix('v1')->group(function () {
             Route::post('/media/upload', [PortfolioController::class, 'uploadMedia']);
             Route::delete('/media/{filename}', [PortfolioController::class, 'deleteMedia']);
 
-            // System Maintenance & Health
+            // System Maintenance, Health & Snapshots
             Route::post('/system/clear-cache', [SystemController::class, 'clearCache']);
             Route::get('/system/health', [SystemController::class, 'getSystemHealth']);
+            Route::post('/system/snapshot', [SystemController::class, 'createSnapshot']);
+            Route::get('/system/snapshot/download/{filename}', [SystemController::class, 'downloadSnapshot']);
 
             // Activity Log (Audit Trail)
             Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+            Route::get('/activity-logs/export', [ActivityLogController::class, 'exportCsv']);
 
             // Analytics & Visitor Monitoring
             Route::get('/analytics/summary', [AnalyticsController::class, 'summary']);
             Route::get('/analytics/visitors', [AnalyticsController::class, 'visitors']);
+            Route::get('/analytics/visitors/export', [AnalyticsController::class, 'exportCsv']);
             Route::delete('/analytics/visitors/{id}', [AnalyticsController::class, 'destroyVisitor']);
             Route::delete('/analytics/visitors', [AnalyticsController::class, 'clearVisitors']);
 

@@ -3,6 +3,7 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import SidebarDrawer from './SidebarDrawer';
 import { LanguageToggle } from '../common';
 import { useLanguage } from '../../hooks';
+import { analyticsService } from '../../services/api';
 
 export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,6 +74,11 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
 
           <a
             href="/resume"
+            onClick={() => {
+              try {
+                analyticsService.recordVisit({ event_type: 'download_cv', page: '/resume', event_data: { source: 'navbar' } });
+              } catch (_) {}
+            }}
             className="font-black text-xs uppercase px-2.5 py-1 border-2 border-black bg-neo-mint hover:bg-emerald-300 transition-all text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5"
             title="Lihat ATS Resume & Cetak CV"
           >

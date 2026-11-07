@@ -1,6 +1,32 @@
-import React from 'react';
-import { ExternalLink, Eye, Code, Smartphone, Server, Star, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { ExternalLink, Eye, Code, Smartphone, Server, Star, Zap, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../hooks';
+
+function ProgressiveCardImage({ src, alt }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="relative w-full h-full bg-gray-200 dark:bg-slate-800 overflow-hidden">
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800" />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        className={`w-full h-full object-cover object-top filter contrast-105 group-hover:scale-105 transition-all duration-300 ${
+          loaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        onError={(e) => {
+          e.target.src =
+            'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80';
+          setLoaded(true);
+        }}
+      />
+    </div>
+  );
+}
 
 export default function PortfolioGrid({
   items = [],
@@ -14,6 +40,7 @@ export default function PortfolioGrid({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {items.map((item, index) => {
         const catLower = (item.category || '').toLowerCase();
+        const titleLower = (item.title || '').toLowerCase();
         const isWeb = catLower.includes('web');
         const isMobile = catLower.includes('mobile');
         const isHomelab = catLower.includes('homelab') || catLower.includes('devops');
@@ -28,6 +55,16 @@ export default function PortfolioGrid({
           CategoryIcon = Server;
         }
 
+        // Determine dynamic project status badge
+        let statusBadge = { text: 'LIVE PRODUCTION', bg: 'bg-neo-mint', textCol: 'text-black' };
+        if (isHomelab) {
+          statusBadge = { text: 'HA CLUSTER', bg: 'bg-neo-cyan', textCol: 'text-black' };
+        } else if (isMobile) {
+          statusBadge = { text: 'MOBILE APP', bg: 'bg-neo-pink', textCol: 'text-black' };
+        } else if (titleLower.includes('jamkrida') || titleLower.includes('desa') || titleLower.includes('sikap') || titleLower.includes('sigap')) {
+          statusBadge = { text: 'GOV / ENTERPRISE', bg: 'bg-[#98D8AA]', textCol: 'text-black' };
+        }
+
         const globalIndex = (activePage - 1) * itemsPerPage + index + 1;
         const techPreview = Array.isArray(item.tech_stack) ? item.tech_stack.slice(0, 3) : [];
         const primaryMetric = Array.isArray(item.metrics) && item.metrics.length > 0 ? item.metrics[0] : null;
@@ -38,16 +75,11 @@ export default function PortfolioGrid({
             className="border-3 border-black dark:border-slate-700 bg-white dark:bg-[#151D2F] shadow-neo-lg flex flex-col justify-between overflow-hidden group hover:-translate-y-2 hover:shadow-neo-xl transition-all duration-200"
           >
             <div>
-              {/* Image Container with bold frame */}
+              {/* Image Container with bold frame & Progressive Loading */}
               <div className="relative border-b-3 border-black dark:border-slate-700 bg-neo-offwhite dark:bg-[#0F1626] h-52 overflow-hidden">
-                <img
+                <ProgressiveCardImage
                   src={item.image}
                   alt={item.title}
-                  className="w-full h-full object-cover object-top filter contrast-105 group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    e.target.src =
-                      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80';
-                  }}
                 />
                 
                 {/* Category Badge overlay */}
@@ -58,13 +90,11 @@ export default function PortfolioGrid({
                   <span>{item.category || 'Development'}</span>
                 </div>
 
-                {/* Featured Ribbon Badge */}
-                {item.featured && (
-                  <div className="absolute bottom-3 left-3 bg-neo-yellow border-2 border-black text-black px-2 py-0.5 font-black text-[10px] uppercase tracking-widest shadow-neo-sm flex items-center gap-1 z-10">
-                    <Star className="w-3 h-3 fill-black text-black" />
-                    <span>FEATURED</span>
-                  </div>
-                )}
+                {/* Status Badge overlay */}
+                <div className={`absolute bottom-3 left-3 ${statusBadge.bg} ${statusBadge.textCol} border-2 border-black px-2 py-0.5 font-black text-[10px] uppercase tracking-widest shadow-neo-sm flex items-center gap-1 z-10`}>
+                  <CheckCircle2 className="w-3 h-3 text-black stroke-[3]" />
+                  <span>{statusBadge.text}</span>
+                </div>
 
                 {/* Project Number */}
                 <div className="absolute top-3 right-3 bg-black dark:bg-slate-900 border border-black dark:border-slate-700 text-white px-2 py-0.5 font-mono text-[10px] font-bold z-10">
@@ -90,7 +120,7 @@ export default function PortfolioGrid({
                     'Aplikasi web/mobile terintegrasi dengan arsitektur tangguh dan pengalaman pengguna modern.'}
                 </p>
 
-                {/* Primary Metric Highlight (Habibie Plan) */}
+                {/* Primary Metric Highlight */}
                 {primaryMetric && (
                   <div className="mb-3 px-2.5 py-1 bg-neo-offwhite dark:bg-[#1A2234] border border-black/30 dark:border-slate-700 text-[11px] font-extrabold text-black dark:text-slate-200 flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-neo-yellow flex-shrink-0" />

@@ -50,6 +50,12 @@ import DevicesIcon from '@mui/icons-material/Devices';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TodayIcon from '@mui/icons-material/Today';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import AdsClickIcon from '@mui/icons-material/AdsClick';
 import { analyticsService } from '../../services/api';
 
 export default function VisitorMonitoringManager({ showToast }) {
@@ -65,6 +71,7 @@ export default function VisitorMonitoringManager({ showToast }) {
   const [perPage, setPerPage] = useState(15);
   const [search, setSearch] = useState('');
   const [deviceFilter, setDeviceFilter] = useState('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
 
   // State: Detail Modal
@@ -75,6 +82,9 @@ export default function VisitorMonitoringManager({ showToast }) {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearDays, setClearDays] = useState(30);
   const [clearing, setClearing] = useState(false);
+
+  // State: Exporting CSV
+  const [exporting, setExporting] = useState(false);
 
   // Fetch Analytics Summary
   const fetchSummary = useCallback(async () => {
@@ -100,6 +110,7 @@ export default function VisitorMonitoringManager({ showToast }) {
         per_page: perPage,
         search: search.trim() || undefined,
         device: deviceFilter !== 'all' ? deviceFilter : undefined,
+        event_type: eventTypeFilter !== 'all' ? eventTypeFilter : undefined,
         date_range: dateRange !== 'all' ? dateRange : undefined,
       };
       const res = await analyticsService.getVisitors(params);
@@ -112,7 +123,7 @@ export default function VisitorMonitoringManager({ showToast }) {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, deviceFilter, dateRange, showToast]);
+  }, [page, perPage, search, deviceFilter, eventTypeFilter, dateRange, showToast]);
 
   // Initial Load
   useEffect(() => {
@@ -122,6 +133,19 @@ export default function VisitorMonitoringManager({ showToast }) {
   useEffect(() => {
     fetchVisitors();
   }, [fetchVisitors]);
+
+  // Handle Export CSV
+  const handleExportCsv = async () => {
+    try {
+      setExporting(true);
+      await analyticsService.exportVisitorsCsv({ date_range: dateRange !== 'all' ? dateRange : undefined });
+      showToast?.('Berkas CSV log pengunjung berhasil diunduh.', 'success');
+    } catch {
+      showToast?.('Gagal mengekspor berkas CSV log pengunjung.', 'error');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Handle Delete Single Visitor Log
   const handleDeleteVisitor = async (id) => {
@@ -187,6 +211,60 @@ export default function VisitorMonitoringManager({ showToast }) {
     return <ComputerIcon fontSize="small" sx={{ color: 'primary.main' }} />;
   };
 
+  // Render Event Badge
+  const getEventBadge = (eventType) => {
+    switch (eventType) {
+      case 'download_cv':
+        return (
+          <Chip
+            icon={<DescriptionOutlinedIcon sx={{ fontSize: '13px !important' }} />}
+            label="Unduh CV"
+            size="small"
+            color="info"
+            sx={{ fontWeight: 700, fontSize: '0.72rem', height: 22 }}
+          />
+        );
+      case 'whatsapp_click':
+        return (
+          <Chip
+            icon={<WhatsAppIcon sx={{ fontSize: '13px !important' }} />}
+            label="Klik WA"
+            size="small"
+            color="success"
+            sx={{ fontWeight: 700, fontSize: '0.72rem', height: 22 }}
+          />
+        );
+      case 'project_view':
+        return (
+          <Chip
+            icon={<FolderOutlinedIcon sx={{ fontSize: '13px !important' }} />}
+            label="Lihat Proyek"
+            size="small"
+            color="primary"
+            sx={{ fontWeight: 700, fontSize: '0.72rem', height: 22 }}
+          />
+        );
+      case 'contact_submit':
+        return (
+          <Chip
+            label="Kirim Kontak"
+            size="small"
+            color="secondary"
+            sx={{ fontWeight: 700, fontSize: '0.72rem', height: 22 }}
+          />
+        );
+      default:
+        return (
+          <Chip
+            label="Halaman"
+            size="small"
+            variant="outlined"
+            sx={{ fontWeight: 600, fontSize: '0.72rem', height: 22, borderColor: 'divider' }}
+          />
+        );
+    }
+  };
+
   // Calculate Mobile/Desktop Ratio
   const totalDeviceVisits = (summary?.devices?.desktop || 0) + (summary?.devices?.mobile || 0) + (summary?.devices?.tablet || 0);
   const desktopPercent = totalDeviceVisits ? Math.round(((summary?.devices?.desktop || 0) / totalDeviceVisits) * 100) : 0;
@@ -197,6 +275,15 @@ export default function VisitorMonitoringManager({ showToast }) {
   const maxTrendVisits = summary?.trend?.length
     ? Math.max(...summary.trend.map((t) => t.visits || 0), 1)
     : 1;
+
+  // Conversion Total Calculation
+  const totalConversions =
+    (summary?.conversions?.cv_downloads_total || 0) +
+    (summary?.conversions?.wa_clicks_total || 0) +
+    (summary?.conversions?.project_views_total || 0);
+  const conversionRate = summary?.total_visits > 0
+    ? ((totalConversions / summary.total_visits) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <Box sx={{ maxWidth: '100%' }}>
@@ -231,11 +318,11 @@ export default function VisitorMonitoringManager({ showToast }) {
               <QueryStatsIcon />
             </Box>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-              Monitoring Pengunjung &amp; IP
+              Monitoring Pengunjung, GeoIP &amp; Konversi
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            Pantau log kunjungan real-time, alamat IP, perangkat klien, peramban, dan sistem operasi pengunjung situs.
+            Analitik komprehensif: pelacakan IP, lokasi kota/negara, peramban, sistem operasi, serta konversi unduhan CV dan interaksi proyek.
           </Typography>
         </Box>
 
@@ -256,6 +343,17 @@ export default function VisitorMonitoringManager({ showToast }) {
 
           <Button
             variant="outlined"
+            size="small"
+            startIcon={exporting ? <CircularProgress size={16} /> : <FileDownloadIcon />}
+            onClick={handleExportCsv}
+            disabled={exporting || loading}
+            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+          >
+            {exporting ? 'Mengekspor...' : 'Ekspor CSV'}
+          </Button>
+
+          <Button
+            variant="outlined"
             color="error"
             size="small"
             startIcon={<DeleteSweepIcon />}
@@ -267,8 +365,8 @@ export default function VisitorMonitoringManager({ showToast }) {
         </Box>
       </Box>
 
-      {/* KPI Stat Cards Grid */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* KPI Stat Cards Grid 1: Traffic Metrik */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={6} sm={6} md={3}>
           <Card
             elevation={0}
@@ -290,7 +388,7 @@ export default function VisitorMonitoringManager({ showToast }) {
               {summary ? (summary.total_visits || 0).toLocaleString('id-ID') : '-'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Akumulasi semua halaman
+              Akumulasi hits seluruh rute
             </Typography>
           </Card>
         </Grid>
@@ -316,7 +414,7 @@ export default function VisitorMonitoringManager({ showToast }) {
               {summary ? (summary.total_unique_ips || 0).toLocaleString('id-ID') : '-'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Pengunjung unik terdeteksi
+              Pengunjung unik teridentifikasi
             </Typography>
           </Card>
         </Grid>
@@ -369,6 +467,121 @@ export default function VisitorMonitoringManager({ showToast }) {
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Klien berbeda hari ini
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* KPI Stat Cards Grid 2: Konversi Bisnis Klien */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              borderLeft: 3,
+              borderLeftColor: 'info.main',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary' }}>
+                Unduhan CV / Resume
+              </Typography>
+              <DescriptionOutlinedIcon fontSize="small" sx={{ color: 'info.main' }} />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em', color: 'info.main' }}>
+              {summary?.conversions?.cv_downloads_total ?? 0}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Hari ini: {summary?.conversions?.cv_downloads_today ?? 0} unduhan
+            </Typography>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} sm={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              borderLeft: 3,
+              borderLeftColor: 'success.main',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary' }}>
+                Klik Chat WhatsApp
+              </Typography>
+              <WhatsAppIcon fontSize="small" sx={{ color: 'success.main' }} />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em', color: 'success.main' }}>
+              {summary?.conversions?.wa_clicks_total ?? 0}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Hari ini: {summary?.conversions?.wa_clicks_today ?? 0} klik
+            </Typography>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} sm={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              borderLeft: 3,
+              borderLeftColor: 'primary.main',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary' }}>
+                Penayangan Proyek
+              </Typography>
+              <FolderOutlinedIcon fontSize="small" color="primary" />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em', color: 'primary.main' }}>
+              {summary?.conversions?.project_views_total ?? 0}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Hari ini: {summary?.conversions?.project_views_today ?? 0} dilihat
+            </Typography>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} sm={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              borderLeft: 3,
+              borderLeftColor: 'warning.main',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary' }}>
+                Rasio Interaksi Aksi
+              </Typography>
+              <AdsClickIcon fontSize="small" sx={{ color: 'warning.main' }} />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em', color: 'warning.main' }}>
+              {conversionRate}%
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {totalConversions} aksi bernilai tinggi
             </Typography>
           </Card>
         </Grid>
@@ -538,7 +751,7 @@ export default function VisitorMonitoringManager({ showToast }) {
           </Card>
         </Grid>
 
-        {/* Top Pages */}
+        {/* Top Locations & Pages */}
         <Grid item xs={12} md={3}>
           <Card
             elevation={0}
@@ -554,17 +767,17 @@ export default function VisitorMonitoringManager({ showToast }) {
           >
             <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <PublicIcon fontSize="small" color="primary" />
+                <LocationOnOutlinedIcon fontSize="small" color="primary" />
                 <Typography variant="subtitle1" fontWeight={700}>
-                  Halaman Populer
+                  Lokasi Teratas Pengunjung
                 </Typography>
               </Box>
 
-              {summary?.top_pages && summary.top_pages.length > 0 ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
-                  {summary.top_pages.map((p) => (
+              {summary?.locations?.top_cities && summary.locations.top_cities.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2, mb: 2.5 }}>
+                  {summary.locations.top_cities.map((loc, idx) => (
                     <Box
-                      key={p.page}
+                      key={idx}
                       sx={{
                         p: 1.2,
                         borderRadius: 2,
@@ -577,35 +790,61 @@ export default function VisitorMonitoringManager({ showToast }) {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: 700,
-                          fontFamily: 'monospace',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          maxWidth: 140,
-                        }}
-                      >
-                        {p.page}
-                      </Typography>
+                      <Box sx={{ overflow: 'hidden', mr: 1 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 700,
+                            display: 'block',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {loc.city}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem' }}>
+                          {loc.country}
+                        </Typography>
+                      </Box>
                       <Chip
-                        label={`${p.count} klik`}
+                        label={`${loc.count}`}
                         size="small"
                         color="primary"
+                        variant="outlined"
                         sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700 }}
                       />
                     </Box>
                   ))}
                 </Box>
               ) : (
-                <Box sx={{ py: 4, textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Belum ada riwayat halaman.
+                <Box sx={{ py: 3, textAlign: 'center' }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Menunggu identifikasi lokasi GeoIP.
                   </Typography>
                 </Box>
               )}
+
+              <Divider sx={{ my: 1.5 }} />
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <PublicIcon fontSize="small" color="primary" />
+                <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', color: 'text.secondary' }}>
+                  Halaman Populer
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                {summary?.top_pages && summary.top_pages.length > 0 ? (
+                  summary.top_pages.slice(0, 3).map((p) => (
+                    <Chip
+                      key={p.page}
+                      label={`${p.page} (${p.count})`}
+                      size="small"
+                      sx={{ fontSize: '0.72rem', fontFamily: 'monospace' }}
+                    />
+                  ))
+                ) : null}
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -635,7 +874,7 @@ export default function VisitorMonitoringManager({ showToast }) {
           >
             {/* Filters on Left */}
             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-              <FormControl size="small" sx={{ minWidth: 150 }}>
+              <FormControl size="small" sx={{ minWidth: 140 }}>
                 <InputLabel id="device-filter-label">Perangkat</InputLabel>
                 <Select
                   labelId="device-filter-label"
@@ -655,6 +894,27 @@ export default function VisitorMonitoringManager({ showToast }) {
               </FormControl>
 
               <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel id="event-type-filter-label">Jenis Event</InputLabel>
+                <Select
+                  labelId="event-type-filter-label"
+                  value={eventTypeFilter}
+                  label="Jenis Event"
+                  onChange={(e) => {
+                    setEventTypeFilter(e.target.value);
+                    setPage(0);
+                  }}
+                  sx={{ borderRadius: 2 }}
+                >
+                  <MenuItem value="all">Semua Event</MenuItem>
+                  <MenuItem value="page_view">Kunjungan Halaman</MenuItem>
+                  <MenuItem value="download_cv">Unduhan CV</MenuItem>
+                  <MenuItem value="whatsapp_click">Klik WhatsApp</MenuItem>
+                  <MenuItem value="project_view">Penayangan Proyek</MenuItem>
+                  <MenuItem value="contact_submit">Kirim Kontak</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" sx={{ minWidth: 140 }}>
                 <InputLabel id="date-range-label">Rentang Waktu</InputLabel>
                 <Select
                   labelId="date-range-label"
@@ -679,7 +939,7 @@ export default function VisitorMonitoringManager({ showToast }) {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
                 size="small"
-                placeholder="Cari IP, Halaman, Browser, OS..."
+                placeholder="Cari IP, Kota, Negara, Halaman, Browser..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -699,7 +959,7 @@ export default function VisitorMonitoringManager({ showToast }) {
                     </InputAdornment>
                   ) : null,
                 }}
-                sx={{ width: { xs: '100%', sm: 280 }, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                sx={{ width: { xs: '100%', sm: 300 }, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Box>
           </Box>
@@ -711,17 +971,18 @@ export default function VisitorMonitoringManager({ showToast }) {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>WAKTU KUNJUNGAN</TableCell>
                   <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>ALAMAT IP</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>LOKASI GEOIP</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>JENIS EVENT</TableCell>
                   <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>HALAMAN</TableCell>
                   <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>PERANGKAT &amp; OS</TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>PERAMBAN (BROWSER)</TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>RUJUKAN (REFERER)</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: '0.8rem', width: 100 }}>AKSI</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>PERAMBAN</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: '0.8rem', width: 90 }}>AKSI</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                       <CircularProgress size={32} />
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
                         Memuat data log pengunjung...
@@ -730,10 +991,10 @@ export default function VisitorMonitoringManager({ showToast }) {
                   </TableRow>
                 ) : visitors.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
                       <InfoOutlinedIcon sx={{ fontSize: 36, color: 'text.secondary', mb: 1 }} />
                       <Typography variant="body2" fontWeight={600} color="text.secondary">
-                        Tidak ada catatan log pengunjung yang cocok.
+                        Tidak ada catatan log pengunjung yang cocok dengan filter.
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -779,6 +1040,26 @@ export default function VisitorMonitoringManager({ showToast }) {
                         </Box>
                       </TableCell>
 
+                      {/* GeoIP Location */}
+                      <TableCell sx={{ fontSize: '0.82rem' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                          <LocationOnOutlinedIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.8rem', lineHeight: 1.2 }}>
+                              {visit.city || 'Lokal Cluster'}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem' }}>
+                              {visit.country || 'Indonesia'} {visit.country_code ? `(${visit.country_code})` : ''}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+
+                      {/* Event Type */}
+                      <TableCell>
+                        {getEventBadge(visit.event_type)}
+                      </TableCell>
+
                       {/* Page */}
                       <TableCell>
                         <Chip
@@ -790,6 +1071,9 @@ export default function VisitorMonitoringManager({ showToast }) {
                             fontFamily: 'monospace',
                             fontSize: '0.72rem',
                             fontWeight: 600,
+                            maxWidth: 160,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
                           }}
                         />
                       </TableCell>
@@ -808,22 +1092,6 @@ export default function VisitorMonitoringManager({ showToast }) {
                       <TableCell sx={{ fontSize: '0.82rem' }}>
                         <Typography variant="body2" sx={{ fontSize: '0.82rem' }}>
                           {visit.browser || 'Lainnya'}
-                        </Typography>
-                      </TableCell>
-
-                      {/* Referer */}
-                      <TableCell sx={{ fontSize: '0.82rem', maxWidth: 160 }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            fontSize: '0.82rem',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {visit.referer || 'Langsung (Direct)'}
                         </Typography>
                       </TableCell>
 
@@ -897,16 +1165,16 @@ export default function VisitorMonitoringManager({ showToast }) {
         PaperProps={{ sx: { borderRadius: 3 } }}
       >
         <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
-          Rincian Kunjungan #{selectedVisit?.id}
+          Rincian Aktivitas #{selectedVisit?.id}
         </DialogTitle>
         <DialogContent dividers sx={{ pt: 2 }}>
           {selectedVisit && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box>
                 <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                  ALAMAT IP KLIEN
+                  ALAMAT IP &amp; LOKASI GEOGRAFIS
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
                   <Typography variant="body1" fontFamily="monospace" fontWeight={700}>
                     {selectedVisit.ip_address || 'Tidak Terdeteksi'}
                   </Typography>
@@ -921,16 +1189,19 @@ export default function VisitorMonitoringManager({ showToast }) {
                     </Button>
                   )}
                 </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {selectedVisit.city || 'Lokal'}, {selectedVisit.country || 'Indonesia'} ({selectedVisit.country_code || 'ID'})
+                </Typography>
               </Box>
 
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                    HALAMAN DIAKSES
+                    JENIS EVENT
                   </Typography>
-                  <Typography variant="body2" fontFamily="monospace" fontWeight={600} sx={{ mt: 0.5 }}>
-                    {selectedVisit.page}
-                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    {getEventBadge(selectedVisit.event_type)}
+                  </Box>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -939,6 +1210,15 @@ export default function VisitorMonitoringManager({ showToast }) {
                   </Typography>
                   <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5 }}>
                     {formatDateTime(selectedVisit.created_at)}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                    HALAMAN DIAKSES
+                  </Typography>
+                  <Typography variant="body2" fontFamily="monospace" fontWeight={600} sx={{ mt: 0.5 }}>
+                    {selectedVisit.page}
                   </Typography>
                 </Grid>
 
@@ -959,16 +1239,39 @@ export default function VisitorMonitoringManager({ showToast }) {
                     {selectedVisit.browser}
                   </Typography>
                 </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                    RUJUKAN (REFERER)
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5, wordBreak: 'break-all' }}>
+                    {selectedVisit.referer || 'Langsung (Direct Navigation)'}
+                  </Typography>
+                </Grid>
               </Grid>
 
-              <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                  RUJUKAN (REFERER)
-                </Typography>
-                <Typography variant="body2" sx={{ mt: 0.5, wordBreak: 'break-all' }}>
-                  {selectedVisit.referer || 'Langsung (Direct Navigation)'}
-                </Typography>
-              </Box>
+              {selectedVisit.event_data && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                    DATA METADATA EVENT
+                  </Typography>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.5,
+                      mt: 0.5,
+                      bgcolor: 'action.hover',
+                      borderRadius: 2,
+                      fontFamily: 'monospace',
+                      fontSize: '0.75rem',
+                    }}
+                  >
+                    <pre style={{ margin: 0 }}>
+                      {JSON.stringify(selectedVisit.event_data, null, 2)}
+                    </pre>
+                  </Paper>
+                </Box>
+              )}
 
               <Box>
                 <Typography variant="caption" color="text.secondary" fontWeight={700}>

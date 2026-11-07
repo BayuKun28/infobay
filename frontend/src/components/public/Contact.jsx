@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, MessageSquare, ExternalLink, Copy, Check } from 'lucide-react';
 import ContactForm from '../portfolio/ContactForm';
 import { useLanguage } from '../../hooks';
+import { analyticsService } from '../../services/api';
 
 export default function Contact({ biodata }) {
   const { t } = useLanguage();
@@ -93,6 +94,11 @@ export default function Contact({ biodata }) {
                   href={`https://wa.me/62${(biodata?.phone || '08991907216').replace(/^0/, '')}`}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => {
+                    try {
+                      analyticsService.recordVisit({ event_type: 'whatsapp_click', page: '/#contact', event_data: { source: 'contact_section' } });
+                    } catch (_) {}
+                  }}
                   className="flex items-center gap-3 flex-1 min-w-0"
                 >
                   <div className="p-2 bg-neo-pink border border-black text-black flex-shrink-0">

@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\SiteVisit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AnalyticsController extends Controller
 {
@@ -86,12 +89,78 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Record site visit (Public).
+     * Resolve GeoIP location with 30-day memory/database caching.
+     */
+    private function resolveGeoLocation(string $ip, Request $request): array
+    {
+        // 1. Check local/bogon or internal homelab IPs
+        if (
+            $ip === '127.0.0.1' ||
+            $ip === '::1' ||
+            str_starts_with($ip, '192.168.') ||
+            str_starts_with($ip, '10.') ||
+            str_starts_with($ip, '172.16.') ||
+            str_starts_with($ip, '172.17.') ||
+            str_starts_with($ip, '172.18.') ||
+            str_starts_with($ip, '172.19.') ||
+            str_starts_with($ip, '172.2') ||
+            str_starts_with($ip, '172.3')
+        ) {
+            return [
+                'city' => 'Lokal (Homelab)',
+                'country' => 'Indonesia',
+                'country_code' => 'ID',
+            ];
+        }
+
+        // 2. Check Cloudflare Headers directly passed by Nginx
+        $cfCountry = $request->server('HTTP_CF_IPCOUNTRY');
+        $cfCity = $request->server('HTTP_CF_IPCITY');
+
+        return Cache::remember("geoip_{$ip}", 86400 * 30, function () use ($ip, $cfCountry, $cfCity) {
+            if (!empty($cfCountry) && strlen($cfCountry) === 2 && $cfCountry !== 'XX') {
+                return [
+                    'city' => !empty($cfCity) ? $cfCity : 'Kota Terdeteksi',
+                    'country' => $cfCountry === 'ID' ? 'Indonesia' : $cfCountry,
+                    'country_code' => $cfCountry,
+                ];
+            }
+
+            // 3. Fallback: Fast lookup via free IP-API with 2s timeout
+            try {
+                $response = Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=status,country,countryCode,city");
+                if ($response->successful()) {
+                    $json = $response->json();
+                    if (($json['status'] ?? '') === 'success') {
+                        return [
+                            'city' => $json['city'] ?? 'Tidak Teridentifikasi',
+                            'country' => $json['country'] ?? 'Tidak Teridentifikasi',
+                            'country_code' => $json['countryCode'] ?? null,
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Silently fallback on timeout or connection error
+            }
+
+            return [
+                'city' => 'Tidak Teridentifikasi',
+                'country' => 'Tidak Teridentifikasi',
+                'country_code' => null,
+            ];
+        });
+    }
+
+    /**
+     * Record site visit & high-intent conversion actions (Public).
      */
     public function recordVisit(Request $request): JsonResponse
     {
         $page = substr($request->input('page', '/'), 0, 255);
         $referer = substr($request->input('referer', $request->header('referer') ?? ''), 0, 500);
+        $eventType = substr($request->input('event_type', 'page_view'), 0, 50);
+        $eventData = $request->input('event_data');
+
         $rawUa = $request->userAgent() ?? '';
         $uaLower = strtolower($rawUa);
 
@@ -106,6 +175,8 @@ class AnalyticsController extends Controller
         $ip = $this->getClientIp($request);
         $browser = $this->parseBrowser($rawUa);
         $platform = $this->parsePlatform($rawUa);
+        $location = $this->resolveGeoLocation($ip, $request);
+
         $ipHash = hash('sha256', $ip . date('Y-m-d') . config('app.key'));
 
         SiteVisit::create([
@@ -116,6 +187,11 @@ class AnalyticsController extends Controller
             'user_agent' => substr($rawUa, 0, 1000),
             'browser' => $browser,
             'platform' => $platform,
+            'city' => $location['city'] ?? null,
+            'country' => $location['country'] ?? null,
+            'country_code' => $location['country_code'] ?? null,
+            'event_type' => $eventType ?: 'page_view',
+            'event_data' => is_array($eventData) ? $eventData : null,
             'ip_hash' => $ipHash,
             'visit_date' => now()->toDateString(),
             'created_at' => now(),
@@ -123,7 +199,7 @@ class AnalyticsController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Kunjungan berhasil dicatat.',
+            'message' => 'Aktivitas berhasil dicatat.',
         ]);
     }
 
@@ -201,6 +277,31 @@ class AnalyticsController extends Controller
             ->limit(5)
             ->get();
 
+        // Conversion & Event metrics
+        $cvDownloadsTotal = SiteVisit::where('event_type', 'download_cv')->count();
+        $cvDownloadsToday = SiteVisit::where('event_type', 'download_cv')->where('visit_date', $today)->count();
+        $waClicksTotal = SiteVisit::where('event_type', 'whatsapp_click')->count();
+        $waClicksToday = SiteVisit::where('event_type', 'whatsapp_click')->where('visit_date', $today)->count();
+        $projectViewsTotal = SiteVisit::where('event_type', 'project_view')->count();
+        $projectViewsToday = SiteVisit::where('event_type', 'project_view')->where('visit_date', $today)->count();
+
+        // Location analytics: Top Cities and Countries
+        $topCities = SiteVisit::whereNotNull('city')
+            ->where('city', '!=', 'Tidak Teridentifikasi')
+            ->select('city', 'country', DB::raw('count(*) as count'))
+            ->groupBy('city', 'country')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
+
+        $topCountries = SiteVisit::whereNotNull('country')
+            ->where('country', '!=', 'Tidak Teridentifikasi')
+            ->select('country', 'country_code', DB::raw('count(*) as count'))
+            ->groupBy('country', 'country_code')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -218,6 +319,18 @@ class AnalyticsController extends Controller
                 'platforms' => $platforms,
                 'top_pages' => $topPages,
                 'top_referrers' => $topReferrers,
+                'conversions' => [
+                    'cv_downloads_total' => $cvDownloadsTotal,
+                    'cv_downloads_today' => $cvDownloadsToday,
+                    'wa_clicks_total' => $waClicksTotal,
+                    'wa_clicks_today' => $waClicksToday,
+                    'project_views_total' => $projectViewsTotal,
+                    'project_views_today' => $projectViewsToday,
+                ],
+                'locations' => [
+                    'top_cities' => $topCities,
+                    'top_countries' => $topCountries,
+                ],
             ],
         ]);
     }
@@ -240,6 +353,12 @@ class AnalyticsController extends Controller
             $query->where('device_type', $device);
         }
 
+        // Filter by event_type
+        $eventType = $request->input('event_type');
+        if (!empty($eventType) && in_array($eventType, ['page_view', 'download_cv', 'whatsapp_click', 'project_view', 'contact_submit'], true)) {
+            $query->where('event_type', $eventType);
+        }
+
         // Filter by date range
         $dateRange = $request->input('date_range');
         if ($dateRange === 'today') {
@@ -252,7 +371,7 @@ class AnalyticsController extends Controller
             $query->where('visit_date', '>=', now()->subDays(29)->toDateString());
         }
 
-        // Search by IP, page, browser, platform, or referer
+        // Search by IP, page, browser, platform, city, country, or referer
         $search = trim($request->input('search', ''));
         if (!empty($search)) {
             $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
@@ -262,7 +381,10 @@ class AnalyticsController extends Controller
                   ->orWhere('page', $like, $term)
                   ->orWhere('browser', $like, $term)
                   ->orWhere('platform', $like, $term)
+                  ->orWhere('city', $like, $term)
+                  ->orWhere('country', $like, $term)
                   ->orWhere('referer', $like, $term)
+                  ->orWhere('event_type', $like, $term)
                   ->orWhere('user_agent', $like, $term);
             });
         }
@@ -270,7 +392,7 @@ class AnalyticsController extends Controller
         // Ordering
         $orderBy = $request->input('order_by', 'created_at');
         $orderDir = strtolower($request->input('order_dir', 'desc')) === 'asc' ? 'asc' : 'desc';
-        if (in_array($orderBy, ['created_at', 'visit_date', 'ip_address', 'page', 'device_type', 'browser', 'platform'], true)) {
+        if (in_array($orderBy, ['created_at', 'visit_date', 'ip_address', 'page', 'device_type', 'browser', 'platform', 'city', 'country', 'event_type'], true)) {
             $query->orderBy($orderBy, $orderDir);
         } else {
             $query->orderBy('created_at', 'desc');
@@ -282,6 +404,79 @@ class AnalyticsController extends Controller
             'status' => 'success',
             'data' => $visitors,
         ]);
+    }
+
+    /**
+     * Export all visitor logs as CSV download (Admin Protected).
+     */
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $filename = 'visitor_logs_' . date('Ymd_His') . '.csv';
+
+        $query = SiteVisit::orderBy('created_at', 'desc');
+
+        // Filter by date range if provided
+        $dateRange = $request->input('date_range');
+        if ($dateRange === 'today') {
+            $query->where('visit_date', now()->toDateString());
+        } elseif ($dateRange === '7days') {
+            $query->where('visit_date', '>=', now()->subDays(6)->toDateString());
+        } elseif ($dateRange === '30days') {
+            $query->where('visit_date', '>=', now()->subDays(29)->toDateString());
+        }
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // CSV Header
+            fputcsv($handle, [
+                'ID',
+                'Waktu Kunjungan',
+                'Alamat IP',
+                'Kota',
+                'Negara',
+                'Kode Negara',
+                'Jenis Event',
+                'Halaman',
+                'Perangkat',
+                'Sistem Operasi',
+                'Peramban',
+                'Rujukan (Referer)',
+                'User Agent',
+            ]);
+
+            $query->chunk(500, function ($rows) use ($handle) {
+                foreach ($rows as $row) {
+                    fputcsv($handle, [
+                        $row->id,
+                        $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : '',
+                        $row->ip_address ?: '127.0.0.1',
+                        $row->city ?: 'Unknown',
+                        $row->country ?: 'Unknown',
+                        $row->country_code ?: '',
+                        $row->event_type ?: 'page_view',
+                        $row->page ?: '/',
+                        $row->device_type ?: 'desktop',
+                        $row->platform ?: '',
+                        $row->browser ?: '',
+                        $row->referer ?: '',
+                        $row->user_agent ?: '',
+                    ]);
+                }
+            });
+
+            fclose($handle);
+        }, 200, $headers);
     }
 
     /**
