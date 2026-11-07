@@ -69,8 +69,10 @@ DB_PASSWORD=InfobaySecure2026!
 >    - Desain minimalis, rapi, dan terstruktur dengan font modern (*Plus Jakarta Sans* / *Segoe UI*).
 >    - Menggunakan border halus (`1px solid divider`), elevasi halus, dan kontras warna tajam (WCAG AAA compliant) baik pada Mode Terang (Light Mode) maupun Mode Gelap (Dark Mode).
 >    - Dilarang keras menggunakan gaya neubrutalism/border hitam tebal kartun pada Admin Panel (Neubrutalism hanya untuk halaman publik).
-> 2. **Ultra-Responsive Layout:**
->    - Tampilan wajib responsif sempurna pada mobile (< 600px), tablet (600px - 960px), dan desktop (> 960px).
+> 2. **Ultra-Responsive Layout & Mobile DPI Dynamic Scaling:**
+>    - Tampilan wajib responsif presisi pada mobile (< 600px), tablet (600px - 960px), dan desktop (> 960px).
+>    - **Font Dinamis Sesuai DPI/Rasio Mobile**: Ukuran font (heading, subtitle, table cells, chip, tombol) wajib mengecil secara proporsional (~10%-15%) pada mobile menggunakan `responsiveFontSizes` atau CSS responsive typography agar tidak tumpang tindih.
+>    - **Pencegahan Komponen Meluap (Anti-Offsite / Overflow):** Seluruh elemen dilarang keras menabrak atau melampaui batas container (`maxWidth: '100%'`, `overflowX: 'hidden'`). Bilah alat tabel (*toolbar*) pada layar < 600px wajib berformat stack vertikal penuh (`flexDirection: { xs: 'column', sm: 'row' }`, `width: '100%'`), dan grid form di dalam modal dialog wajib beralih menjadi 1 kolom.
 >    - Sidebar/Drawer otomatis menjadi collapsible drawer dengan overlay di mobile, dan persistent drawer di desktop.
 >    - Tabel data wajib memiliki pembungkus responsif (`TableContainer` horizontal scrollable) atau fallback tampilan kartu responsif pada layar kecil (*mobile card view*).
 > 3. **Anti-AI Slop & ZERO EMOJI (Strictly Enforced):**
