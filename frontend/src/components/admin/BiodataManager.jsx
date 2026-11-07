@@ -97,9 +97,9 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
       ];
 
       const defaultTerminalLines = [
-        'git checkout -b feature/high-performance',
-        'composer check & npm test',
-        'All 15+ production systems operational',
+        'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect',
+        'specialization: Laravel, React, PostgreSQL & Enterprise Architecture',
+        'status: Available for Freelance & Enterprise Solutions',
       ];
 
       const currentTerminalLines = Array.isArray(biodata.terminal_widget?.lines)

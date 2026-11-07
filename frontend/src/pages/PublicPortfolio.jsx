@@ -21,6 +21,13 @@ export default function PublicPortfolio() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Ensure page begins at top on fresh visit if no anchor hash is present
+    if (typeof window !== 'undefined' && !window.location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
     // Record privacy-first anonymous visit
     analyticsService.recordVisit();
