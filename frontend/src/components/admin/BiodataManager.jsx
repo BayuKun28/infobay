@@ -29,6 +29,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { getStorageUrl } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import TerminalIcon from '@mui/icons-material/Terminal';
 import { adminService } from '../../services/api';
 
 const POPULAR_PLATFORMS = [
@@ -79,6 +80,11 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     { title: 'Rock-Solid Security', desc: 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.' },
   ]);
 
+  const defaultTerminalShortcuts = ['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'];
+  const [terminalShortcuts, setTerminalShortcuts] = useState(defaultTerminalShortcuts);
+  const [newShortcutInput, setNewShortcutInput] = useState('');
+  const [customCommands, setCustomCommands] = useState([]);
+
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
 
@@ -107,6 +113,20 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         : typeof biodata.terminal_widget === 'string'
         ? biodata.terminal_widget
         : defaultTerminalLines.join('\n');
+
+      // Load terminal shortcuts
+      if (Array.isArray(biodata.terminal_widget?.shortcuts) && biodata.terminal_widget.shortcuts.length > 0) {
+        setTerminalShortcuts(biodata.terminal_widget.shortcuts);
+      } else {
+        setTerminalShortcuts(defaultTerminalShortcuts);
+      }
+
+      // Load custom commands
+      if (Array.isArray(biodata.terminal_widget?.custom_commands)) {
+        setCustomCommands(biodata.terminal_widget.custom_commands);
+      } else {
+        setCustomCommands([]);
+      }
 
       setFormData({
         name: biodata.name || '',
@@ -246,6 +266,40 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     setEngineeringPrinciples(engineeringPrinciples.filter((_, i) => i !== idx));
   };
 
+  const handleAddShortcut = () => {
+    const trimmed = (newShortcutInput || '').trim().toLowerCase().replace(/^\$/, '').trim();
+    if (!trimmed) return;
+    if (terminalShortcuts.includes(trimmed)) {
+      showToast('Shortcut sudah ada dalam daftar.', 'warning');
+      return;
+    }
+    setTerminalShortcuts([...terminalShortcuts, trimmed]);
+    setNewShortcutInput('');
+  };
+
+  const handleDeleteShortcut = (indexToRemove) => {
+    setTerminalShortcuts(terminalShortcuts.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleResetShortcuts = () => {
+    setTerminalShortcuts(defaultTerminalShortcuts);
+    showToast('Shortcut terminal direset ke default.', 'info');
+  };
+
+  const handleAddCustomCommand = () => {
+    setCustomCommands([...customCommands, { command: '', output: '' }]);
+  };
+
+  const handleUpdateCustomCommand = (index, field, value) => {
+    const updated = [...customCommands];
+    updated[index] = { ...updated[index], [field]: value };
+    setCustomCommands(updated);
+  };
+
+  const handleDeleteCustomCommand = (indexToRemove) => {
+    setCustomCommands(customCommands.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -290,10 +344,23 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         engineering_principles: engineeringPrinciples.filter((p) => p.title && p.title.trim()),
         terminal_widget: {
           user_host: formData.terminal_user_host || 'baydev@workstation:~$',
+          shortcuts: terminalShortcuts.filter(Boolean),
           lines: formData.terminal_lines_text
-            .split('\n')
-            .map((l) => l.trim())
-            .filter(Boolean),
+            ? formData.terminal_lines_text
+                .split('\n')
+                .map((l) => l.trim())
+                .filter(Boolean)
+            : [
+                'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect',
+                'specialization: Laravel, React, PostgreSQL & Enterprise Architecture',
+                'status: Available for Freelance & Enterprise Solutions',
+              ],
+          custom_commands: customCommands
+            .filter((c) => c.command && c.command.trim())
+            .map((c) => ({
+              command: c.command.trim().toLowerCase().replace(/^\$/, '').trim(),
+              output: c.output || '',
+            })),
         },
         marquee_items: [],
       };
@@ -979,15 +1046,30 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                   borderColor: 'divider',
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ mb: 0.5 }}>
-                  7. Widget Terminal Interaktif (Skills Arsenal)
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-                  Kustomisasi prompt teks header dan baris-baris perintah shell terminal developer pada seksi Skills halaman depan.
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <TerminalIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                      7. Widget Terminal Interaktif (Skills Arsenal)
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Kustomisasi prompt hostname, tombol shortcut cepat, teks pembuka, dan respon perintah terminal di halaman depan.
+                    </Typography>
+                  </Box>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<RefreshIcon />}
+                    onClick={handleResetShortcuts}
+                    sx={{ textTransform: 'none', fontWeight: 700 }}
+                  >
+                    Reset Shortcut Default
+                  </Button>
+                </Box>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={5}>
+                <Grid container spacing={2.5}>
+                  {/* Hostname Prompt */}
+                  <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
                       size="small"
@@ -998,18 +1080,163 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                       helperText="Contoh: baydev@workstation:~$"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={7}>
+
+                  {/* Initial Terminal Lines */}
+                  <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
                       multiline
                       rows={4}
                       size="small"
-                      label="Daftar Perintah Terminal (1 Perintah Per Baris)"
-                      placeholder="git checkout -b feature/high-performance&#10;composer check & npm test&#10;All 15+ production systems operational"
+                      label="Baris Status / Teks Pembuka Terminal (1 Baris Per Pernyataan)"
+                      placeholder={'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect\nspecialization: Laravel, React, PostgreSQL & Enterprise Architecture\nstatus: Available for Freelance & Enterprise Solutions'}
                       value={formData.terminal_lines_text}
                       onChange={(e) => setFormData({ ...formData, terminal_lines_text: e.target.value })}
-                      helperText="Tiap baris teks akan otomatis dieksekusi dalam simulasi console terminal."
+                      helperText="Pernyataan yang langsung muncul di layar terminal saat halaman pertama kali dibuka."
                     />
+                  </Grid>
+
+                  {/* Shortcut Buttons Manager */}
+                  <Grid item xs={12}>
+                    <Box sx={{ p: 2, bgcolor: (th) => th.palette.mode === 'dark' ? '#0F1626' : '#F8FAFC', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                      <Typography variant="body2" fontWeight="700" color="text.primary" sx={{ mb: 0.5 }}>
+                        Daftar Tombol Shortcut Terminal Interaktif ({terminalShortcuts.length} Tombol)
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                        Tombol ini akan ditampilkan di bilah atas terminal pada seksi Skills. Pengunjung cukup mengklik tombol untuk mengeksekusi perintah.
+                      </Typography>
+
+                      {/* Active Shortcut Chips */}
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                        {terminalShortcuts.map((shortcut, idx) => (
+                          <Chip
+                            key={`${shortcut}-${idx}`}
+                            label={shortcut === 'clear' || shortcut === 'cls' ? '↺ clear' : `$ ${shortcut}`}
+                            onDelete={() => handleDeleteShortcut(idx)}
+                            color={shortcut === 'clear' || shortcut === 'cls' ? 'default' : 'primary'}
+                            variant="outlined"
+                            sx={{
+                              fontFamily: 'monospace',
+                              fontWeight: 700,
+                              fontSize: '0.8rem',
+                            }}
+                          />
+                        ))}
+                      </Box>
+
+                      {/* Add Shortcut Form */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: 420 }}>
+                        <TextField
+                          size="small"
+                          fullWidth
+                          placeholder="Nama shortcut baru (misal: pricing, resume, cert)"
+                          value={newShortcutInput}
+                          onChange={(e) => setNewShortcutInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddShortcut();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: <Typography sx={{ mr: 0.5, color: 'text.secondary', fontFamily: 'monospace' }}>$</Typography>,
+                          }}
+                        />
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={handleAddShortcut}
+                          startIcon={<AddCircleOutlineIcon />}
+                          sx={{ textTransform: 'none', fontWeight: 700, whiteSpace: 'nowrap' }}
+                        >
+                          Tambah
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Custom Command Responses (Overrides & New Commands) */}
+                  <Grid item xs={12}>
+                    <Box sx={{ p: 2, bgcolor: (th) => th.palette.mode === 'dark' ? '#0F1626' : '#F8FAFC', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, flexWrap: 'wrap', gap: 1 }}>
+                        <Box>
+                          <Typography variant="body2" fontWeight="700" color="text.primary">
+                            Respon Perintah Tambahan / Kustom (Opsional)
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Tentukan output teks kustom untuk perintah baru (misal: pricing) atau menimpa (override) perintah default.
+                          </Typography>
+                        </Box>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<AddCircleOutlineIcon />}
+                          onClick={handleAddCustomCommand}
+                          sx={{ textTransform: 'none', fontWeight: 700 }}
+                        >
+                          Tambah Respon Perintah
+                        </Button>
+                      </Box>
+
+                      {customCommands.length === 0 ? (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontStyle: 'italic', py: 1 }}>
+                          Belum ada respon perintah kustom. Perintah standar (help, whoami, skills, services, projects, contact, clear) menggunakan respon dinamis bawaan.
+                        </Typography>
+                      ) : (
+                        <Stack spacing={2} sx={{ mt: 1.5 }}>
+                          {customCommands.map((cc, cIdx) => (
+                            <Box
+                              key={cIdx}
+                              sx={{
+                                p: 1.5,
+                                border: 1,
+                                borderColor: 'divider',
+                                borderRadius: 1.5,
+                                bgcolor: (th) => th.palette.mode === 'dark' ? '#151D2F' : '#FFFFFF',
+                              }}
+                            >
+                              <Grid container spacing={1.5} alignItems="flex-start">
+                                <Grid item xs={12} sm={4}>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Nama Perintah"
+                                    placeholder="pricing"
+                                    value={cc.command}
+                                    onChange={(e) => handleUpdateCustomCommand(cIdx, 'command', e.target.value)}
+                                    helperText="Perintah yang diketikkan di terminal"
+                                  />
+                                </Grid>
+                                <Grid item xs={12} sm={7}>
+                                  <TextField
+                                    fullWidth
+                                    multiline
+                                    rows={2}
+                                    size="small"
+                                    label="Respon Teks Terminal (Mendukung Multi-Baris)"
+                                    placeholder="Tersedia layanan konsultasi dan pengembangan enterprise..."
+                                    value={cc.output}
+                                    onChange={(e) => handleUpdateCustomCommand(cIdx, 'output', e.target.value)}
+                                    helperText="Teks respon yang akan ditampilkan terminal saat perintah dieksekusi"
+                                  />
+                                </Grid>
+                                <Grid item xs={12} sm={1} sx={{ display: 'flex', justifyContent: 'center', pt: { sm: 1 } }}>
+                                  <Tooltip title="Hapus Perintah">
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => handleDeleteCustomCommand(cIdx)}
+                                    >
+                                      <DeleteOutlineIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Grid>
+                              </Grid>
+                            </Box>
+                          ))}
+                        </Stack>
+                      )}
+                    </Box>
                   </Grid>
                 </Grid>
               </Box>

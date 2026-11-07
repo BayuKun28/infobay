@@ -12,6 +12,41 @@
             "facebook": "https://www.facebook.com/bhayou.bluedevil/",
             "twitter": "https://x.com/namedbay33",
             "instagram": "https://www.instagram.com/bayukun_28/"
+        },
+        "specialization": "Web Application & API Systems",
+        "work_status": "Open for Remote & Hybrid Roles",
+        "aliases": ["baydev", "bayukun", "masbay (Mas Bay)", "BayuKun28"],
+        "engineering_principles": [
+            {
+                "title": "Architecture First",
+                "desc": "Desain database relasional kokoh, query terindeks, dan skema bersih."
+            },
+            {
+                "title": "Authentic UX",
+                "desc": "Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik."
+            },
+            {
+                "title": "Rock-Solid Security",
+                "desc": "Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan."
+            }
+        ],
+        "terminal_widget": {
+            "user_host": "baydev@workstation:~$",
+            "shortcuts": [
+                "help",
+                "whoami",
+                "skills",
+                "services",
+                "projects",
+                "contact",
+                "clear"
+            ],
+            "lines": [
+                "whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect",
+                "specialization: Laravel, React, PostgreSQL & Enterprise Architecture",
+                "status: Available for Freelance & Enterprise Solutions"
+            ],
+            "custom_commands": []
         }
     },
     "services": [

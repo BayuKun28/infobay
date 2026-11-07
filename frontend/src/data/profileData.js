@@ -29,6 +29,16 @@ export const defaultProfileData = {
       "LINUX DEBIAN",
       "SYSTEM AUTOMATION"
     ],
+    terminal_widget: {
+      user_host: "baydev@workstation:~$",
+      shortcuts: ["help", "whoami", "skills", "services", "projects", "contact", "clear"],
+      lines: [
+        "whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect",
+        "specialization: Laravel, React, PostgreSQL & Enterprise Architecture",
+        "status: Available for Freelance & Enterprise Solutions"
+      ],
+      custom_commands: []
+    },
     about: "Hi there, Bayu Prastyo here 👋 Selamat datang di website portofolio saya! Saya seorang Programmer profesional dengan fokus mendalam pada pembuatan dan pengembangan aplikasi web & mobile modern yang tangguh, aman, dan berkinerja tinggi. Saya memiliki pengalaman panjang dalam ekosistem web modern (React, Next.js, Laravel, PostgreSQL, Docker) serta senantiasa antusias berbagi dan belajar bersama komunitas pengembang.",
     socials: {
       github: "https://github.com/BayuKun28",

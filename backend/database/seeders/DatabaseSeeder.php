@@ -86,6 +86,24 @@ class DatabaseSeeder extends Seeder
                 'role_badge' => 'Available for Projects',
                 'experience_years_text' => '7+ Tahun',
                 'projects_completed_text' => '30+ Proyek',
+                'specialization' => 'Web Application & API Systems',
+                'work_status' => 'Open for Remote & Hybrid Roles',
+                'aliases' => ['baydev', 'bayukun', 'masbay (Mas Bay)', 'BayuKun28'],
+                'engineering_principles' => [
+                    ['title' => 'Architecture First', 'desc' => 'Desain database relasional kokoh, query terindeks, dan skema bersih.'],
+                    ['title' => 'Authentic UX', 'desc' => 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.'],
+                    ['title' => 'Rock-Solid Security', 'desc' => 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.'],
+                ],
+                'terminal_widget' => [
+                    'user_host' => 'baydev@workstation:~$',
+                    'shortcuts' => ['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'],
+                    'lines' => [
+                        'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect',
+                        'specialization: Laravel, React, PostgreSQL & Enterprise Architecture',
+                        'status: Available for Freelance & Enterprise Solutions',
+                    ],
+                    'custom_commands' => [],
+                ],
                 'marquee_items' => ['LARAVEL 13', 'POSTGRESQL 17', 'REACTJS VITE', 'TAILWIND CSS', 'MATERIAL UI', 'DOCKER HOMELAB', 'REST API ARCHITECTURE', 'LINUX DEBIAN', 'SYSTEM AUTOMATION'],
             ]);
         }

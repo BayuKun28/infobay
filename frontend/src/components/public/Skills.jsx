@@ -6,6 +6,11 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
   const { t } = useLanguage();
 
   const terminalHost = biodata?.terminal_widget?.user_host || 'baydev@workstation:~$';
+  const defaultShortcuts = ['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'];
+  const shortcuts = Array.isArray(biodata?.terminal_widget?.shortcuts) && biodata.terminal_widget.shortcuts.length > 0
+    ? biodata.terminal_widget.shortcuts
+    : defaultShortcuts;
+
   const defaultTerminalLines = Array.isArray(biodata?.terminal_widget?.lines) && biodata.terminal_widget.lines.length > 0
     ? biodata.terminal_widget.lines
     : [
@@ -17,6 +22,15 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
   const [activeLines, setActiveLines] = useState(defaultTerminalLines);
   const [cliInput, setCliInput] = useState('');
   const terminalBoxRef = useRef(null);
+  const hasInitializedLinesRef = useRef(false);
+
+  // Sync initial terminal lines when live API biodata arrives
+  useEffect(() => {
+    if (!hasInitializedLinesRef.current && Array.isArray(biodata?.terminal_widget?.lines) && biodata.terminal_widget.lines.length > 0) {
+      setActiveLines(biodata.terminal_widget.lines);
+      hasInitializedLinesRef.current = true;
+    }
+  }, [biodata?.terminal_widget?.lines]);
 
   // Scroll to bottom of terminal internally when activeLines changes without moving window scroll
   useEffect(() => {
@@ -43,97 +57,121 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
 
     let outputLines = [`$ ${raw}`];
 
-    switch (cmd) {
-      case 'help':
-        outputLines.push(
-          'Daftar Perintah Terminal:',
-          '  whoami     - Profil & ringkasan arsitek developer',
-          '  skills     - Kompetensi teknis & arsenal teknologi',
-          '  services   - Layanan & solusi rekayasa web yang ditawarkan',
-          '  projects   - Daftar portofolio proyek unggulan',
-          '  contact    - Saluran komunikasi, email & WhatsApp',
-          '  clear      - Membersihkan tampilan layar terminal'
-        );
-        break;
+    // Check custom commands configured via Admin Panel first
+    const customCommands = Array.isArray(biodata?.terminal_widget?.custom_commands)
+      ? biodata.terminal_widget.custom_commands
+      : [];
+    const foundCustom = customCommands.find(
+      (c) => (c.command || '').trim().toLowerCase() === cmd
+    );
 
-      case 'whoami':
-        outputLines.push(
-          `${biodata?.name || 'Bayu Prastyo'} (baydev)`,
-          `Role: ${biodata?.title || 'Full-Stack Web Developer & Solutions Architect'}`,
-          `Pengalaman: ${biodata?.experience_years_text || '7+ Tahun'} spesialisasi Laravel, PostgreSQL, & React`,
-          `Lokasi: ${biodata?.location || 'Yogyakarta / Karanganyar, Indonesia'}`,
-          `Status: ${biodata?.work_status || 'Tersedia untuk proyek kemitraan freelance & enterprise'}`
-        );
-        break;
+    if (foundCustom && foundCustom.output) {
+      const customLines = foundCustom.output.split('\n');
+      outputLines.push(...customLines);
+    } else {
+      switch (cmd) {
+        case 'help':
+          const defaultCommandDescriptions = {
+            whoami: 'Profil & ringkasan arsitek developer',
+            skills: 'Kompetensi teknis & arsenal teknologi',
+            services: 'Layanan & solusi rekayasa web yang ditawarkan',
+            projects: 'Daftar portofolio proyek unggulan',
+            contact: 'Saluran komunikasi, email & WhatsApp',
+            clear: 'Membersihkan tampilan layar terminal',
+            cls: 'Membersihkan tampilan layar terminal',
+            reset: 'Mengembalikan ke baris teks pembuka awal',
+          };
+          outputLines.push(
+            'Daftar Perintah Terminal:',
+            ...shortcuts
+              .filter((s) => s !== 'help')
+              .map((s) => {
+                const customMatch = customCommands.find((c) => (c.command || '').trim().toLowerCase() === s);
+                const desc = defaultCommandDescriptions[s] || (customMatch ? 'Perintah kustom tambahan' : 'Perintah kustom developer');
+                return `  ${s.padEnd(10)} - ${desc}`;
+              })
+          );
+          break;
 
-      case 'skills':
-        outputLines.push(
-          'Arsenal Teknologi & Keahlian Utama:',
-          '  - Backend       : Laravel 11/12, PHP 8.4 FastCGI, REST API, Sanctum',
-          '  - Database      : PostgreSQL 17 (Relational & Indexed Schema, Complex Queries)',
-          '  - Frontend      : React 18, Vite, Tailwind CSS, Material-UI, Neubrutalism UI',
-          '  - Architecture  : Modular Architecture, API Security, Performance Tuning'
-        );
-        break;
+        case 'whoami':
+          outputLines.push(
+            `${biodata?.name || 'Bayu Prastyo'} (baydev)`,
+            `Role: ${biodata?.title || 'Full-Stack Web Developer & Solutions Architect'}`,
+            `Pengalaman: ${biodata?.experience_years_text || '7+ Tahun'} spesialisasi Laravel, PostgreSQL, & React`,
+            `Lokasi: ${biodata?.location || 'Yogyakarta / Karanganyar, Indonesia'}`,
+            `Status: ${biodata?.work_status || 'Tersedia untuk proyek kemitraan freelance & enterprise'}`
+          );
+          break;
 
-      case 'services':
-        outputLines.push(
-          'Layanan & Solusi Rekayasa Perangkat Lunak:',
-          '  1. Full-Stack Web Application (Laravel & React Enterprise Systems)',
-          '  2. REST API & Database Architecture (Skema Terindeks & Performa Tinggi)',
-          '  3. Sistem Penjaminan & Manajemen Korporat / BUMD',
-          '  4. Modern Responsive UI/UX (Neubrutalism & Custom Design System)'
-        );
-        break;
+        case 'skills':
+          outputLines.push(
+            'Arsenal Teknologi & Keahlian Utama:',
+            '  - Backend       : Laravel 11/12, PHP 8.4 FastCGI, REST API, Sanctum',
+            '  - Database      : PostgreSQL 17 (Relational & Indexed Schema, Complex Queries)',
+            '  - Frontend      : React 18, Vite, Tailwind CSS, Material-UI, Neubrutalism UI',
+            '  - Architecture  : Modular Architecture, API Security, Performance Tuning'
+          );
+          break;
 
-      case 'projects':
-        outputLines.push(
-          '19+ Proyek Portofolio Nyata:',
-          '  1. Jamkrida Jatim & Bali - Sistem Penjaminan Keuangan BUMD',
-          '  2. BayOffice - Orchestration Platform & Workflow Automation',
-          '  3. SIGAP & POS Desa Pintar - Sistem Manajemen Terpadu',
-          '  4. DSP BayHifi - Audio & Sound Engineering Web Suite',
-          '  Scroll ke seksi Portofolio di bawah untuk eksplorasi 19+ proyek lengkap.'
-        );
-        break;
+        case 'services':
+          outputLines.push(
+            'Layanan & Solusi Rekayasa Perangkat Lunak:',
+            '  1. Full-Stack Web Application (Laravel & React Enterprise Systems)',
+            '  2. REST API & Database Architecture (Skema Terindeks & Performa Tinggi)',
+            '  3. Sistem Penjaminan & Manajemen Korporat / BUMD',
+            '  4. Modern Responsive UI/UX (Neubrutalism & Custom Design System)'
+          );
+          break;
 
-      case 'contact':
-        outputLines.push(
-          'Hubungi Bayu Prastyo:',
-          `  - Email    : ${biodata?.email || 'bayukundev@gmail.com'}`,
-          `  - WhatsApp : ${biodata?.phone || '08991907216'}`,
-          '  - GitHub   : https://github.com/BayuKun28',
-          '  - Website  : https://info.baydev.my.id'
-        );
-        break;
+        case 'projects':
+          outputLines.push(
+            '19+ Proyek Portofolio Nyata:',
+            '  1. Jamkrida Jatim & Bali - Sistem Penjaminan Keuangan BUMD',
+            '  2. BayOffice - Orchestration Platform & Workflow Automation',
+            '  3. SIGAP & POS Desa Pintar - Sistem Manajemen Terpadu',
+            '  4. DSP BayHifi - Audio & Sound Engineering Web Suite',
+            '  Scroll ke seksi Portofolio di bawah untuk eksplorasi 19+ proyek lengkap.'
+          );
+          break;
 
-      case 'uptime':
-        outputLines.push(
-          `Pengalaman Developer: ${biodata?.experience_years_text || '7+ Tahun'} aktif membangun aplikasi web production`,
-          'Track Record: 19+ Proyek nyata sukses dideploy untuk BUMD, instansi, & klien bisnis.'
-        );
-        break;
+        case 'contact':
+          outputLines.push(
+            'Hubungi Bayu Prastyo:',
+            `  - Email    : ${biodata?.email || 'bayukundev@gmail.com'}`,
+            `  - WhatsApp : ${biodata?.phone || '08991907216'}`,
+            '  - GitHub   : https://github.com/BayuKun28',
+            '  - Website  : https://info.baydev.my.id'
+          );
+          break;
 
-      case 'neofetch':
-      case 'infobay':
-      case 'profile':
-        outputLines.push(
-          `  [BD] ${biodata?.name || 'Bayu Prastyo'} (@baydev)`,
-          '  ----------------------------------------',
-          `  Role       : ${biodata?.title || 'Full-Stack Web Developer & Solutions Architect'}`,
-          `  Keahlian   : ${biodata?.specialization || 'Laravel, PostgreSQL, React, Enterprise Web Apps'}`,
-          `  Pengalaman : ${biodata?.experience_years_text || '7+ Tahun'}`,
-          `  Status     : ${biodata?.work_status || 'Open for Remote, Hybrid & Enterprise Projects'}`,
-          '  Website    : info.baydev.my.id'
-        );
-        break;
+        case 'uptime':
+          outputLines.push(
+            `Pengalaman Developer: ${biodata?.experience_years_text || '7+ Tahun'} aktif membangun aplikasi web production`,
+            'Track Record: 19+ Proyek nyata sukses dideploy untuk BUMD, instansi, & klien bisnis.'
+          );
+          break;
 
-      default:
-        outputLines.push(
-          `bash: command not found: ${raw}`,
-          "Ketik 'help' untuk melihat daftar perintah yang tersedia."
-        );
-        break;
+        case 'neofetch':
+        case 'infobay':
+        case 'profile':
+          outputLines.push(
+            `  [BD] ${biodata?.name || 'Bayu Prastyo'} (@baydev)`,
+            '  ----------------------------------------',
+            `  Role       : ${biodata?.title || 'Full-Stack Web Developer & Solutions Architect'}`,
+            `  Keahlian   : ${biodata?.specialization || 'Laravel, PostgreSQL, React, Enterprise Web Apps'}`,
+            `  Pengalaman : ${biodata?.experience_years_text || '7+ Tahun'}`,
+            `  Status     : ${biodata?.work_status || 'Open for Remote, Hybrid & Enterprise Projects'}`,
+            '  Website    : info.baydev.my.id'
+          );
+          break;
+
+        default:
+          outputLines.push(
+            `bash: command not found: ${raw}`,
+            "Ketik 'help' untuk melihat daftar perintah yang tersedia."
+          );
+          break;
+      }
     }
 
     setActiveLines((prev) => [...prev, ...outputLines]);
@@ -245,14 +283,14 @@ export default function Skills({ skills = [], techStack = [], biodata = null }) 
               </div>
               {/* Shortcut buttons */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                {['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'].map((cmd) => (
+                {shortcuts.map((cmd) => (
                   <button
                     key={cmd}
                     type="button"
                     onClick={() => handleShortcutClick(cmd)}
                     className="px-2 py-0.5 border text-[10px] font-mono font-bold uppercase transition-all cursor-pointer bg-gray-900 border-gray-700 text-gray-300 hover:border-neo-yellow hover:text-neo-yellow"
                   >
-                    {cmd === 'clear' ? '↺ clear' : `$ ${cmd}`}
+                    {cmd === 'clear' || cmd === 'cls' ? '↺ clear' : `$ ${cmd}`}
                   </button>
                 ))}
               </div>

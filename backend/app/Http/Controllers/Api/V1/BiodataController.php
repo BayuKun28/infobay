@@ -42,14 +42,29 @@ class BiodataController extends Controller
             ['title' => 'Authentic UX', 'desc' => 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.'],
             ['title' => 'Rock-Solid Security', 'desc' => 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.'],
         ];
-        $response['terminal_widget'] = $biodata->terminal_widget ?? [
+        $defaultTerminalWidget = [
             'user_host' => 'baydev@workstation:~$',
+            'shortcuts' => ['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'],
             'lines' => [
-                'git checkout -b feature/high-performance',
-                'composer check & npm test',
-                'All 15+ production systems operational',
+                'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect',
+                'specialization: Laravel, React, PostgreSQL & Enterprise Architecture',
+                'status: Available for Freelance & Enterprise Solutions',
             ],
+            'custom_commands' => [],
         ];
+        $terminalWidget = $biodata->terminal_widget ?? $defaultTerminalWidget;
+        if (is_array($terminalWidget)) {
+            if (empty($terminalWidget['shortcuts'])) {
+                $terminalWidget['shortcuts'] = $defaultTerminalWidget['shortcuts'];
+            }
+            if (empty($terminalWidget['lines'])) {
+                $terminalWidget['lines'] = $defaultTerminalWidget['lines'];
+            }
+            if (!isset($terminalWidget['custom_commands'])) {
+                $terminalWidget['custom_commands'] = [];
+            }
+        }
+        $response['terminal_widget'] = $terminalWidget;
 
         return response()->json([
             'status' => 'success',
@@ -196,14 +211,29 @@ class BiodataController extends Controller
             ['title' => 'Authentic UX', 'desc' => 'Menghadirkan antarmuka otentik, responsif, dan bebas dari template generik.'],
             ['title' => 'Rock-Solid Security', 'desc' => 'Proteksi autentikasi, CORS presisi, sanitasi input, dan audit berkelanjutan.'],
         ];
-        $response['terminal_widget'] = $biodata->terminal_widget ?? [
+        $defaultTerminalWidget = [
             'user_host' => 'baydev@workstation:~$',
+            'shortcuts' => ['help', 'whoami', 'skills', 'services', 'projects', 'contact', 'clear'],
             'lines' => [
-                'git checkout -b feature/high-performance',
-                'composer check & npm test',
-                'All 15+ production systems operational',
+                'whoami: Bayu Prastyo - Full-Stack Developer & Solutions Architect',
+                'specialization: Laravel, React, PostgreSQL & Enterprise Architecture',
+                'status: Available for Freelance & Enterprise Solutions',
             ],
+            'custom_commands' => [],
         ];
+        $terminalWidget = $biodata->terminal_widget ?? $defaultTerminalWidget;
+        if (is_array($terminalWidget)) {
+            if (empty($terminalWidget['shortcuts'])) {
+                $terminalWidget['shortcuts'] = $defaultTerminalWidget['shortcuts'];
+            }
+            if (empty($terminalWidget['lines'])) {
+                $terminalWidget['lines'] = $defaultTerminalWidget['lines'];
+            }
+            if (!isset($terminalWidget['custom_commands'])) {
+                $terminalWidget['custom_commands'] = [];
+            }
+        }
+        $response['terminal_widget'] = $terminalWidget;
 
         ActivityLog::record('biodata.update', "Profil pengembang '{$biodata->name}' ({$biodata->title}) berhasil diperbarui.");
 
