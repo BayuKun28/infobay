@@ -17,3 +17,4 @@ export { default as MediaManager } from './MediaManager';
 export { default as MediaSelectorModal } from './MediaSelectorModal';
 export { default as PortfolioEditorScreen } from './PortfolioEditorScreen';
 export { default as CategoryManagerModal } from './CategoryManagerModal';
+export { default as VisitorMonitoringManager } from './VisitorMonitoringManager';

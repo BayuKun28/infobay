@@ -535,7 +535,21 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
               Data anonim dienkripsi dengan salt SHA-256 harian, tanpa pelacakan data pribadi (GDPR compliant).
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Button
+              size="small"
+              variant="outlined"
+              endIcon={<ArrowForwardIcon fontSize="small" />}
+              onClick={() => onNavigateTab && onNavigateTab(9)}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                fontSize: '0.75rem',
+                fontWeight: 700,
+              }}
+            >
+              Monitoring IP &amp; Log Lengkap
+            </Button>
             <Chip
               label={`Hari Ini: ${analytics?.today_visits ?? 0} Kunjungan`}
               size="small"

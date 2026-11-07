@@ -91,8 +91,11 @@ Route::prefix('v1')->group(function () {
             // Activity Log (Audit Trail)
             Route::get('/activity-logs', [ActivityLogController::class, 'index']);
 
-            // Analytics Summary
+            // Analytics & Visitor Monitoring
             Route::get('/analytics/summary', [AnalyticsController::class, 'summary']);
+            Route::get('/analytics/visitors', [AnalyticsController::class, 'visitors']);
+            Route::delete('/analytics/visitors/{id}', [AnalyticsController::class, 'destroyVisitor']);
+            Route::delete('/analytics/visitors', [AnalyticsController::class, 'clearVisitors']);
 
             // Data Governance: Backup & Restore
             Route::get('/backup/export', [BackupController::class, 'export']);

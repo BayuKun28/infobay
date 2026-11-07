@@ -58,8 +58,11 @@ class AdvancedFeaturesTest extends TestCase
 
     public function test_activity_logs_and_analytics_endpoints(): void
     {
-        // 1. Record visit
-        $visitRes = $this->postJson('/api/v1/analytics/visit', [
+        // 1. Record visit with IP and User Agent
+        $visitRes = $this->withServerVariables([
+            'REMOTE_ADDR' => '203.0.113.195',
+            'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
+        ])->postJson('/api/v1/analytics/visit', [
             'page' => '/#portfolio',
             'referer' => 'https://github.com',
         ]);
@@ -69,9 +72,22 @@ class AdvancedFeaturesTest extends TestCase
         $analyticsRes = $this->actingAs($this->admin, 'sanctum')->getJson('/api/v1/admin/analytics/summary');
         $analyticsRes->assertStatus(200)
             ->assertJsonPath('status', 'success')
-            ->assertJsonStructure(['data' => ['today_visits', 'total_visits', 'trend', 'devices']]);
+            ->assertJsonStructure(['data' => ['today_visits', 'today_unique_ips', 'total_visits', 'total_unique_ips', 'trend', 'devices', 'browsers', 'platforms']]);
 
-        // 3. Fetch activity logs
+        // 3. Fetch visitor logs
+        $visitorsRes = $this->actingAs($this->admin, 'sanctum')->getJson('/api/v1/admin/analytics/visitors?search=203.0.113.195');
+        $visitorsRes->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.total', 1);
+
+        $visitId = $visitorsRes->json('data.data.0.id');
+        $this->assertNotNull($visitId);
+
+        // 4. Delete visitor log
+        $delRes = $this->actingAs($this->admin, 'sanctum')->deleteJson('/api/v1/admin/analytics/visitors/' . $visitId);
+        $delRes->assertStatus(200);
+
+        // 5. Fetch activity logs
         ActivityLog::record('test.action', 'This is a test audit action');
         $logsRes = $this->actingAs($this->admin, 'sanctum')->getJson('/api/v1/admin/activity-logs');
         $logsRes->assertStatus(200)

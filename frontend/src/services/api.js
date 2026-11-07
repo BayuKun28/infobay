@@ -666,6 +666,23 @@ export const analyticsService = {
     const res = await apiClient.get('/admin/analytics/summary');
     return res.data;
   },
+
+  async getVisitors(params = {}) {
+    const res = await apiClient.get('/admin/analytics/visitors', { params });
+    return res.data;
+  },
+
+  async deleteVisitor(id) {
+    const res = await apiClient.delete(`/admin/analytics/visitors/${id}`);
+    return res.data;
+  },
+
+  async clearVisitors(olderThanDays = 30) {
+    const res = await apiClient.delete('/admin/analytics/visitors', {
+      params: { older_than_days: olderThanDays },
+    });
+    return res.data;
+  },
 };
 
 

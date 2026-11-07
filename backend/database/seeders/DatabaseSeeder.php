@@ -182,6 +182,11 @@ class DatabaseSeeder extends Seeder
                     'metrics' => $item['metrics'] ?? null,
                     'is_featured' => $item['is_featured'] ?? ($item['featured'] ?? false),
                     'order_index' => $item['order_index'] ?? $portfolioOrder++,
+                    'highlights' => $item['highlights'] ?? null,
+                    'client_name' => $item['client_name'] ?? null,
+                    'project_year' => $item['project_year'] ?? null,
+                    'gallery' => $item['gallery'] ?? null,
+                    'is_published' => $item['is_published'] ?? true,
                     'description' => $item['description'] ?? null,
                 ]);
             }

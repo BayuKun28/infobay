@@ -42,6 +42,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 
 import DashboardOverview from './DashboardOverview';
 import PortfolioManager from './PortfolioManager';
@@ -52,6 +53,7 @@ import MessageManager from './MessageManager';
 import TestimonialManager from './TestimonialManager';
 import CertificationManager from './CertificationManager';
 import MediaManager from './MediaManager';
+import VisitorMonitoringManager from './VisitorMonitoringManager';
 import AdminProfileModal from './AdminProfileModal';
 import { getAdminAllData, authService, messageService } from '../../services/api';
 
@@ -152,7 +154,8 @@ export default function AdminLayout({
 
   const menuItems = [
     { text: 'Overview', desc: 'Metrik & Ringkasan', icon: <DashboardIcon sx={{ fontSize: 20 }} />, tab: 0 },
-    { text: 'Portofolio', desc: '15+ Proyek & Kategori', icon: <FolderSpecialIcon sx={{ fontSize: 20 }} />, tab: 1 },
+    { text: 'Monitoring Pengunjung', desc: 'Pelacakan IP & Analitik', icon: <QueryStatsIcon sx={{ fontSize: 20 }} />, tab: 9 },
+    { text: 'Portofolio', desc: '19+ Proyek & Kategori', icon: <FolderSpecialIcon sx={{ fontSize: 20 }} />, tab: 1 },
     { text: 'Profil & Bio', desc: 'Biodata & Hero Customizer', icon: <PersonIcon sx={{ fontSize: 20 }} />, tab: 2 },
     { text: 'Layanan & Skill', desc: 'Kapabilitas & Arsenal', icon: <BuildIcon sx={{ fontSize: 20 }} />, tab: 3 },
     { text: 'Pengalaman & Edu', desc: 'Karier & Pendidikan', icon: <SchoolIcon sx={{ fontSize: 20 }} />, tab: 5 },
@@ -434,10 +437,10 @@ export default function AdminLayout({
 
             <Box>
               <Typography variant="subtitle1" fontWeight={800} sx={{ lineHeight: 1.2 }}>
-                {menuItems[currentTab]?.text}
+                {menuItems.find((item) => item.tab === currentTab)?.text || 'Overview'}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                {menuItems[currentTab]?.desc}
+                {menuItems.find((item) => item.tab === currentTab)?.desc || ''}
               </Typography>
             </Box>
           </Box>
@@ -770,6 +773,10 @@ export default function AdminLayout({
 
         {currentTab === 8 && (
           <MediaManager showToast={showToast} />
+        )}
+
+        {currentTab === 9 && (
+          <VisitorMonitoringManager showToast={showToast} />
         )}
       </Box>
 

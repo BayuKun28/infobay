@@ -20,14 +20,23 @@ class PortfolioCategorySeeder extends Seeder
             ['name' => 'UI/UX Design', 'order_index' => 3],
             ['name' => 'Backend System', 'order_index' => 4],
             ['name' => 'DevOps & Homelab', 'order_index' => 5],
+            ['name' => 'Multi Platform', 'order_index' => 6],
         ];
+
+        $jsonPath = base_path('../profile_seed_data.json');
+        if (\Illuminate\Support\Facades\File::exists($jsonPath)) {
+            $data = json_decode(\Illuminate\Support\Facades\File::get($jsonPath), true);
+            if (!empty($data['categories'])) {
+                $categories = $data['categories'];
+            }
+        }
 
         foreach ($categories as $cat) {
             PortfolioCategory::updateOrCreate(
                 ['name' => $cat['name']],
                 [
-                    'slug' => Str::slug($cat['name']),
-                    'order_index' => $cat['order_index'],
+                    'slug' => $cat['slug'] ?? Str::slug($cat['name']),
+                    'order_index' => $cat['order_index'] ?? 0,
                 ]
             );
         }

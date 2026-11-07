@@ -1,436 +1,701 @@
 {
-  "biodata": {
-    "name": "Bayu Prastyo",
-    "title": "Developer / Web Programmer",
-    "email": "bayukundev@gmail.com",
-    "phone": "08991907216",
-    "location": "Yogyakarta / Karanganyar",
-    "avatar": "/images/avatar.png",
-    "about": "Hi there Bayu Prastyo Here👋 Selamat datang di website saya! Saya Bayu Prastyo, seorang Programmer dengan minat khusus di Pembuatan dan Pengembangan Aplikasi. Saya senang berbagi dan belajar bersama komunitas pengembang.",
-    "socials": {
-      "github": "https://github.com/BayuKun28",
-      "facebook": "https://www.facebook.com/bhayou.bluedevil/",
-      "twitter": "https://x.com/namedbay33",
-      "instagram": "https://www.instagram.com/bayukun_28/"
-    }
-  },
-  "services": [
-    {
-      "title": "Web Design",
-      "description": "Desain antarmuka responsif dan estetis berbasis figma dan neubrutalisme modern.",
-      "icon": "/icons/services/web-design.svg"
+    "biodata": {
+        "name": "Bayu Prastyo",
+        "title": "Developer / Web Programmer",
+        "email": "bayukundev@gmail.com",
+        "phone": "08991907216",
+        "location": "Yogyakarta / Karanganyar",
+        "avatar": "/images/avatar.png",
+        "about": "Hi there Bayu Prastyo Here👋 Selamat datang di website saya! Saya Bayu Prastyo, seorang Programmer dengan minat khusus di Pembuatan dan Pengembangan Aplikasi. Saya senang berbagi dan belajar bersama komunitas pengembang.",
+        "socials": {
+            "github": "https://github.com/BayuKun28",
+            "facebook": "https://www.facebook.com/bhayou.bluedevil/",
+            "twitter": "https://x.com/namedbay33",
+            "instagram": "https://www.instagram.com/bayukun_28/"
+        }
     },
-    {
-      "title": "Web Development",
-      "description": "Pengembangan aplikasi web modular menggunakan ekosistem modern Laravel, ReactJS, dan Vite.",
-      "icon": "/icons/services/web-development.svg"
-    },
-    {
-      "title": "Mobile Apps",
-      "description": "Pengembangan aplikasi lintas platform yang cepat, intuitif, dan responsif.",
-      "icon": "/icons/services/mobile-apps.svg"
-    },
-    {
-      "title": "Backend",
-      "description": "Perancangan RESTful API aman, manajemen database relasional, dan arsitektur server.",
-      "icon": "/icons/services/backend.svg"
-    }
-  ],
-  "skills": [
-    {
-      "name": "Web design",
-      "percentage": 85
-    },
-    {
-      "name": "Graphic design",
-      "percentage": 85
-    },
-    {
-      "name": "Web Application",
-      "percentage": 90
-    },
-    {
-      "name": "Mobile Application",
-      "percentage": 80
-    }
-  ],
-  "education": [
-    {
-      "title": "SMKN 02 KARANGANYAR",
-      "period": "2016 — 2019",
-      "description": "Teknik Komputer dan Jaringan / Rekayasa Perangkat Lunak"
-    },
-    {
-      "title": "UNIVERSITAS TERBUKA",
-      "period": "Sampai Sekarang",
-      "description": "Program Studi Sistem Informasi / Ilmu Komputer"
-    }
-  ],
-  "experience": [
-    {
-      "title": "ANALTA KOMPUTER",
-      "period": "2018 — 2018",
-      "description": "Posisi Teknisi"
-    },
-    {
-      "title": "PT GLOBAL INTERMEDIA NUSANTARA",
-      "period": "2019 — Sekarang",
-      "description": "Posisi Web Programmer"
-    }
-  ],
-  "portfolios": [
-    {
-      "title": "Jamkrida Jatim",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684189.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Senior Web Programmer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "REST API",
-        "Bootstrap",
-        "Linux Debian"
-      ],
-      "metrics": [
-        "Rp 100M+ Plafon Kredit Terkelola",
-        "10K+ Transaksi Bulanan",
-        "Zero Data Loss Audit"
-      ],
-      "description": "Sistem informasi manajemen penjaminan kredit untuk PT Jamkrida Jatim dengan integrasi data transaksi keuangan yang komprehensif, pelaporan audit berkala, dan otorisasi bertingkat."
-    },
-    {
-      "title": "Jamkrida Bali",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684201.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Lead Backend Developer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "jQuery",
-        "AdminLTE",
-        "REST API"
-      ],
-      "metrics": [
-        "9 BUMD Mitra Terkoneksi",
-        "<50ms Database Query Time",
-        "100% SLA Kepatuhan OJK"
-      ],
-      "description": "Portal digital dan aplikasi penjaminan kredit daerah Bali dengan modul monitoring portofolio perbankan mitra secara real-time dan perhitungan resiko otomatis."
-    },
-    {
-      "title": "GIS DESA PINTAR",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684297.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Fullstack GIS Developer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL PostGIS",
-        "Leaflet.js",
-        "GeoJSON",
-        "Tailwind CSS"
-      ],
-      "metrics": [
-        "100% Pemetaan Aset & Tata Ruang",
-        "<1s Geospatial Query",
-        "Digitalisasi Demografi Desa"
-      ],
-      "description": "Sistem Informasi Geografis (GIS) pemetaan aset tanah kas desa, tata ruang, dan demografi penduduk berbasis peta digital interaktif dengan filter spasial cepat."
-    },
-    {
-      "title": "CMS PORTAL",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684308.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Web Engineer",
-      "tech_stack": [
-        "Laravel",
-        "MySQL",
-        "Tailwind CSS",
-        "TinyMCE",
-        "SEO Optimization"
-      ],
-      "metrics": [
-        "50K+ Monthly Pageviews",
-        "SEO Optimized Structured Data",
-        "Multi-Author Workflow"
-      ],
-      "description": "Content Management System modular untuk publikasi berita, artikel multimedia, dan integrasi media sosial multi-user dengan manajemen hak akses redaksi."
-    },
-    {
-      "title": "CMS SIKAP",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684320.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Senior Fullstack Programmer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "Bootstrap",
-        "RBAC",
-        "Audit Log"
-      ],
-      "metrics": [
-        "1,200+ Pegawai Terdata",
-        "100% Akuntabilitas Mutasi",
-        "Granular Security Roles"
-      ],
-      "description": "Sistem informasi kepengurusan dan administrasi kepegawaian institusi dengan audit log terinci, penjejakan mutasi jabatan, dan kontrol hak akses granular."
-    },
-    {
-      "title": "E-SEWA",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684331.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Lead Software Architect",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "Alpine.js",
-        "Tailwind CSS",
-        "PDF Generation"
-      ],
-      "metrics": [
-        "Otomatisasi Billing 100%",
-        "Paperless Electronic Approval",
-        "Pencegahan Dobel Booking"
-      ],
-      "description": "Platform digital pengelolaan sewa aset dan gedung daerah dengan billing otomatis, penomoran invoice otomatis, tanda tangan digital, dan rekonsiliasi pembayaran."
-    },
-    {
-      "title": "KASKOS",
-      "category": "Mobile Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684352.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Creator & Mobile Developer",
-      "tech_stack": [
-        "Flutter",
-        "Dart",
-        "SQLite",
-        "Laravel REST API",
-        "Firebase"
-      ],
-      "metrics": [
-        "1,000+ Downloads",
-        "4.8★ Rating Play Store",
-        "Offline-First Sync Engine"
-      ],
-      "description": "Aplikasi mobile pembukuan pengeluaran kos-kosan & pencatatan keuangan pribadi dengan grafik pengeluaran bulanan, pengingat jatuh tempo sewa, dan cadangan lokal."
-    },
-    {
-      "title": "Gallery App",
-      "category": "Mobile Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684363.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Mobile App Developer",
-      "tech_stack": [
-        "React Native",
-        "Expo",
-        "Image Compression API",
-        "FastImage"
-      ],
-      "metrics": [
-        "Kompresi Cerdas 70% Hemat Data",
-        "60 FPS Smooth Scrolling",
-        "Album Enkripsi Lokal"
-      ],
-      "description": "Aplikasi galeri visual mobile dengan fitur kurasi album foto berkecepatan tinggi, kompresi lokal cerdas tanpa degradasi kualitas visual, dan privasi foto pribadi."
-    },
-    {
-      "title": "To do task",
-      "category": "Mobile Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757684373.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Mobile UI/UX Developer",
-      "tech_stack": [
-        "Flutter",
-        "Provider State",
-        "Local Notifications",
-        "Hive DB"
-      ],
-      "metrics": [
-        "100% Offline Capability",
-        "Smart Push Notifications",
-        "Minimal Battery Footprint"
-      ],
-      "description": "Aplikasi produktivitas mobile harian dengan pengingat waktu, kategori prioritas kanban, dan sinkronisasi offline berkecepatan tinggi."
-    },
-    {
-      "title": "Undangan Online",
-      "category": "Mobile Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921841.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Frontend Engineer",
-      "tech_stack": [
-        "React",
-        "Tailwind CSS",
-        "Framer Motion",
-        "Audio API",
-        "Supabase"
-      ],
-      "metrics": [
-        "5,000+ Tamu Terlayani",
-        "Interactive RSVP Realtime",
-        "Amplop Digital QRIS"
-      ],
-      "description": "Aplikasi undangan digital interaktif responsif dengan RSVP online real-time, amplop digital QRIS, latar belakang audio kustom, dan buku tamu digital."
-    },
-    {
-      "title": "KASKOS WEB",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921680.png",
-      "link": "https://kaskos.bayukun.my.id/dashboard",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Solo Fullstack Engineer",
-      "tech_stack": [
-        "React",
-        "Laravel 11",
-        "PostgreSQL",
-        "Tailwind CSS",
-        "Sanctum Auth"
-      ],
-      "metrics": [
-        "Multi-Tenant Kos Ecosystem",
-        "Automated WhatsApp Reminders",
-        "Laporan Arus Kas Bulanan"
-      ],
-      "description": "Versi dashboard web untuk ekosistem Kaskos. Menghubungkan penghuni kos dengan pemilik properti secara terpusat untuk monitoring kamar, tagihan, dan pemeliharaan fasilitas."
-    },
-    {
-      "title": "POS KELONTONG",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921852.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Fullstack Developer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "Thermal Print JS",
-        "Alpine.js",
-        "Tailwind CSS"
-      ],
-      "metrics": [
-        "15,000+ SKU Produk Terkelola",
-        "Cetak Struk Thermal Bluetooth/USB",
-        "Inventori Stok Otomatis"
-      ],
-      "description": "Point of Sales (POS) kasir toko kelontong berbasis web dengan dukungan barcode scanner, perhitungan stok barang otomatis, cetak struk thermal, dan laporan laba-rugi harian."
-    },
-    {
-      "title": "E-TPQ WHATSAPP BLAST",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921861.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": false,
-      "project_role": "Backend & Automation Engineer",
-      "tech_stack": [
-        "Node.js",
-        "Express",
-        "Baileys WhatsApp API",
-        "PostgreSQL",
-        "Redis Queue"
-      ],
-      "metrics": [
-        "3,000+ Blast Pesan per Menit",
-        "99.2% Delivery Success Rate",
-        "Anti-Banned Rate Limiter"
-      ],
-      "description": "Sistem administrasi santri TPQ terintegrasi gateway WhatsApp untuk pengiriman laporan nilai, SPP, dan absensi otomatis kepada wali santri dengan proteksi anti-spam."
-    },
-    {
-      "title": "E-PENSIUN",
-      "category": "Web Development",
-      "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921947.png",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Senior Web Programmer",
-      "tech_stack": [
-        "Laravel",
-        "PostgreSQL",
-        "Tailwind CSS",
-        "Electronic Filing",
-        "REST API"
-      ],
-      "metrics": [
-        "Verifikasi Berkas Digital <24 Jam",
-        "Perhitungan Proyeksi Dana Pensiun",
-        "Arsip Terpusat BUMD"
-      ],
-      "description": "Aplikasi rekapitulasi pensiun pegawai instansi pemerintahan dengan verifikasi berkas digital, penelusuran status berkas pensiun, dan proyeksi dana tunjangan secara transparan."
-    },
-    {
-      "title": "Dual-Server Homelab HA Cluster (Primary & Standby Nodes)",
-      "category": "DevOps & Homelab",
-      "image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80",
-      "link": "https://info.baydev.my.id",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Lead DevOps & Infrastructure Engineer",
-      "tech_stack": [
-        "Debian Linux",
-        "Nginx FastCGI",
-        "PHP 8.4",
-        "PostgreSQL 17",
-        "Bash Scripting",
-        "Cloudflare Zero-Trust"
-      ],
-      "metrics": [
-        "99.9% High Availability Uptime",
-        "<15ms Ultra-Low Latency",
-        "0 MB Idle PHP RAM (Ondemand)",
-        "Dual-Server Sync Mirror"
-      ],
-      "description": "Arsitektur infrastruktur server fisik mandiri dengan sinkronisasi dual-server (Server Utama & Standby Mirror). Menjalankan Nginx FastCGI Unix Socket ondemand, rotasi backup PostgreSQL harian 7 hari, dan Cloudflare Zero-Trust Tunnel."
-    },
-    {
-      "title": "BayOffice AI Agent Orchestration & Retro Canvas",
-      "category": "Web Development",
-      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80",
-      "link": "#",
-      "github_url": "https://github.com/BayuKun28",
-      "is_featured": true,
-      "project_role": "Fullstack & Automation Engineer",
-      "tech_stack": [
-        "FastAPI Python",
-        "HTML5 2D Canvas",
-        "Tailwind CSS",
-        "Server-Sent Events (SSE)",
-        "Telegram Bot API"
-      ],
-      "metrics": [
-        "4 Autonomous AI Squad Agents",
-        "Zero Overhead Async Polling",
-        "60 FPS Retro Pixel Rendering",
-        "Real-Time Kanban Sync"
-      ],
-      "description": "Platform virtual workspace interaktif dengan 2D Retro Pixel Canvas dan sistem orkestrasi 4 agen AI otonom (LUHUT, JOKOWI, PRABOWO, GIBRAN). Dilengkapi real-time Server-Sent Events (SSE), sinkronisasi papan Kanban, dan bot notifikasi Telegram proaktif."
-    }
-  ]
+    "services": [
+        {
+            "title": "Web Design",
+            "description": "Desain antarmuka responsif dan estetis berbasis figma dan neubrutalisme modern.",
+            "icon": "/icons/services/web-design.svg"
+        },
+        {
+            "title": "Web Development",
+            "description": "Pengembangan aplikasi web modular menggunakan ekosistem modern Laravel, ReactJS, dan Vite.",
+            "icon": "/icons/services/web-development.svg"
+        },
+        {
+            "title": "Mobile Apps",
+            "description": "Pengembangan aplikasi lintas platform yang cepat, intuitif, dan responsif.",
+            "icon": "/icons/services/mobile-apps.svg"
+        },
+        {
+            "title": "Backend",
+            "description": "Perancangan RESTful API aman, manajemen database relasional, dan arsitektur server.",
+            "icon": "/icons/services/backend.svg"
+        }
+    ],
+    "skills": [
+        {
+            "name": "Web design",
+            "percentage": 85
+        },
+        {
+            "name": "Graphic design",
+            "percentage": 85
+        },
+        {
+            "name": "Web Application",
+            "percentage": 90
+        },
+        {
+            "name": "Mobile Application",
+            "percentage": 80
+        }
+    ],
+    "education": [
+        {
+            "title": "SMKN 02 KARANGANYAR",
+            "period": "2016 — 2019",
+            "description": "Teknik Komputer dan Jaringan / Rekayasa Perangkat Lunak"
+        },
+        {
+            "title": "UNIVERSITAS TERBUKA",
+            "period": "Sampai Sekarang",
+            "description": "Program Studi Sistem Informasi / Ilmu Komputer"
+        }
+    ],
+    "experience": [
+        {
+            "title": "ANALTA KOMPUTER",
+            "period": "2018 — 2018",
+            "description": "Posisi Teknisi"
+        },
+        {
+            "title": "PT GLOBAL INTERMEDIA NUSANTARA",
+            "period": "2019 — Sekarang",
+            "description": "Posisi Web Programmer"
+        }
+    ],
+    "portfolios": [
+        {
+            "id": 1,
+            "title": "Jamkrida Jatim",
+            "category": "Web Development",
+            "image": "/storage/portfolios/beTN5ybrB1PyD9T6npFJ4vH6p6dUbrHOhKt8AXa4.png",
+            "link": "#",
+            "description": "Sistem informasi manajemen penjaminan kredit untuk PT Jamkrida Jatim dengan integrasi data transaksi keuangan yang komprehensif, pelaporan audit berkala, dan otorisasi bertingkat.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "REST API",
+                "Bootstrap",
+                "Linux Debian"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Senior Web Programmer",
+            "metrics": [
+                "Rp 100M+ Plafon Kredit Terkelola",
+                "10K+ Transaksi Bulanan",
+                "Zero Data Loss Audit"
+            ],
+            "is_featured": true,
+            "order_index": 1,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 2,
+            "title": "Jamkrida Bali",
+            "category": "Web Development",
+            "image": "/storage/portfolios/3lgQ2WrYgDsWQJuE9yGea3ogKYQn3sTuEgcBqU0H.png",
+            "link": "#",
+            "description": "Portal digital dan aplikasi penjaminan kredit daerah Bali dengan modul monitoring portofolio perbankan mitra secara real-time dan perhitungan resiko otomatis.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "jQuery",
+                "AdminLTE",
+                "REST API"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Lead Backend Developer",
+            "metrics": [
+                "9 BUMD Mitra Terkoneksi",
+                "<50ms Database Query Time",
+                "100% SLA Kepatuhan OJK"
+            ],
+            "is_featured": true,
+            "order_index": 1,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 17,
+            "title": "JAMKRIDA KALBAR",
+            "category": "Web Development",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_QAX25hic60n_rhjLsj3mZkDuxzhXqtgqlBRFKvNQYSHDS1h_zzChAVKG&s=10",
+            "link": "#",
+            "description": null,
+            "tech_stack": null,
+            "github_url": null,
+            "project_role": null,
+            "metrics": null,
+            "is_featured": false,
+            "order_index": 2,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 20,
+            "title": "SUPER POS",
+            "category": "Multi Platform",
+            "image": "/storage/portfolios/UpI5exUWC5pxZCRNiLn593shHQnQpujkHW8gxWd7.png",
+            "link": "#",
+            "description": "Aplikasi Super yang menjadi solusi untuk anda mulai dari admin, stock opname , kasir, discount dan banyak hal , semua ada disini, bahkan support multi platform dan terkoneksi menggunakan API service pusat anda sendiri",
+            "tech_stack": null,
+            "github_url": null,
+            "project_role": null,
+            "metrics": null,
+            "is_featured": false,
+            "order_index": 2,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 21,
+            "title": "SIGAP",
+            "category": "Web Development",
+            "image": "/storage/portfolios/9d7sAIhRTQP5aGMYQ9RT7q5FhvpfDIUxQWMieTtD.png",
+            "link": "#",
+            "description": "SIGAP aplikasi untuk persuratan dan disposisi yang efisien",
+            "tech_stack": null,
+            "github_url": null,
+            "project_role": null,
+            "metrics": null,
+            "is_featured": false,
+            "order_index": 2,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 16,
+            "title": "BayOffice AI Agent Orchestration & Retro Canvas",
+            "category": "Web Development",
+            "image": "/storage/portfolios/BE9sxkHbl48RkqcqVsGEbkuB3Hznwcr8nj38XM9F.png",
+            "link": "#",
+            "description": "Platform virtual workspace interaktif dengan 2D Retro Pixel Canvas dan 3D,  sistem orkestrasi 5 agen AI otonom. Dilengkapi real-time Server-Sent Events (SSE), sinkronisasi papan Kanban, dan bot notifikasi Telegram proaktif.",
+            "tech_stack": [
+                "FastAPI Python",
+                "HTML5 2D Canvas",
+                "Tailwind CSS",
+                "Server-Sent Events (SSE)",
+                "Telegram Bot API"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Fullstack & Automation Engineer",
+            "metrics": [
+                "4 Autonomous AI Squad Agents",
+                "Zero Overhead Async Polling",
+                "60 FPS Retro Pixel Rendering",
+                "Real-Time Kanban Sync"
+            ],
+            "is_featured": true,
+            "order_index": 3,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 19,
+            "title": "DSP BayHifi",
+            "category": "Mobile Development",
+            "image": "/storage/portfolios/MVH7t5elNggeP8NDeF5A1HUdWjVzuk70LiN23VRN.png",
+            "link": "#",
+            "description": "Aplikasi DSP multi platform Android,Linux,Windows untuk music bit perfectmu! bahkan support Youtube music dan pasang config sesuai perangkat IEM atau audio mu !",
+            "tech_stack": null,
+            "github_url": null,
+            "project_role": null,
+            "metrics": null,
+            "is_featured": false,
+            "order_index": 3,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 15,
+            "title": "Dual-Server Homelab HA Cluster (Primary & Standby Nodes)",
+            "category": "DevOps & Homelab",
+            "image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80",
+            "link": "https://info.baydev.my.id",
+            "description": "Arsitektur infrastruktur server fisik mandiri dengan sinkronisasi dual-server (Server Utama & Standby Mirror). Menjalankan Nginx FastCGI Unix Socket ondemand, rotasi backup PostgreSQL harian 7 hari, dan Cloudflare Zero-Trust Tunnel.",
+            "tech_stack": [
+                "Debian Linux",
+                "Nginx FastCGI",
+                "PHP 8.4",
+                "PostgreSQL 17",
+                "Bash Scripting",
+                "Cloudflare Zero-Trust"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Lead DevOps & Infrastructure Engineer",
+            "metrics": [
+                "99.9% High Availability Uptime",
+                "<15ms Ultra-Low Latency",
+                "0 MB Idle PHP RAM (Ondemand)",
+                "Dual-Server Sync Mirror"
+            ],
+            "is_featured": true,
+            "order_index": 4,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 18,
+            "title": "Report Service Studio",
+            "category": "Web Development",
+            "image": "/storage/portfolios/QfWfPdbAYkred5uvmcPkF1JQ3BR7t6VJ3ovyLB3z.png",
+            "link": "#",
+            "description": "Aplikasi web base untuk mendesign laporan modular dan easy maintenance dengan service untuk eksport ke berbagai format",
+            "tech_stack": null,
+            "github_url": null,
+            "project_role": null,
+            "metrics": null,
+            "is_featured": false,
+            "order_index": 5,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 3,
+            "title": "GIS DESA PINTAR",
+            "category": "Web Development",
+            "image": "/storage/portfolios/8I38uBPY1ZEo4KPyoB7xTCZwg0udq5BeJYFN8ein.png",
+            "link": "#",
+            "description": "Sistem Informasi Geografis (GIS) pemetaan aset tanah kas desa, tata ruang, dan demografi penduduk berbasis peta digital interaktif dengan filter spasial cepat.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL PostGIS",
+                "Leaflet.js",
+                "GeoJSON",
+                "Tailwind CSS"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Fullstack GIS Developer",
+            "metrics": [
+                "100% Pemetaan Aset & Tata Ruang",
+                "<1s Geospatial Query",
+                "Digitalisasi Demografi Desa"
+            ],
+            "is_featured": true,
+            "order_index": 6,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 4,
+            "title": "CMS PORTAL",
+            "category": "Web Development",
+            "image": "/storage/portfolios/pYk6NPKR78kXyNAybW3HQLWJGlNF3qyex3RX0vsN.png",
+            "link": "#",
+            "description": "Content Management System modular untuk publikasi berita, artikel multimedia, dan integrasi media sosial multi-user dengan manajemen hak akses redaksi.",
+            "tech_stack": [
+                "Laravel",
+                "MySQL",
+                "Tailwind CSS",
+                "TinyMCE",
+                "SEO Optimization"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Web Engineer",
+            "metrics": [
+                "50K+ Monthly Pageviews",
+                "SEO Optimized Structured Data",
+                "Multi-Author Workflow"
+            ],
+            "is_featured": false,
+            "order_index": 7,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 5,
+            "title": "CMS SIKAP",
+            "category": "Web Development",
+            "image": "/storage/portfolios/uZXxHyVUDXhbUXjiLwvwVm9C7SJKOV9rAxmxGIiA.png",
+            "link": "#",
+            "description": "Sistem informasi kepengurusan dan administrasi kepegawaian institusi dengan audit log terinci, penjejakan mutasi jabatan, dan kontrol hak akses granular.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "Bootstrap",
+                "RBAC",
+                "Audit Log"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Senior Fullstack Programmer",
+            "metrics": [
+                "1,200+ Pegawai Terdata",
+                "100% Akuntabilitas Mutasi",
+                "Granular Security Roles"
+            ],
+            "is_featured": false,
+            "order_index": 10,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 6,
+            "title": "E-SEWA",
+            "category": "Web Development",
+            "image": "/storage/portfolios/WDKIu9dmt02zYY1QirhxJre8QBeRCMCfHJuU8CFk.png",
+            "link": "#",
+            "description": "Platform digital pengelolaan sewa aset dan gedung daerah dengan billing otomatis, penomoran invoice otomatis, tanda tangan digital, dan rekonsiliasi pembayaran.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "Alpine.js",
+                "Tailwind CSS",
+                "PDF Generation"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Lead Software Architect",
+            "metrics": [
+                "Otomatisasi Billing 100%",
+                "Paperless Electronic Approval",
+                "Pencegahan Dobel Booking"
+            ],
+            "is_featured": true,
+            "order_index": 11,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 7,
+            "title": "KASKOS",
+            "category": "Mobile Development",
+            "image": "/storage/portfolios/EcgbbAuWnzJ2xZpIa5yw76y4QA9TJlRvVxxaDFGf.png",
+            "link": "#",
+            "description": "Aplikasi mobile pembukuan pengeluaran kos-kosan & pencatatan keuangan pribadi dengan grafik pengeluaran bulanan, pengingat jatuh tempo sewa, dan cadangan lokal.",
+            "tech_stack": [
+                "Flutter",
+                "Dart",
+                "SQLite",
+                "Laravel REST API",
+                "Firebase"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Creator & Mobile Developer",
+            "metrics": [
+                "1,000+ Downloads",
+                "4.8★ Rating Play Store",
+                "Offline-First Sync Engine"
+            ],
+            "is_featured": true,
+            "order_index": 12,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 10,
+            "title": "Undangan Online",
+            "category": "Mobile Development",
+            "image": "/storage/portfolios/2SGlZulL9tn0hd3Cn9VbaDt6Qu8q6S9aaoo0jxcd.png",
+            "link": "#",
+            "description": "Aplikasi undangan digital interaktif responsif dengan RSVP online real-time, amplop digital QRIS, latar belakang audio kustom, dan buku tamu digital.",
+            "tech_stack": [
+                "React",
+                "Tailwind CSS",
+                "Framer Motion",
+                "Audio API",
+                "Supabase"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Frontend Engineer",
+            "metrics": [
+                "5,000+ Tamu Terlayani",
+                "Interactive RSVP Realtime",
+                "Amplop Digital QRIS"
+            ],
+            "is_featured": false,
+            "order_index": 13,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 11,
+            "title": "KASKOS WEB",
+            "category": "Web Development",
+            "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921680.png",
+            "link": "https://kaskos.bayukun.my.id/dashboard",
+            "description": "Versi dashboard web untuk ekosistem Kaskos. Menghubungkan penghuni kos dengan pemilik properti secara terpusat untuk monitoring kamar, tagihan, dan pemeliharaan fasilitas.",
+            "tech_stack": [
+                "React",
+                "Laravel 11",
+                "PostgreSQL",
+                "Tailwind CSS",
+                "Sanctum Auth"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Solo Fullstack Engineer",
+            "metrics": [
+                "Multi-Tenant Kos Ecosystem",
+                "Automated WhatsApp Reminders",
+                "Laporan Arus Kas Bulanan"
+            ],
+            "is_featured": true,
+            "order_index": 14,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 12,
+            "title": "POS KELONTONG",
+            "category": "Web Development",
+            "image": "/storage/portfolios/kkVd66M6wTskrwurw5gHKJ4vJTbDmyQDdDAWcEAD.png",
+            "link": "#",
+            "description": "Point of Sales (POS) kasir toko kelontong berbasis web dengan dukungan barcode scanner, perhitungan stok barang otomatis, cetak struk thermal, dan laporan laba-rugi harian.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "Thermal Print JS",
+                "Alpine.js",
+                "Tailwind CSS"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Fullstack Developer",
+            "metrics": [
+                "15,000+ SKU Produk Terkelola",
+                "Cetak Struk Thermal Bluetooth/USB",
+                "Inventori Stok Otomatis"
+            ],
+            "is_featured": false,
+            "order_index": 15,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 13,
+            "title": "E-TPQ WHATSAPP BLAST",
+            "category": "Web Development",
+            "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921861.png",
+            "link": "#",
+            "description": "Sistem administrasi santri TPQ terintegrasi gateway WhatsApp untuk pengiriman laporan nilai, SPP, dan absensi otomatis kepada wali santri dengan proteksi anti-spam.",
+            "tech_stack": [
+                "Node.js",
+                "Express",
+                "Baileys WhatsApp API",
+                "PostgreSQL",
+                "Redis Queue"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Backend & Automation Engineer",
+            "metrics": [
+                "3,000+ Blast Pesan per Menit",
+                "99.2% Delivery Success Rate",
+                "Anti-Banned Rate Limiter"
+            ],
+            "is_featured": false,
+            "order_index": 16,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        },
+        {
+            "id": 14,
+            "title": "E-PENSIUN",
+            "category": "Web Development",
+            "image": "https://baydev.my.id/assets/backend/images/portofolio/1757921947.png",
+            "link": "#",
+            "description": "Aplikasi rekapitulasi pensiun pegawai instansi pemerintahan dengan verifikasi berkas digital, penelusuran status berkas pensiun, dan proyeksi dana tunjangan secara transparan.",
+            "tech_stack": [
+                "Laravel",
+                "PostgreSQL",
+                "Tailwind CSS",
+                "Electronic Filing",
+                "REST API"
+            ],
+            "github_url": "https://github.com/BayuKun28",
+            "project_role": "Senior Web Programmer",
+            "metrics": [
+                "Verifikasi Berkas Digital <24 Jam",
+                "Perhitungan Proyeksi Dana Pensiun",
+                "Arsip Terpusat BUMD"
+            ],
+            "is_featured": true,
+            "order_index": 17,
+            "highlights": [
+                "PRODUCTION READY",
+                "SECURE ARCHITECTURE",
+                "RESPONSIVE DESIGN"
+            ],
+            "client_name": null,
+            "project_year": null,
+            "gallery": null,
+            "is_published": true
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "name": "Web Development",
+            "slug": "web-development",
+            "order_index": 1
+        },
+        {
+            "id": 2,
+            "name": "Mobile Development",
+            "slug": "mobile-development",
+            "order_index": 2
+        },
+        {
+            "id": 3,
+            "name": "UI/UX Design",
+            "slug": "uiux-design",
+            "order_index": 3
+        },
+        {
+            "id": 4,
+            "name": "Backend System",
+            "slug": "backend-system",
+            "order_index": 4
+        },
+        {
+            "id": 5,
+            "name": "DevOps & Homelab",
+            "slug": "devops-homelab",
+            "order_index": 5
+        },
+        {
+            "id": 6,
+            "name": "Multi Platform",
+            "slug": "multi-platform",
+            "order_index": 6
+        }
+    ]
 }
