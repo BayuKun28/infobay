@@ -78,8 +78,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin')->group(function () {
             // Account / Profile
             Route::put('/profile', [AuthController::class, 'updateProfile']);
-            // Media Upload
+            // Media Upload & Asset Explorer
             Route::post('/upload', [PortfolioController::class, 'uploadImage']);
+            Route::get('/media', [PortfolioController::class, 'listMedia']);
+            Route::delete('/media/{filename}', [PortfolioController::class, 'deleteMedia']);
 
             // System Maintenance & Health
             Route::post('/system/clear-cache', [SystemController::class, 'clearCache']);

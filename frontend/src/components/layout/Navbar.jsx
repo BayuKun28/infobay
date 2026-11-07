@@ -74,6 +74,14 @@ export default function Navbar({ isLiveApi, themeMode = 'light', toggleThemeMode
             {t('nav.contact', 'KONTAK')}
           </a>
 
+          <a
+            href="/resume"
+            className="font-black text-xs uppercase px-2.5 py-1 border-2 border-black bg-neo-mint hover:bg-emerald-300 transition-all text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5"
+            title="Lihat ATS Resume & Cetak CV"
+          >
+            CV / RESUME
+          </a>
+
           {/* Desktop Language Toggle */}
           <LanguageToggle />
 

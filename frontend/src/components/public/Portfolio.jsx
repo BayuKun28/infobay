@@ -157,9 +157,16 @@ export default function Portfolio({ portfolios = [] }) {
         <div className="inline-block bg-neo-cyan border-2 border-black text-black px-3 py-1 font-black text-xs uppercase tracking-widest shadow-neo-sm mb-3">
           {t('portfolio.badge', '04 / SHOWCASE KARYA TERPILIH')}
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white mb-2 uppercase">
-          {t('portfolio.title', '17+ PORTOFOLIO NYATA')}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-black dark:text-white uppercase">
+            {t('portfolio.title', '17+ PORTOFOLIO NYATA')}
+          </h2>
+          <div className="bg-neo-yellow border-2 border-black text-black px-3 py-1 font-black text-xs uppercase shadow-neo-sm">
+            {filteredPortfolios.length === portfolios.length
+              ? `Total: ${portfolios.length} Proyek`
+              : `Menampilkan ${filteredPortfolios.length} dari ${portfolios.length} Proyek`}
+          </div>
+        </div>
         <p className="font-bold text-gray-800 dark:text-slate-300 text-sm sm:text-base max-w-3xl">
           {t('portfolio.subtitle', 'Proyek-proyek skala riil yang dibangun untuk instansi pemerintah, BUMD, aplikasi mobile, dan infrastruktur homelab.')}
         </p>
@@ -220,10 +227,12 @@ export default function Portfolio({ portfolios = [] }) {
         />
       )}
 
-      {/* Detailed Preview Modal with Case Study Metrics */}
+      {/* Detailed Preview Modal with Case Study Metrics & Keyboard Navigation */}
       <PortfolioDetailModal
         project={activeModalProject}
         onClose={handleCloseDetail}
+        allProjects={filteredPortfolios}
+        onSelectProject={handleOpenDetail}
       />
     </section>
   );

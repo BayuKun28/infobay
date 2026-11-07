@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, Github, Zap, Layers, UserCheck, ShieldCheck, Share2, Check, Building2, Calendar } from 'lucide-react';
+import { ExternalLink, Github, Zap, Layers, UserCheck, ShieldCheck, Share2, Check, Building2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { useLanguage } from '../../hooks';
 
-export default function PortfolioDetailModal({ project, onClose }) {
+export default function PortfolioDetailModal({ project, onClose, allProjects = [], onSelectProject }) {
   const { t } = useLanguage();
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeImage, setActiveImage] = useState(project?.image || '');
@@ -14,6 +14,29 @@ export default function PortfolioDetailModal({ project, onClose }) {
       setActiveImage(project.image);
     }
   }, [project]);
+
+  // Determine prev and next projects for keyboard & click navigation
+  const currentIndex = allProjects.findIndex((p) => p.id === project?.id);
+  const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+  const nextProject = currentIndex >= 0 && currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+
+  useEffect(() => {
+    if (!project) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft' && prevProject && onSelectProject) {
+        e.preventDefault();
+        onSelectProject(prevProject);
+      } else if (e.key === 'ArrowRight' && nextProject && onSelectProject) {
+        e.preventDefault();
+        onSelectProject(nextProject);
+      } else if (e.key === 'Escape' && onClose) {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [project, prevProject, nextProject, onSelectProject, onClose]);
 
   if (!project) return null;
 
@@ -57,15 +80,41 @@ export default function PortfolioDetailModal({ project, onClose }) {
       maxWidth="max-w-3xl"
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2.5 w-full">
-          {/* Share Deep Link Button */}
-          <button
-            onClick={handleCopyLink}
-            className="px-3 py-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-white dark:hover:text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 transition-all cursor-pointer"
-            title="Salin tautan langsung proyek ini"
-          >
-            {copiedLink ? <Check className="w-4 h-4 text-green-700" /> : <Share2 className="w-4 h-4" />}
-            <span>{copiedLink ? t('portfolio.link_copied', 'TAUTAN DISALIN!') : t('portfolio.share_link', 'BAGIKAN PROYEK')}</span>
-          </button>
+          {/* Left Actions: Prev, Share Link, Next */}
+          <div className="flex items-center gap-1.5">
+            {prevProject && (
+              <button
+                type="button"
+                onClick={() => onSelectProject && onSelectProject(prevProject)}
+                className="p-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-white dark:hover:text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
+                title={`Proyek Sebelumnya (←): ${prevProject.title}`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Share Deep Link Button */}
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="px-3 py-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-white dark:hover:text-black font-black text-xs uppercase shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Salin tautan langsung proyek ini"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-green-700" /> : <Share2 className="w-4 h-4" />}
+              <span>{copiedLink ? t('portfolio.link_copied', 'TAUTAN DISALIN!') : t('portfolio.share_link', 'BAGIKAN PROYEK')}</span>
+            </button>
+
+            {nextProject && (
+              <button
+                type="button"
+                onClick={() => onSelectProject && onSelectProject(nextProject)}
+                className="p-2 border-2 border-black bg-white dark:bg-[#1E293B] hover:bg-neo-yellow dark:hover:bg-neo-yellow text-black dark:text-white dark:hover:text-black shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
+                title={`Proyek Berikutnya (→): ${nextProject.title}`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="white" size="sm" onClick={onClose}>

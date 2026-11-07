@@ -353,6 +353,16 @@ export const adminService = {
     return res.data;
   },
 
+  async getMedia() {
+    const res = await apiClient.get('/admin/media');
+    return res.data?.data || [];
+  },
+
+  async deleteMedia(filename) {
+    const res = await apiClient.delete(`/admin/media/${encodeURIComponent(filename)}`);
+    return res.data;
+  },
+
   // Biodata
   async updateBiodata(payload) {
     const res = await apiClient.put('/admin/biodata', payload);

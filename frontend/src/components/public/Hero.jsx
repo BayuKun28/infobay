@@ -115,20 +115,16 @@ export default function Hero({ biodata }) {
               <span>{t('hero.explore_projects', 'EXPLORE PROJECTS')}</span>
             </a>
 
-            {/* Neubrutalism CV / Resume Download Button */}
-            {cvUrl && (
-              <a
-                href={cvUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                className="neo-btn bg-neo-mint hover:bg-emerald-300 text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black font-black"
-                title="Download Curiculum Vitae (PDF)"
-              >
-                <FileText className="w-5 h-5 text-black" />
-                <span>{t('hero.download_cv', 'DOWNLOAD RESUME / CV')}</span>
-              </a>
-            )}
+            {/* Neubrutalism CV / Resume Action Button */}
+            <a
+              href={cvUrl || '/resume'}
+              {...(cvUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              className="neo-btn bg-neo-mint hover:bg-emerald-300 text-black flex items-center gap-2 text-sm sm:text-base border-2 border-black font-black"
+              title={cvUrl ? "Lihat & Unduh Curriculum Vitae (PDF)" : "Lihat Ringkasan ATS Resume / CV"}
+            >
+              <FileText className="w-5 h-5 text-black" />
+              <span>{t('hero.download_cv', 'RESUME / CV')}</span>
+            </a>
 
             <a
               href="#contact"

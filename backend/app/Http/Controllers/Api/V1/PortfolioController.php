@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PortfolioController extends Controller
 {
@@ -64,7 +65,7 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Dedicated image upload endpoint (Admin protected).
+     * Dedicated image upload endpoint with auto WebP compression pipeline (Admin protected).
      */
     public function uploadImage(Request $request): JsonResponse
     {
@@ -72,15 +73,109 @@ class PortfolioController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240',
         ]);
 
-        $path = $request->file('image')->store('portfolios', 'public');
+        $file = $request->file('image');
+        $mime = $file->getMimeType();
+        $filename = 'img_' . time() . '_' . Str::random(8) . '.webp';
+        $fullDir = storage_path('app/public/portfolios');
+
+        if (!file_exists($fullDir)) {
+            mkdir($fullDir, 0755, true);
+        }
+
+        $fullPath = $fullDir . '/' . $filename;
+        $converted = false;
+
+        // Auto WebP compression pipeline for JPEG / PNG images (reduces file size by 70-80%)
+        if (function_exists('imagewebp') && in_array($mime, ['image/jpeg', 'image/png', 'image/jpg'])) {
+            $img = null;
+            if ($mime === 'image/jpeg' || $mime === 'image/jpg') {
+                $img = @imagecreatefromjpeg($file->getRealPath());
+            } elseif ($mime === 'image/png') {
+                $img = @imagecreatefrompng($file->getRealPath());
+                if ($img) {
+                    imagepalettetotruecolor($img);
+                    imagealphablending($img, true);
+                    imagesavealpha($img, true);
+                }
+            }
+
+            if ($img) {
+                $converted = imagewebp($img, $fullPath, 80);
+                imagedestroy($img);
+            }
+        }
+
+        if ($converted) {
+            $path = 'portfolios/' . $filename;
+        } else {
+            // Fallback for SVG, GIF or if GD is unavailable
+            $path = $file->store('portfolios', 'public');
+        }
+
         $url = '/storage/' . $path;
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Gambar berhasil diunggah.',
+            'message' => 'Gambar berhasil diunggah' . ($converted ? ' dan dikonversi ke WebP otomatis.' : '.'),
             'url' => $url,
             'path' => $path,
+            'is_webp' => $converted,
         ]);
+    }
+
+    /**
+     * List all media assets in portfolios storage (Admin protected).
+     */
+    public function listMedia(Request $request): JsonResponse
+    {
+        $dir = storage_path('app/public/portfolios');
+        $media = [];
+
+        if (file_exists($dir)) {
+            $files = scandir($dir);
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..' || str_starts_with($f, '.')) continue;
+                $filepath = $dir . '/' . $f;
+                if (is_file($filepath)) {
+                    $media[] = [
+                        'filename' => $f,
+                        'url' => '/storage/portfolios/' . $f,
+                        'size_kb' => round(filesize($filepath) / 1024, 1),
+                        'modified_at' => date('Y-m-d H:i:s', filemtime($filepath)),
+                    ];
+                }
+            }
+        }
+
+        // Sort descending by modified date
+        usort($media, fn($a, $b) => strcmp($b['modified_at'], $a['modified_at']));
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $media,
+        ]);
+    }
+
+    /**
+     * Delete media asset from storage (Admin protected).
+     */
+    public function deleteMedia(string $filename): JsonResponse
+    {
+        $safeName = basename($filename);
+        $filepath = storage_path('app/public/portfolios/' . $safeName);
+
+        if (file_exists($filepath)) {
+            unlink($filepath);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berkas media berhasil dihapus permanen.',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Berkas media tidak ditemukan.',
+        ], 404);
     }
 
     /**

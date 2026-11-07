@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -23,12 +23,19 @@ import {
   CircularProgress,
   Tooltip,
   Divider,
+  InputAdornment,
+  Card,
+  CardContent,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LayersIcon from '@mui/icons-material/Layers';
 import SaveIcon from '@mui/icons-material/Save';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { adminService, normalizeTechStack } from '../../services/api';
 
 export default function ServicesSkillsManager({
@@ -112,6 +119,13 @@ export default function ServicesSkillsManager({
     }
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Search states
+  const [searchService, setSearchService] = useState('');
+  const [searchSkill, setSearchSkill] = useState('');
+
   // Pagination states
   const [servicePage, setServicePage] = useState(0);
   const [serviceRowsPerPage, setServiceRowsPerPage] = useState(5);
@@ -119,12 +133,28 @@ export default function ServicesSkillsManager({
   const [skillPage, setSkillPage] = useState(0);
   const [skillRowsPerPage, setSkillRowsPerPage] = useState(5);
 
-  const paginatedServices = services.slice(
+  const filteredServices = useMemo(() => {
+    if (!searchService.trim()) return services;
+    const q = searchService.toLowerCase();
+    return services.filter(
+      (s) => (s.title || '').toLowerCase().includes(q) || (s.description || '').toLowerCase().includes(q)
+    );
+  }, [services, searchService]);
+
+  const filteredSkills = useMemo(() => {
+    if (!searchSkill.trim()) return skills;
+    const q = searchSkill.toLowerCase();
+    return skills.filter(
+      (s) => (s.name || '').toLowerCase().includes(q)
+    );
+  }, [skills, searchSkill]);
+
+  const paginatedServices = filteredServices.slice(
     servicePage * serviceRowsPerPage,
     servicePage * serviceRowsPerPage + serviceRowsPerPage
   );
 
-  const paginatedSkills = skills.slice(
+  const paginatedSkills = filteredSkills.slice(
     skillPage * skillRowsPerPage,
     skillPage * skillRowsPerPage + skillRowsPerPage
   );
@@ -244,96 +274,148 @@ export default function ServicesSkillsManager({
         {/* Services Manager */}
         <Grid item xs={12} lg={6}>
           <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: 1, borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight="800">
-                Layanan &amp; Solusi ({services.length})
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 1.5, mb: 2 }}>
+              <Typography variant="h6" fontWeight="800" sx={{ fontSize: '1.05rem' }}>
+                Layanan &amp; Solusi ({filteredServices.length})
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAddService}
-                sx={{ fontWeight: 700 }}
-              >
-                Tambah Layanan
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <TextField
+                  size="small"
+                  placeholder="Cari layanan..."
+                  value={searchService}
+                  onChange={(e) => {
+                    setSearchService(e.target.value);
+                    setServicePage(0);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchService ? (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={() => setSearchService('')}>
+                          <ClearIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
+                  }}
+                  sx={{ width: { xs: '100%', sm: 170 }, '& .MuiOutlinedInput-root': { fontSize: '0.8rem' } }}
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenAddService}
+                  sx={{ fontWeight: 700, whiteSpace: 'nowrap', height: 40, flex: { xs: 1, sm: 'none' } }}
+                >
+                  Tambah Layanan
+                </Button>
+              </Box>
             </Box>
 
-            <TableContainer>
-              <Table size="small">
-                <TableHead sx={{ bgcolor: 'action.hover' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Judul Layanan</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Deskripsi</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, width: 90 }}>
-                      Aksi
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedServices.map((item, idx) => (
-                    <TableRow key={item.id || idx} hover>
-                      <TableCell sx={{ fontWeight: 700 }}>{item.title}</TableCell>
-                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
-                        {item.description || '-'}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.8 }}>
-                          <Tooltip title="Edit Layanan">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleOpenEditService(item)}
-                              sx={{
-                                p: 0.7,
-                                borderRadius: 1.5,
-                                color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
-                                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.16)' : 'rgba(67, 56, 202, 0.08)',
-                                border: 1,
-                                borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
-                                '&:hover': {
-                                  bgcolor: 'primary.main',
-                                  color: (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF',
-                                },
-                              }}
-                            >
-                              <EditIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Hapus Layanan">
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                setDeleteTarget({ type: 'service', id: item.id, title: item.title });
-                                setDeleteDialog(true);
-                              }}
-                              sx={{
-                                p: 0.7,
-                                borderRadius: 1.5,
-                                color: (th) => th.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626',
-                                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(220, 38, 38, 0.08)',
-                                border: 1,
-                                borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(220, 38, 38, 0.25)',
-                                '&:hover': {
-                                  bgcolor: 'error.main',
-                                  color: '#FFFFFF',
-                                },
-                              }}
-                            >
-                              <DeleteIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
+            {/* Desktop Table vs Mobile Cards */}
+            {isMobile ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {paginatedServices.map((item, idx) => (
+                  <Card key={item.id || idx} elevation={0} sx={{ p: 1.5, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Typography variant="subtitle2" fontWeight={800} color="text.primary">
+                        {item.title}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton size="small" onClick={() => handleOpenEditService(item)} sx={{ border: 1, borderColor: 'divider', p: 0.5 }}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" onClick={() => { setDeleteTarget({ type: 'service', id: item.id, title: item.title }); setDeleteDialog(true); }} sx={{ border: 1, borderColor: 'divider', p: 0.5 }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.78rem' }}>
+                      {item.description || 'Tidak ada deskripsi'}
+                    </Typography>
+                  </Card>
+                ))}
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: 'action.hover' }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>Judul Layanan</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Deskripsi</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, width: 90 }}>
+                        Aksi
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedServices.map((item, idx) => (
+                      <TableRow key={item.id || idx} hover>
+                        <TableCell sx={{ fontWeight: 700 }}>{item.title}</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
+                          {item.description || '-'}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.8 }}>
+                            <Tooltip title="Edit Layanan">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenEditService(item)}
+                                sx={{
+                                  p: 0.7,
+                                  borderRadius: 1.5,
+                                  color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.16)' : 'rgba(67, 56, 202, 0.08)',
+                                  border: 1,
+                                  borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
+                                  '&:hover': {
+                                    bgcolor: 'primary.main',
+                                    color: (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF',
+                                  },
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Hapus Layanan">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setDeleteTarget({ type: 'service', id: item.id, title: item.title });
+                                  setDeleteDialog(true);
+                                }}
+                                sx={{
+                                  p: 0.7,
+                                  borderRadius: 1.5,
+                                  color: (th) => th.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626',
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(220, 38, 38, 0.08)',
+                                  border: 1,
+                                  borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(220, 38, 38, 0.25)',
+                                  '&:hover': {
+                                    bgcolor: 'error.main',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
 
             <TablePagination
               rowsPerPageOptions={[5, 10, 20]}
               component="div"
-              count={services.length}
+              count={filteredServices.length}
               rowsPerPage={serviceRowsPerPage}
               page={servicePage}
               onPageChange={(e, newPage) => setServicePage(newPage)}
@@ -359,121 +441,195 @@ export default function ServicesSkillsManager({
         {/* Skills Manager */}
         <Grid item xs={12} lg={6}>
           <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: 1, borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight="800">
-                Keahlian &amp; Skills ({skills.length})
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 1.5, mb: 2 }}>
+              <Typography variant="h6" fontWeight="800" sx={{ fontSize: '1.05rem' }}>
+                Keahlian &amp; Skills ({filteredSkills.length})
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                color="secondary"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAddSkill}
-                sx={{ fontWeight: 700 }}
-              >
-                Tambah Keahlian
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <TextField
+                  size="small"
+                  placeholder="Cari keahlian..."
+                  value={searchSkill}
+                  onChange={(e) => {
+                    setSearchSkill(e.target.value);
+                    setSkillPage(0);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchSkill ? (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={() => setSearchSkill('')}>
+                          <ClearIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
+                  }}
+                  sx={{ width: { xs: '100%', sm: 170 }, '& .MuiOutlinedInput-root': { fontSize: '0.8rem' } }}
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="secondary"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenAddSkill}
+                  sx={{ fontWeight: 700, whiteSpace: 'nowrap', height: 40, flex: { xs: 1, sm: 'none' } }}
+                >
+                  Tambah Keahlian
+                </Button>
+              </Box>
             </Box>
 
-            <TableContainer>
-              <Table size="small">
-                <TableHead sx={{ bgcolor: 'action.hover' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Nama Keahlian</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Kemahiran (%)</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, width: 90 }}>
-                      Aksi
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedSkills.map((item, idx) => (
-                    <TableRow key={item.id || idx} hover>
-                      <TableCell sx={{ fontWeight: 700 }}>{item.name}</TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Box
-                            sx={{
-                              width: '100%',
-                              bgcolor: (th) => th.palette.mode === 'dark' ? '#232F48' : '#E2E8F0',
-                              height: 10,
-                              borderRadius: 2,
-                              overflow: 'hidden',
-                              border: 1,
-                              borderColor: 'divider',
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: `${item.percentage}%`,
-                                bgcolor: (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA',
-                                height: '100%',
-                                borderRadius: 1.5,
-                              }}
-                            />
-                          </Box>
-                          <Typography variant="caption" fontWeight="800" sx={{ minWidth: 36, color: 'text.primary', fontSize: '0.78rem' }}>
-                            {item.percentage}%
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.8 }}>
-                          <Tooltip title="Edit Keahlian">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleOpenEditSkill(item)}
-                              sx={{
-                                p: 0.7,
-                                borderRadius: 1.5,
-                                color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
-                                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.16)' : 'rgba(67, 56, 202, 0.08)',
-                                border: 1,
-                                borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
-                                '&:hover': {
-                                  bgcolor: 'primary.main',
-                                  color: (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF',
-                                },
-                              }}
-                            >
-                              <EditIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Hapus Keahlian">
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                setDeleteTarget({ type: 'skill', id: item.id, title: item.name });
-                                setDeleteDialog(true);
-                              }}
-                              sx={{
-                                p: 0.7,
-                                borderRadius: 1.5,
-                                color: (th) => th.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626',
-                                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(220, 38, 38, 0.08)',
-                                border: 1,
-                                borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(220, 38, 38, 0.25)',
-                                '&:hover': {
-                                  bgcolor: 'error.main',
-                                  color: '#FFFFFF',
-                                },
-                              }}
-                            >
-                              <DeleteIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
+            {/* Desktop Table vs Mobile Cards */}
+            {isMobile ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {paginatedSkills.map((item, idx) => (
+                  <Card key={item.id || idx} elevation={0} sx={{ p: 1.5, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle2" fontWeight={800} color="text.primary">
+                        {item.name}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton size="small" onClick={() => handleOpenEditSkill(item)} sx={{ border: 1, borderColor: 'divider', p: 0.5 }}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" onClick={() => { setDeleteTarget({ type: 'skill', id: item.id, title: item.name }); setDeleteDialog(true); }} sx={{ border: 1, borderColor: 'divider', p: 0.5 }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          width: '100%',
+                          bgcolor: (th) => th.palette.mode === 'dark' ? '#232F48' : '#E2E8F0',
+                          height: 8,
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          border: 1,
+                          borderColor: 'divider',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: `${item.percentage}%`,
+                            bgcolor: (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA',
+                            height: '100%',
+                            borderRadius: 1.5,
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="caption" fontWeight="800" sx={{ minWidth: 36, color: 'text.primary', fontSize: '0.78rem' }}>
+                        {item.percentage}%
+                      </Typography>
+                    </Box>
+                  </Card>
+                ))}
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: 'action.hover' }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>Nama Keahlian</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Kemahiran (%)</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, width: 90 }}>
+                        Aksi
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedSkills.map((item, idx) => (
+                      <TableRow key={item.id || idx} hover>
+                        <TableCell sx={{ fontWeight: 700 }}>{item.name}</TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box
+                              sx={{
+                                width: '100%',
+                                bgcolor: (th) => th.palette.mode === 'dark' ? '#232F48' : '#E2E8F0',
+                                height: 10,
+                                borderRadius: 2,
+                                overflow: 'hidden',
+                                border: 1,
+                                borderColor: 'divider',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: `${item.percentage}%`,
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA',
+                                  height: '100%',
+                                  borderRadius: 1.5,
+                                }}
+                              />
+                            </Box>
+                            <Typography variant="caption" fontWeight="800" sx={{ minWidth: 36, color: 'text.primary', fontSize: '0.78rem' }}>
+                              {item.percentage}%
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.8 }}>
+                            <Tooltip title="Edit Keahlian">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenEditSkill(item)}
+                                sx={{
+                                  p: 0.7,
+                                  borderRadius: 1.5,
+                                  color: (th) => th.palette.mode === 'dark' ? '#A5B4FC' : '#4338CA',
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.16)' : 'rgba(67, 56, 202, 0.08)',
+                                  border: 1,
+                                  borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.25)',
+                                  '&:hover': {
+                                    bgcolor: 'primary.main',
+                                    color: (th) => th.palette.mode === 'dark' ? '#0A0E17' : '#FFFFFF',
+                                  },
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Hapus Keahlian">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setDeleteTarget({ type: 'skill', id: item.id, title: item.name });
+                                  setDeleteDialog(true);
+                                }}
+                                sx={{
+                                  p: 0.7,
+                                  borderRadius: 1.5,
+                                  color: (th) => th.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626',
+                                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(220, 38, 38, 0.08)',
+                                  border: 1,
+                                  borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(220, 38, 38, 0.25)',
+                                  '&:hover': {
+                                    bgcolor: 'error.main',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
 
             <TablePagination
               rowsPerPageOptions={[5, 10, 20]}
               component="div"
-              count={skills.length}
+              count={filteredSkills.length}
               rowsPerPage={skillRowsPerPage}
               page={skillPage}
               onPageChange={(e, newPage) => setSkillPage(newPage)}

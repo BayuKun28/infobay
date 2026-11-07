@@ -15,6 +15,7 @@ export default function SidebarDrawer({ isOpen, onClose, menuLinks = [], themeMo
     { href: '#testimonials', label: t('drawer.testimonials', 'Testimoni & Ulasan'), color: 'bg-neo-yellow' },
     { href: '#certifications', label: t('drawer.certifications', 'Sertifikasi & Lisensi'), color: 'bg-neo-mint' },
     { href: '#contact', label: t('drawer.contact', 'Kontak & Kolaborasi'), color: 'bg-neo-lilac' },
+    { href: '/resume', label: t('drawer.resume', 'Resume / ATS CV'), color: 'bg-neo-mint' },
   ];
 
   const links = menuLinks.length > 0 ? menuLinks : defaultLinks;

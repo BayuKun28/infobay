@@ -46,9 +46,11 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CollectionsOutlinedIcon from '@mui/icons-material/CollectionsOutlined';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
+import MediaSelectorModal from './MediaSelectorModal';
 
 export default function PortfolioManager({
   portfolios = [],
@@ -70,6 +72,10 @@ export default function PortfolioManager({
   // Live Preview Modal state
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewData, setPreviewData] = useState(null);
+
+  // Media Selector Modal state
+  const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
+  const [mediaSelectorTarget, setMediaSelectorTarget] = useState('cover'); // 'cover' | 'gallery'
 
   // Form Dialog state
   const [openForm, setOpenForm] = useState(false);
@@ -1497,26 +1503,41 @@ export default function PortfolioManager({
                 <ImageOutlinedIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
               )}
 
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="admin-portfolio-upload-input"
-                type="file"
-                onChange={handleFileChange}
-              />
-              <label htmlFor="admin-portfolio-upload-input">
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="admin-portfolio-upload-input"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="admin-portfolio-upload-input">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    size="small"
+                    startIcon={<CloudUploadIcon />}
+                    sx={{ fontWeight: 600, fontSize: '0.78rem' }}
+                  >
+                    {previewUrl ? 'Ganti File Gambar' : 'Pilih Berkas Gambar'}
+                  </Button>
+                </label>
                 <Button
                   variant="outlined"
-                  component="span"
+                  color="secondary"
                   size="small"
-                  startIcon={<CloudUploadIcon />}
+                  startIcon={<CollectionsOutlinedIcon />}
+                  onClick={() => {
+                    setMediaSelectorTarget('cover');
+                    setMediaSelectorOpen(true);
+                  }}
                   sx={{ fontWeight: 600, fontSize: '0.78rem' }}
                 >
-                  {previewUrl ? 'Ganti File Gambar' : 'Pilih Berkas Gambar'}
+                  Pilih dari Galeri Server
                 </Button>
-              </label>
+              </Box>
               <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.8, fontSize: '0.7rem' }}>
-                Format didukung: JPG, PNG, WEBP, GIF, SVG (Maks. 10MB)
+                Format didukung: JPG, PNG, WEBP, GIF, SVG (Maks. 10MB) &bull; Otomatis dikompresi ke WebP 80%
               </Typography>
             </Box>
 
@@ -1544,21 +1565,36 @@ export default function PortfolioManager({
                     Tangkapan layar tambahan untuk studi kasus detail pada modal portofolio publik.
                   </Typography>
                 </Box>
-                <Button
-                  component="label"
-                  variant="outlined"
-                  size="small"
-                  disabled={uploadingGallery}
-                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
-                >
-                  {uploadingGallery ? 'Mengunggah...' : '+ Unggah Gambar'}
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={handleUploadGalleryFile}
-                  />
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    startIcon={<CollectionsOutlinedIcon fontSize="small" />}
+                    onClick={() => {
+                      setMediaSelectorTarget('gallery');
+                      setMediaSelectorOpen(true);
+                    }}
+                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+                  >
+                    Pilih dari Galeri
+                  </Button>
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    size="small"
+                    disabled={uploadingGallery}
+                    sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+                  >
+                    {uploadingGallery ? 'Mengunggah...' : '+ Unggah Gambar'}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleUploadGalleryFile}
+                    />
+                  </Button>
+                </Box>
               </Box>
 
               {/* Input manual URL / Caption */}
@@ -2214,6 +2250,24 @@ export default function PortfolioManager({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Media Selector & Asset Explorer Dialog */}
+      <MediaSelectorModal
+        open={mediaSelectorOpen}
+        onClose={() => setMediaSelectorOpen(false)}
+        onSelect={(selectedUrl) => {
+          if (mediaSelectorTarget === 'cover') {
+            setFormData((prev) => ({ ...prev, image: selectedUrl }));
+            setPreviewUrl(selectedUrl);
+            setSelectedFile(null);
+            showToast?.('Gambar sampul portofolio diperbarui dari galeri media', 'success');
+          } else {
+            setNewGalleryUrl(selectedUrl);
+            showToast?.('URL gambar dimasukkan ke form tangkapan layar galeri', 'info');
+          }
+        }}
+        showToast={showToast}
+      />
     </Box>
   );
 }
