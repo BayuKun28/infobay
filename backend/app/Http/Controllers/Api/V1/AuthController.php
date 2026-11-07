@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,6 +32,8 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('admin-api-token')->plainTextToken;
+
+        ActivityLog::record('auth.login', "Admin {$user->name} berhasil login.", $user->id);
 
         return response()->json([
             'status' => 'success',
@@ -114,6 +117,8 @@ class AuthController extends Controller
         $user->email = $validated['email'];
         $user->save();
 
+        ActivityLog::record('auth.profile_update', "Profil admin {$user->name} diperbarui.", $user->id);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profil dan kredensial akun berhasil diperbarui.',
@@ -122,6 +127,54 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
             ],
+        ]);
+    }
+
+    /**
+     * Change Password Dedicated Endpoint (Admin Protected).
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kata sandi saat ini yang Anda masukkan tidak sesuai.',
+            ], 422);
+        }
+
+        $user->password = Hash::make($validated['new_password']);
+        $user->save();
+
+        ActivityLog::record('auth.password_change', "Kata sandi akun {$user->name} berhasil diubah.", $user->id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Kata sandi berhasil diperbarui dengan aman.',
+        ]);
+    }
+
+    /**
+     * Revoke all other active sessions/tokens except current one.
+     */
+    public function revokeOtherTokens(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $currentTokenId = $user->currentAccessToken()->id;
+
+        $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+
+        ActivityLog::record('auth.revoke_tokens', "Seluruh sesi token lain berhasil dicabut.", $user->id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Seluruh sesi login perangkat lain berhasil dicabut.',
         ]);
     }
 }

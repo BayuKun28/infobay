@@ -30,6 +30,7 @@ import {
   CircularProgress,
   Divider,
   Alert,
+  Checkbox,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -92,6 +93,40 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Bulk Actions states
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(messages.map((m) => m.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleToggleSelect = (id, e) => {
+    if (e) e.stopPropagation();
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkAction = async (action) => {
+    if (selectedIds.length === 0) return;
+    setBulkLoading(true);
+    try {
+      const res = await messageService.bulkAction(action, selectedIds);
+      if (showToast) showToast(res?.message || 'Aksi massal berhasil diproses', 'success');
+      setSelectedIds([]);
+      fetchMessages();
+    } catch {
+      if (showToast) showToast('Gagal menjalankan aksi massal', 'error');
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
   // Fetch Messages from API with strictly isolated state dependencies & retry support
   const fetchMessages = useCallback(async (isRetry = false) => {
@@ -323,72 +358,135 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
         </Box>
       </Box>
 
-      {/* Standardized Table Toolbar: Filter Combobox Left, Search Right */}
+      {/* Standardized Table Toolbar: Filter Combobox Left, Search Right & Bulk Actions */}
       <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: { xs: 'stretch', md: 'center' },
-            gap: 2,
-          }}
-        >
-          {/* LEFT: Filter Combobox */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <FormControl size="small" sx={{ minWidth: 200 }}>
-              <InputLabel id="message-status-filter-label" sx={{ fontSize: '0.82rem' }}>
-                Filter Status
-              </InputLabel>
-              <Select
-                labelId="message-status-filter-label"
-                id="message-status-filter"
-                value={statusFilter}
-                label="Filter Status"
+        {selectedIds.length > 0 ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: { xs: 'stretch', sm: 'center' },
+              gap: 1.5,
+              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.08)' : 'rgba(67, 56, 202, 0.05)',
+              p: 1.5,
+              borderRadius: 2,
+              border: 1,
+              borderColor: 'primary.main',
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+              {selectedIds.length} pesan terpilih
+            </Typography>
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handleBulkAction('mark_read')}
+                disabled={bulkLoading}
+                startIcon={<MarkEmailReadIcon fontSize="small" />}
+                sx={{ fontSize: '0.75rem', fontWeight: 600 }}
+              >
+                Tandai Sudah Dibaca
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handleBulkAction('mark_unread')}
+                disabled={bulkLoading}
+                startIcon={<MarkEmailUnreadIcon fontSize="small" />}
+                sx={{ fontSize: '0.75rem', fontWeight: 600 }}
+              >
+                Tandai Belum Dibaca
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => handleBulkAction('delete')}
+                disabled={bulkLoading}
+                startIcon={<DeleteOutlineIcon fontSize="small" />}
+                sx={{ fontSize: '0.75rem', fontWeight: 600 }}
+              >
+                Hapus Terpilih
+              </Button>
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => setSelectedIds([])}
+                sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+              >
+                Batal
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: { xs: 'stretch', sm: 'center' },
+              gap: 2,
+            }}
+          >
+            {/* LEFT: Filter Combobox */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: { xs: '100%', sm: 'auto' } }}>
+              <FormControl size="small" sx={{ width: { xs: '100%', sm: 220 } }}>
+                <InputLabel id="message-status-filter-label" sx={{ fontSize: '0.82rem' }}>
+                  Filter Status
+                </InputLabel>
+                <Select
+                  labelId="message-status-filter-label"
+                  id="message-status-filter"
+                  value={statusFilter}
+                  label="Filter Status"
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setPage(0);
+                  }}
+                  sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+                >
+                  <MenuItem value="all" sx={{ fontSize: '0.82rem' }}>
+                    Semua Pesan ({totalCount})
+                  </MenuItem>
+                  <MenuItem value="unread" sx={{ fontSize: '0.82rem' }}>
+                    Belum Dibaca ({unreadCount})
+                  </MenuItem>
+                  <MenuItem value="read" sx={{ fontSize: '0.82rem' }}>
+                    Sudah Dibaca ({readCount})
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            {/* RIGHT: Search Box */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: { xs: '100%', sm: 300 } }}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Cari pengirim, email, pesan..."
+                value={searchQuery}
                 onChange={(e) => {
-                  setStatusFilter(e.target.value);
+                  setSearchQuery(e.target.value);
                   setPage(0);
                 }}
-                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
-              >
-                <MenuItem value="all" sx={{ fontSize: '0.82rem' }}>
-                  Semua Pesan ({totalCount})
-                </MenuItem>
-                <MenuItem value="unread" sx={{ fontSize: '0.82rem' }}>
-                  Belum Dibaca ({unreadCount})
-                </MenuItem>
-                <MenuItem value="read" sx={{ fontSize: '0.82rem' }}>
-                  Sudah Dibaca ({readCount})
-                </MenuItem>
-              </Select>
-            </FormControl>
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    borderRadius: 2,
+                    fontSize: '0.82rem',
+                  },
+                }}
+              />
+            </Box>
           </Box>
-
-          {/* RIGHT: Search Box */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'stretch', md: 'flex-end' } }}>
-            <TextField
-              size="small"
-              placeholder="Cari pengirim, email, subjek, atau isi pesan..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setPage(0);
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 2,
-                  fontSize: '0.82rem',
-                },
-              }}
-              sx={{ width: { xs: '100%', md: 320 } }}
-            />
-          </Box>
-        </Box>
+        )}
       </Paper>
 
       {/* Main Content: Table on Desktop, Cards on Mobile */}
@@ -534,7 +632,16 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
                 <Table size="medium">
                   <TableHead sx={{ bgcolor: 'action.hover' }}>
                     <TableRow>
-                      <TableCell sx={{ width: 45, px: 1, textAlign: 'center' }}>•</TableCell>
+                      <TableCell sx={{ width: 45, px: 1, textAlign: 'center' }}>
+                        <Checkbox
+                          size="small"
+                          indeterminate={selectedIds.length > 0 && selectedIds.length < messages.length}
+                          checked={messages.length > 0 && selectedIds.length === messages.length}
+                          onChange={handleSelectAll}
+                          inputProps={{ 'aria-label': 'Pilih semua pesan' }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ width: 30, px: 0.5, textAlign: 'center' }}>•</TableCell>
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: 220 }}>Pengirim</TableCell>
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Subjek &amp; Pesan</TableCell>
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: 170 }}>Waktu Diterima</TableCell>
@@ -548,6 +655,7 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
                         <TableRow
                           key={item.id}
                           hover
+                          selected={selectedIds.includes(item.id)}
                           onClick={() => handleOpenDetail(item)}
                           sx={{
                             cursor: 'pointer',
@@ -559,8 +667,18 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
                             transition: 'background-color 0.15s ease',
                           }}
                         >
+                          {/* Selection Checkbox */}
+                          <TableCell sx={{ px: 1, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              size="small"
+                              checked={selectedIds.includes(item.id)}
+                              onChange={(e) => handleToggleSelect(item.id, e)}
+                              inputProps={{ 'aria-label': `Pilih pesan dari ${item.name}` }}
+                            />
+                          </TableCell>
+
                           {/* Unread Status Indicator */}
-                          <TableCell sx={{ px: 1, textAlign: 'center' }}>
+                          <TableCell sx={{ px: 0.5, textAlign: 'center' }}>
                             {isUnread ? (
                               <Tooltip title="Pesan Baru (Belum Dibaca)">
                                 <FiberManualRecordIcon sx={{ fontSize: 13, color: 'primary.main' }} />
@@ -717,6 +835,13 @@ export default function MessageManager({ showToast, onUnreadCountChange }) {
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Checkbox
+                          size="small"
+                          checked={selectedIds.includes(item.id)}
+                          onClick={(e) => handleToggleSelect(item.id, e)}
+                          sx={{ p: 0.5 }}
+                          inputProps={{ 'aria-label': `Pilih pesan dari ${item.name}` }}
+                        />
                         {isUnread && <FiberManualRecordIcon sx={{ fontSize: 12, color: 'primary.main' }} />}
                         <Typography variant="subtitle2" fontWeight={isUnread ? 800 : 700}>
                           {item.name}

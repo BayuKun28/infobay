@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ThemeProvider,
   createTheme,
+  responsiveFontSizes,
   CssBaseline,
 } from '@mui/material';
 import { AdminLogin, AdminLayout } from '../components/admin';
@@ -39,11 +40,10 @@ export default function AdminPage() {
     [mode]
   );
 
-  // Modern, clean, enterprise-grade theme (High Visibility Dark & Light Mode)
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
+  // Modern, clean, enterprise-grade theme (High Visibility Dark & Light Mode with Dynamic DPI Mobile Scaling)
+  const theme = useMemo(() => {
+    const baseTheme = createTheme({
+      palette: {
           mode,
           ...(mode === 'light'
             ? {
@@ -157,6 +157,10 @@ export default function AdminPage() {
                 fontWeight: 700,
                 boxShadow: 'none',
                 transition: 'all 0.15s ease-in-out',
+                '@media (max-width:600px)': {
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                },
                 '&:hover': {
                   boxShadow: 'none',
                 },
@@ -230,6 +234,10 @@ export default function AdminPage() {
               root: {
                 borderBottom: mode === 'dark' ? '1px solid #232F48' : '1px solid #E2E8F0',
                 color: mode === 'dark' ? '#F8FAFC' : '#0F172A',
+                '@media (max-width:600px)': {
+                  padding: '8px 8px',
+                  fontSize: '0.72rem',
+                },
               },
               head: {
                 backgroundColor: mode === 'dark' ? '#182236' : '#F1F5F9',
@@ -238,6 +246,10 @@ export default function AdminPage() {
                 fontSize: '0.78rem',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
+                '@media (max-width:600px)': {
+                  padding: '8px 8px',
+                  fontSize: '0.7rem',
+                },
               },
             },
           },
@@ -245,11 +257,46 @@ export default function AdminPage() {
             styleOverrides: {
               root: {
                 fontWeight: 600,
+                '@media (max-width:600px)': {
+                  height: 20,
+                  fontSize: '0.65rem',
+                },
               },
               outlined: {
                 borderColor: mode === 'dark' ? '#3B4863' : '#CBD5E1',
                 color: mode === 'dark' ? '#F8FAFC' : '#0F172A',
                 borderWidth: '1.5px',
+              },
+            },
+          },
+          MuiDialog: {
+            styleOverrides: {
+              paper: {
+                '@media (max-width:600px)': {
+                  margin: '8px',
+                  width: 'calc(100% - 16px) !important',
+                  maxHeight: 'calc(100% - 16px) !important',
+                  maxWidth: '100% !important',
+                },
+              },
+            },
+          },
+          MuiDialogContent: {
+            styleOverrides: {
+              root: {
+                '@media (max-width:600px)': {
+                  padding: '12px 14px',
+                },
+              },
+            },
+          },
+          MuiDialogTitle: {
+            styleOverrides: {
+              root: {
+                '@media (max-width:600px)': {
+                  padding: '12px 14px',
+                  fontSize: '0.95rem',
+                },
               },
             },
           },
@@ -278,9 +325,13 @@ export default function AdminPage() {
             },
           },
         },
-      }),
-    [mode]
-  );
+      });
+
+    return responsiveFontSizes(baseTheme, {
+      breakpoints: ['xs', 'sm', 'md', 'lg', 'xl'],
+      factor: 2.2,
+    });
+  }, [mode]);
 
   const [sessionExpiredMsg, setSessionExpiredMsg] = useState('');
 

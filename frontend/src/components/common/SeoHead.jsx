@@ -36,7 +36,13 @@ export default function SeoHead({ biodata }) {
     };
 
     // 2. Primary Meta Tags (Optimized 150-160 chars description)
-    const metaDescription = `Portofolio resmi ${name} (${nickname}). Full-Stack Software Engineer 7+ tahun pengalaman spesialis Laravel, PostgreSQL, React, Next.js, dan Docker homelab.`;
+    const metaDescription =
+      biodata.meta_description ||
+      `Portofolio resmi ${name} (${nickname}). Full-Stack Software Engineer 7+ tahun pengalaman spesialis Laravel, PostgreSQL, React, Next.js, dan Docker homelab.`;
+    const ogImg = biodata.og_image
+      ? (biodata.og_image.startsWith('http') ? biodata.og_image : `${window.location.origin}${biodata.og_image}`)
+      : avatar;
+
     setMetaTag('name', 'title', pageTitle);
     setMetaTag('name', 'google-site-verification', 'xj3wGMsk9mIsj3kZghL6qIHOLt9I4wbMaQgk-4B9JK8');
     setMetaTag('name', 'description', metaDescription);
@@ -50,14 +56,14 @@ export default function SeoHead({ biodata }) {
     // 3. OpenGraph Tags
     setMetaTag('property', 'og:title', pageTitle);
     setMetaTag('property', 'og:description', metaDescription);
-    setMetaTag('property', 'og:image', avatar);
+    setMetaTag('property', 'og:image', ogImg);
     setMetaTag('property', 'og:url', 'https://baydev.my.id/');
     setMetaTag('property', 'og:type', 'profile');
 
     // 4. Twitter Tags
     setMetaTag('name', 'twitter:title', pageTitle);
     setMetaTag('name', 'twitter:description', metaDescription);
-    setMetaTag('name', 'twitter:image', avatar);
+    setMetaTag('name', 'twitter:image', ogImg);
     setMetaTag('name', 'twitter:card', 'summary_large_image');
 
     // 5. Dynamic Schema.org JSON-LD

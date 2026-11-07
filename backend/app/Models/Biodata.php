@@ -37,6 +37,9 @@ class Biodata extends Model
         'aliases',
         'engineering_principles',
         'terminal_widget',
+        'og_image',
+        'meta_description',
+        'announcement_bar',
     ];
 
     protected $casts = [
@@ -46,5 +49,6 @@ class Biodata extends Model
         'aliases' => 'array',
         'engineering_principles' => 'array',
         'terminal_widget' => 'array',
+        'announcement_bar' => 'array',
     ];
 }

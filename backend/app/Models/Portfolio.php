@@ -24,6 +24,7 @@ class Portfolio extends Model
         'metrics',
         'highlights',
         'is_featured',
+        'is_published',
         'order_index',
     ];
 
@@ -33,6 +34,7 @@ class Portfolio extends Model
         'metrics' => 'array',
         'highlights' => 'array',
         'is_featured' => 'boolean',
+        'is_published' => 'boolean',
         'order_index' => 'integer',
     ];
 }

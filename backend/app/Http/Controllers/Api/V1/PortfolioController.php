@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Portfolio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,16 @@ class PortfolioController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Portfolio::query();
+
+        // Public visibility: only published items, unless admin explicitly requests drafts
+        if (!$request->user('sanctum') && !$request->has('include_drafts')) {
+            $query->where('is_published', true);
+        } elseif ($request->has('is_published')) {
+            $isPub = filter_var($request->query('is_published'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($isPub !== null) {
+                $query->where('is_published', $isPub);
+            }
+        }
 
         if ($request->has('category') && !empty($request->category) && $request->category !== 'All') {
             $query->where('category', $request->category);
@@ -93,6 +104,7 @@ class PortfolioController extends Controller
             'metrics' => 'nullable',
             'highlights' => 'nullable',
             'is_featured' => 'nullable|boolean',
+            'is_published' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
 
@@ -159,6 +171,8 @@ class PortfolioController extends Controller
 
         $portfolio = Portfolio::create($validated);
 
+        ActivityLog::record('portfolio.create', "Portofolio '{$portfolio->title}' berhasil ditambahkan.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Item portofolio berhasil ditambahkan.',
@@ -196,6 +210,7 @@ class PortfolioController extends Controller
             'metrics' => 'nullable',
             'highlights' => 'nullable',
             'is_featured' => 'nullable|boolean',
+            'is_published' => 'nullable|boolean',
             'order_index' => 'nullable|integer',
         ]);
 
@@ -256,6 +271,8 @@ class PortfolioController extends Controller
 
         $portfolio->update($validated);
 
+        ActivityLog::record('portfolio.update', "Portofolio '{$portfolio->title}' (ID: {$portfolio->id}) diperbarui.");
+
         return response()->json([
             'status' => 'success',
             'message' => 'Portofolio berhasil diperbarui.',
@@ -280,6 +297,8 @@ class PortfolioController extends Controller
             }
         });
 
+        ActivityLog::record('portfolio.reorder', 'Urutan tampil portofolio diperbarui.');
+
         return response()->json([
             'status' => 'success',
             'message' => 'Urutan portofolio berhasil diperbarui.',
@@ -300,7 +319,10 @@ class PortfolioController extends Controller
             ], 404);
         }
 
+        $title = $portfolio->title;
         $portfolio->delete();
+
+        ActivityLog::record('portfolio.delete', "Portofolio '{$title}' (ID: {$id}) berhasil dihapus.");
 
         return response()->json([
             'status' => 'success',

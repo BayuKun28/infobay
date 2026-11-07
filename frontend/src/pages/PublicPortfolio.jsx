@@ -10,6 +10,7 @@ import Certifications from '../components/public/Certifications';
 import Contact from '../components/public/Contact';
 import { SeoHead, FloatingScrollTop } from '../components/common';
 import { getPublicProfile } from '../services';
+import { analyticsService } from '../services/api';
 import { defaultProfileData } from '../data/profileData';
 import { useTheme } from '../hooks';
 
@@ -21,6 +22,9 @@ export default function PublicPortfolio() {
 
   useEffect(() => {
     let isMounted = true;
+    // Record privacy-first anonymous visit
+    analyticsService.recordVisit();
+
     async function loadData() {
       try {
         const result = await getPublicProfile();
@@ -44,6 +48,13 @@ export default function PublicPortfolio() {
     <div className="min-h-screen bg-[#FFFDF0] dark:bg-[#0B0F19] text-black dark:text-[#F8FAFC] flex flex-col selection:bg-neo-yellow selection:text-black transition-colors duration-150">
       {/* Dynamic SEO Meta & Structured Data */}
       <SeoHead biodata={data?.biodata} />
+
+      {/* Top Announcement Bar if configured in Biodata */}
+      {data?.biodata?.announcement_bar && (
+        <div className="bg-[#FFDE59] text-black border-b-2 border-black py-1.5 px-4 text-center font-mono font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 sticky top-0 z-50">
+          <span>{data.biodata.announcement_bar}</span>
+        </div>
+      )}
 
       {/* Navigation */}
       <Navbar

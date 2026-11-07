@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -183,6 +184,43 @@ class MessageController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Pesan berhasil dihapus.',
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Bulk actions on messages (Admin Protected).
+     * Actions: mark_read, mark_unread, delete
+     */
+    public function bulkAction(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action' => 'required|string|in:mark_read,mark_unread,delete',
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|integer',
+        ]);
+
+        $count = count($validated['ids']);
+
+        if ($validated['action'] === 'mark_read') {
+            Message::whereIn('id', $validated['ids'])->update(['is_read' => true]);
+            ActivityLog::record('messages.bulk_read', "Menandai {$count} pesan sebagai sudah dibaca.");
+            $msg = "{$count} pesan berhasil ditandai sudah dibaca.";
+        } elseif ($validated['action'] === 'mark_unread') {
+            Message::whereIn('id', $validated['ids'])->update(['is_read' => false]);
+            ActivityLog::record('messages.bulk_unread', "Menandai {$count} pesan sebagai belum dibaca.");
+            $msg = "{$count} pesan berhasil ditandai belum dibaca.";
+        } elseif ($validated['action'] === 'delete') {
+            Message::whereIn('id', $validated['ids'])->delete();
+            ActivityLog::record('messages.bulk_delete', "Menghapus {$count} pesan masuk sekaligus.");
+            $msg = "{$count} pesan berhasil dihapus.";
+        }
+
+        $unreadCount = Message::where('is_read', false)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $msg,
             'unread_count' => $unreadCount,
         ]);
     }

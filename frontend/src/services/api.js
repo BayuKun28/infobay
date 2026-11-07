@@ -103,6 +103,16 @@ export const authService = {
     return res.data;
   },
 
+  async changePassword(payload) {
+    const res = await apiClient.put('/auth/change-password', payload);
+    return res.data;
+  },
+
+  async revokeOtherTokens() {
+    const res = await apiClient.post('/auth/revoke-other-tokens');
+    return res.data;
+  },
+
   getCurrentUser() {
     const userStr = localStorage.getItem('infobay_user');
     try {
@@ -312,6 +322,11 @@ export const messageService = {
     const res = await apiClient.delete(`/admin/messages/${id}`);
     return res.data;
   },
+
+  async bulkAction(action, ids) {
+    const res = await apiClient.post('/admin/messages/bulk-action', { action, ids });
+    return res.data;
+  },
 };
 
 // Admin CRUD Services
@@ -321,6 +336,7 @@ export const adminService = {
   getMessage: messageService.getMessage,
   toggleMessageRead: messageService.toggleRead,
   deleteMessage: messageService.deleteMessage,
+  bulkMessageAction: messageService.bulkAction,
 
   // Admin Account Profile & Password
   async updateProfile(payload) {
@@ -598,4 +614,34 @@ export const systemService = {
     return res.data;
   },
 };
+
+// Activity Log & Audit Trail Service
+export const activityLogService = {
+  async getLogs(params = {}) {
+    const res = await apiClient.get('/admin/activity-logs', { params });
+    return res.data;
+  },
+};
+
+// Privacy-First Visitor Analytics Service
+export const analyticsService = {
+  async recordVisit(data = {}) {
+    try {
+      const payload = {
+        page: window.location.pathname + window.location.hash,
+        referer: document.referrer || undefined,
+        ...data,
+      };
+      await apiClient.post('/analytics/visit', payload);
+    } catch {
+      // Non-blocking silent catch for analytics tracking
+    }
+  },
+
+  async getSummary() {
+    const res = await apiClient.get('/admin/analytics/summary');
+    return res.data;
+  },
+};
+
 

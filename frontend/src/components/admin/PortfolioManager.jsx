@@ -45,6 +45,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CategoryIcon from '@mui/icons-material/Category';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { adminService, categoryService } from '../../services/api';
 import { getStorageUrl } from '../../utils';
 import CategoryManagerModal from './CategoryManagerModal';
@@ -59,11 +60,16 @@ export default function PortfolioManager({
 
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState('ALL'); // 'ALL' | 'PUBLISHED' | 'DRAFT'
   const [loading, setLoading] = useState(false);
 
   // Dynamic Categories state
   const [categories, setCategories] = useState([]);
   const [openCategoryModal, setOpenCategoryModal] = useState(false);
+
+  // Live Preview Modal state
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
 
   // Form Dialog state
   const [openForm, setOpenForm] = useState(false);
@@ -80,6 +86,7 @@ export default function PortfolioManager({
     github_url: '',
     project_role: '',
     is_featured: false,
+    is_published: true,
     description: '',
     order_index: 1,
     tech_stack: [],
@@ -143,7 +150,12 @@ export default function PortfolioManager({
         item.title?.toLowerCase().includes(search.toLowerCase()) ||
         item.description?.toLowerCase().includes(search.toLowerCase());
       const matchCat = filterCat === 'ALL' || item.category === filterCat;
-      return matchSearch && matchCat;
+      const isItemPublished = item.is_published === undefined || Boolean(item.is_published);
+      const matchStatus =
+        filterStatus === 'ALL' ||
+        (filterStatus === 'PUBLISHED' && isItemPublished) ||
+        (filterStatus === 'DRAFT' && !isItemPublished);
+      return matchSearch && matchCat && matchStatus;
     });
 
     return list.sort((a, b) => {
@@ -152,7 +164,7 @@ export default function PortfolioManager({
       if (orderA !== orderB) return orderA - orderB;
       return (a.id ?? 0) - (b.id ?? 0);
     });
-  }, [portfolios, search, filterCat]);
+  }, [portfolios, search, filterCat, filterStatus]);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -185,6 +197,7 @@ export default function PortfolioManager({
       github_url: '',
       project_role: '',
       is_featured: false,
+      is_published: true,
       description: '',
       order_index: nextOrder,
       tech_stack: [],
@@ -263,6 +276,7 @@ export default function PortfolioManager({
       github_url: item.github_url || '',
       project_role: item.project_role || '',
       is_featured: Boolean(item.is_featured ?? item.featured ?? false),
+      is_published: item.is_published !== undefined ? Boolean(item.is_published) : true,
       description: item.description || '',
       order_index: item.order_index ?? 1,
       tech_stack: parsedTech,
@@ -419,6 +433,7 @@ export default function PortfolioManager({
         project_role: formData.project_role || '',
         github_url: formData.github_url || '',
         is_featured: Boolean(formData.is_featured),
+        is_published: Boolean(formData.is_published),
       };
 
       if (isEditing) {
@@ -520,8 +535,8 @@ export default function PortfolioManager({
           }}
         >
           {/* LEFT: Filter Combobox & Category Manager */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-            <FormControl size="small" sx={{ minWidth: 200 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', width: { xs: '100%', lg: 'auto' } }}>
+            <FormControl size="small" sx={{ width: { xs: '100%', sm: 180 } }}>
               <InputLabel id="portfolio-category-filter-label" sx={{ fontSize: '0.82rem' }}>
                 Filter Kategori
               </InputLabel>
@@ -547,6 +562,33 @@ export default function PortfolioManager({
               </Select>
             </FormControl>
 
+            <FormControl size="small" sx={{ width: { xs: '100%', sm: 160 } }}>
+              <InputLabel id="portfolio-status-filter-label" sx={{ fontSize: '0.82rem' }}>
+                Filter Status
+              </InputLabel>
+              <Select
+                labelId="portfolio-status-filter-label"
+                id="portfolio-status-filter"
+                value={filterStatus}
+                label="Filter Status"
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ fontSize: '0.82rem', borderRadius: 2 }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>
+                  Semua Status ({portfolios.length})
+                </MenuItem>
+                <MenuItem value="PUBLISHED" sx={{ fontSize: '0.82rem' }}>
+                  Dipublikasikan ({portfolios.filter((p) => p.is_published === undefined || Boolean(p.is_published)).length})
+                </MenuItem>
+                <MenuItem value="DRAFT" sx={{ fontSize: '0.82rem' }}>
+                  Draf / Tersembunyi ({portfolios.filter((p) => p.is_published !== undefined && !Boolean(p.is_published)).length})
+                </MenuItem>
+              </Select>
+            </FormControl>
+
             <Button
               variant="outlined"
               size="small"
@@ -558,6 +600,7 @@ export default function PortfolioManager({
                 color: 'text.secondary',
                 height: 40,
                 whiteSpace: 'nowrap',
+                width: { xs: '100%', sm: 'auto' },
                 '&:hover': { bgcolor: 'action.hover', borderColor: 'text.primary', color: 'text.primary' },
               }}
             >
@@ -699,6 +742,22 @@ export default function PortfolioManager({
                           title="Proyek Unggulan"
                         />
                       )}
+                      {item.is_published !== undefined && !Boolean(item.is_published) ? (
+                        <Chip
+                          label="Draf"
+                          size="small"
+                          sx={{
+                            height: 18,
+                            fontSize: '0.62rem',
+                            fontWeight: 700,
+                            bgcolor: 'action.hover',
+                            color: 'text.secondary',
+                            border: 1,
+                            borderColor: 'divider',
+                          }}
+                          title="Tersimpan sebagai draf (tidak tampil di publik)"
+                        />
+                      ) : null}
                     </Box>
                     <Chip
                       label={item.category}
@@ -780,6 +839,25 @@ export default function PortfolioManager({
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: 0.8 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setPreviewData(item);
+                      setPreviewModalOpen(true);
+                    }}
+                    sx={{
+                      p: 0.7,
+                      borderRadius: 1.5,
+                      color: 'text.secondary',
+                      bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)',
+                      border: 1,
+                      borderColor: 'divider',
+                      '&:hover': { color: 'primary.main', borderColor: 'primary.main' },
+                    }}
+                    title="Pratinjau Publik"
+                  >
+                    <VisibilityIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
                   {item.link && item.link !== '#' && (
                     <IconButton
                       size="small"
@@ -976,6 +1054,22 @@ export default function PortfolioManager({
                             }}
                           />
                         )}
+                        {item.is_published !== undefined && !Boolean(item.is_published) ? (
+                          <Chip
+                            label="DRAF"
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: '0.62rem',
+                              fontWeight: 700,
+                              bgcolor: 'action.hover',
+                              color: 'text.secondary',
+                              border: 1,
+                              borderColor: 'divider',
+                            }}
+                            title="Tersimpan sebagai draf (tidak tampil di publik)"
+                          />
+                        ) : null}
                       </Box>
                       {item.project_role && (
                         <Typography variant="caption" sx={{ display: 'block', color: 'primary.main', fontWeight: 700, fontSize: '0.7rem' }}>
@@ -1057,6 +1151,26 @@ export default function PortfolioManager({
                     </TableCell>
                     <TableCell align="right">
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.8 }}>
+                        <Tooltip title="Pratinjau Publik">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setPreviewData(item);
+                              setPreviewModalOpen(true);
+                            }}
+                            sx={{
+                              p: 0.7,
+                              borderRadius: 1.5,
+                              color: 'text.secondary',
+                              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)',
+                              border: 1,
+                              borderColor: 'divider',
+                              '&:hover': { color: 'primary.main', borderColor: 'primary.main' },
+                            }}
+                          >
+                            <VisibilityIcon sx={{ fontSize: 16 }} />
+                          </IconButton>
+                        </Tooltip>
                         {item.link && item.link !== '#' && (
                           <Tooltip title="Buka Tautan">
                             <IconButton
@@ -1258,7 +1372,7 @@ export default function PortfolioManager({
               />
             </Box>
 
-            {/* Project Role & Featured Toggle in 2-column Box */}
+            {/* Project Role & Toggles (Published & Featured) */}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center' }}>
               <TextField
                 label="Peran Proyek (Project Role)"
@@ -1270,34 +1384,66 @@ export default function PortfolioManager({
                 helperText="Peran pada proyek ini (default: Senior Software Engineer)"
               />
 
-              <Box
-                sx={{
-                  p: 1,
-                  px: 1.5,
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  bgcolor: 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={formData.is_featured}
-                      onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                      color="primary"
-                      size="small"
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
-                      Proyek Unggulan (Featured)
-                    </Typography>
-                  }
-                  sx={{ m: 0 }}
-                />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box
+                  sx={{
+                    p: 0.8,
+                    px: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.is_published}
+                        onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
+                        color="success"
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
+                        Publikasikan ({formData.is_published ? 'Aktif' : 'Draf'})
+                      </Typography>
+                    }
+                    sx={{ m: 0 }}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    p: 0.8,
+                    px: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    bgcolor: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.is_featured}
+                        onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                        color="primary"
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.82rem' }}>
+                        Proyek Unggulan (Featured)
+                      </Typography>
+                    }
+                    sx={{ m: 0 }}
+                  />
+                </Box>
               </Box>
             </Box>
 
@@ -1768,23 +1914,41 @@ export default function PortfolioManager({
               size="small"
             />
           </DialogContent>
-          <DialogActions sx={{ px: 2.5, py: 1.5 }}>
-            <Button onClick={() => setOpenForm(false)} disabled={loading} color="inherit" size="small">
-              Batal
-            </Button>
+          <DialogActions sx={{ px: 2.5, py: 1.5, display: 'flex', justifyContent: 'space-between' }}>
             <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
+              type="button"
+              variant="outlined"
               size="small"
-              sx={{ fontWeight: 600, px: 2.5 }}
+              startIcon={<VisibilityIcon fontSize="small" />}
+              onClick={() => {
+                setPreviewData({
+                  ...formData,
+                  image: previewUrl || formData.image,
+                });
+                setPreviewModalOpen(true);
+              }}
+              sx={{ fontWeight: 600, fontSize: '0.78rem' }}
             >
-              {loading || uploadingImage ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : (
-                'Simpan Data'
-              )}
+              Pratinjau Publik
             </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button onClick={() => setOpenForm(false)} disabled={loading} color="inherit" size="small">
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                size="small"
+                sx={{ fontWeight: 600, px: 2.5 }}
+              >
+                {loading || uploadingImage ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : (
+                  'Simpan Data'
+                )}
+              </Button>
+            </Box>
           </DialogActions>
         </form>
       </Dialog>
@@ -1822,6 +1986,234 @@ export default function PortfolioManager({
         onCategoriesChange={loadCategories}
         showToast={showToast}
       />
+
+      {/* Live Preview Modal (Simulasi Tampilan Publik Neubrutalism) */}
+      <Dialog
+        open={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 0,
+            border: '3px solid #000',
+            boxShadow: '6px 6px 0px #000',
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: '#FFDE59',
+            color: '#000',
+            borderBottom: '3px solid #000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: 1.5,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+              Pratinjau Publik
+            </Typography>
+            {previewData?.is_published !== undefined && !Boolean(previewData.is_published) && (
+              <Chip
+                label="DRAF (TERSEMBUNYI)"
+                size="small"
+                sx={{
+                  bgcolor: '#000',
+                  color: '#fff',
+                  fontWeight: 800,
+                  fontSize: '0.65rem',
+                  borderRadius: 0,
+                  border: '1px solid #000',
+                }}
+              />
+            )}
+          </Box>
+          <IconButton size="small" onClick={() => setPreviewModalOpen(false)} sx={{ color: '#000' }}>
+            <ClearIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 3, bgcolor: '#FFFBEA' }}>
+          {previewData && (
+            <Box
+              sx={{
+                bgcolor: '#FFFFFF',
+                border: '3px solid #000',
+                boxShadow: '4px 4px 0px #000',
+                p: { xs: 2, sm: 3 },
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              {/* Media Preview */}
+              <Box
+                component="img"
+                src={previewData.image ? getStorageUrl(previewData.image) : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80'}
+                alt={previewData.title || 'Preview'}
+                sx={{
+                  width: '100%',
+                  maxHeight: 260,
+                  objectFit: 'cover',
+                  border: '2px solid #000',
+                  bgcolor: '#F3F4F6',
+                }}
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80';
+                }}
+              />
+
+              {/* Badges & Meta */}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                <Chip
+                  label={previewData.category || 'General'}
+                  sx={{
+                    bgcolor: '#FFDE59',
+                    color: '#000',
+                    fontWeight: 900,
+                    borderRadius: 0,
+                    border: '2px solid #000',
+                    fontSize: '0.72rem',
+                    boxShadow: '2px 2px 0px #000',
+                  }}
+                />
+                {previewData.project_role && (
+                  <Chip
+                    label={previewData.project_role}
+                    sx={{
+                      bgcolor: '#000',
+                      color: '#FFF',
+                      fontWeight: 800,
+                      borderRadius: 0,
+                      border: '2px solid #000',
+                      fontSize: '0.72rem',
+                    }}
+                  />
+                )}
+                {previewData.project_year && (
+                  <Chip
+                    label={previewData.project_year}
+                    variant="outlined"
+                    sx={{
+                      fontWeight: 800,
+                      borderRadius: 0,
+                      border: '2px solid #000',
+                      fontSize: '0.72rem',
+                    }}
+                  />
+                )}
+              </Box>
+
+              {/* Title & Client */}
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#000', letterSpacing: '-0.02em', mb: 0.5 }}>
+                  {previewData.title || '(Judul Portofolio)'}
+                </Typography>
+                {previewData.client_name && (
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#4B5563' }}>
+                    Klien / Mitra: {previewData.client_name}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Description */}
+              <Typography variant="body2" sx={{ color: '#1F2937', lineHeight: 1.6 }}>
+                {previewData.description || 'Belum ada ringkasan deskripsi proyek.'}
+              </Typography>
+
+              {/* Tech Stack */}
+              {Array.isArray(previewData.tech_stack) && previewData.tech_stack.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, pt: 1, borderTop: '2px dashed #000' }}>
+                  {previewData.tech_stack.map((tech, idx) => {
+                    const name = typeof tech === 'object' ? tech.name || tech.tag || '' : String(tech);
+                    return (
+                      <Chip
+                        key={idx}
+                        label={`#${name}`}
+                        size="small"
+                        sx={{
+                          bgcolor: '#E0E7FF',
+                          color: '#312E81',
+                          fontWeight: 800,
+                          borderRadius: 0,
+                          border: '1.5px solid #000',
+                          fontSize: '0.68rem',
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+
+              {/* Metrics */}
+              {Array.isArray(previewData.metrics) && previewData.metrics.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {previewData.metrics.map((metric, mIdx) => (
+                    <Box
+                      key={mIdx}
+                      sx={{
+                        p: 1,
+                        px: 1.5,
+                        border: '2px solid #000',
+                        bgcolor: '#FEF9C3',
+                        boxShadow: '2px 2px 0px #000',
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#854D0E' }}>
+                        {metric}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+
+              {/* Highlights */}
+              {Array.isArray(previewData.highlights) && previewData.highlights.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                  {previewData.highlights.map((hl, hIdx) => (
+                    <Chip
+                      key={hIdx}
+                      label={hl}
+                      size="small"
+                      sx={{
+                        bgcolor: '#DCFCE7',
+                        color: '#14532D',
+                        fontWeight: 800,
+                        borderRadius: 0,
+                        border: '1.5px solid #000',
+                        fontSize: '0.65rem',
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, bgcolor: '#FFFBEA', borderTop: '3px solid #000' }}>
+          <Button
+            onClick={() => setPreviewModalOpen(false)}
+            sx={{
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              border: '2px solid #000',
+              borderRadius: 0,
+              boxShadow: '2px 2px 0px #000',
+              bgcolor: '#FFDE59',
+              color: '#000',
+              px: 2.5,
+              '&:hover': { bgcolor: '#FACC15' },
+            }}
+          >
+            Tutup Pratinjau
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

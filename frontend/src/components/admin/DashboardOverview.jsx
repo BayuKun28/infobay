@@ -25,7 +25,13 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CachedIcon from '@mui/icons-material/Cached';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { systemService, backupService } from '../../services/api';
+import HistoryIcon from '@mui/icons-material/History';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import LaptopIcon from '@mui/icons-material/Laptop';
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
+import TabletMacIcon from '@mui/icons-material/TabletMac';
+import SecurityIcon from '@mui/icons-material/Security';
+import { systemService, backupService, activityLogService, analyticsService } from '../../services/api';
 
 export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
   const allPortfolios = stats?.recentPortfolios || [];
@@ -38,6 +44,15 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
   const [exportingBackup, setExportingBackup] = useState(false);
   const [importingBackup, setImportingBackup] = useState(false);
 
+  // Analytics & Activity Log States
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [activityMeta, setActivityMeta] = useState({ total: 0 });
+  const [activityPage, setActivityPage] = useState(0);
+  const [activityRowsPerPage, setActivityRowsPerPage] = useState(5);
+  const [activityLoading, setActivityLoading] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     async function fetchHealth() {
@@ -48,9 +63,48 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
         console.warn('Failed to load system health:', err.message);
       }
     }
+
+    async function fetchAnalytics() {
+      setAnalyticsLoading(true);
+      try {
+        const res = await analyticsService.getSummary();
+        if (isMounted && res?.data) {
+          setAnalytics(res.data);
+        }
+      } catch (err) {
+        console.warn('Failed to load analytics summary:', err.message);
+      } finally {
+        if (isMounted) setAnalyticsLoading(false);
+      }
+    }
+
     fetchHealth();
+    fetchAnalytics();
     return () => { isMounted = false; };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchActivityLogs() {
+      setActivityLoading(true);
+      try {
+        const res = await activityLogService.getLogs({
+          page: activityPage + 1,
+          per_page: activityRowsPerPage,
+        });
+        if (isMounted && res?.data) {
+          setActivityLogs(res.data);
+          if (res.meta) setActivityMeta(res.meta);
+        }
+      } catch (err) {
+        console.warn('Failed to load activity logs:', err.message);
+      } finally {
+        if (isMounted) setActivityLoading(false);
+      }
+    }
+    fetchActivityLogs();
+    return () => { isMounted = false; };
+  }, [activityPage, activityRowsPerPage]);
 
   const handleClearCache = async () => {
     setClearingCache(true);
@@ -452,6 +506,249 @@ export default function DashboardOverview({ stats, onNavigateTab, showToast }) {
           onRowsPerPageChange={(e) => {
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
+          }}
+          labelRowsPerPage="Baris:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} dari ${count}`}
+          sx={{
+            borderTop: 1,
+            borderColor: 'divider',
+            '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: 'text.secondary',
+            },
+          }}
+        />
+      </Paper>
+
+      {/* Privacy-First Visitor Analytics & Traffic Insights */}
+      <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: 1, borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TrendingUpIcon fontSize="small" sx={{ color: 'primary.main' }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                Statistik Kunjungan Pengunjung (Privacy-First Analytics)
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+              Data anonim dienkripsi dengan salt SHA-256 harian, tanpa pelacakan data pribadi (GDPR compliant).
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Chip
+              label={`Hari Ini: ${analytics?.today_visits ?? 0} Kunjungan`}
+              size="small"
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.72rem',
+                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.15)' : 'rgba(67, 56, 202, 0.08)',
+                color: (th) => th.palette.mode === 'dark' ? '#C7D2FE' : '#3730A3',
+                border: 1,
+                borderColor: (th) => th.palette.mode === 'dark' ? 'rgba(129, 140, 248, 0.3)' : 'rgba(67, 56, 202, 0.2)',
+              }}
+            />
+            <Chip
+              label={`Total: ${analytics?.total_visits ?? 0} Kunjungan`}
+              size="small"
+              variant="outlined"
+              sx={{ fontWeight: 700, fontSize: '0.72rem', borderColor: 'divider' }}
+            />
+          </Box>
+        </Box>
+
+        <Grid container spacing={2}>
+          {/* 7-Day Trend Bars */}
+          <Grid item xs={12} md={7}>
+            <Box sx={{ p: 1.8, border: 1, borderColor: 'divider', borderRadius: 2, height: '100%' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', mb: 1.5 }}>
+                Tren Kunjungan 7 Hari Terakhir
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 1, height: 100, pt: 1 }}>
+                {analytics?.trend && analytics.trend.length > 0 ? (
+                  analytics.trend.map((t, idx) => {
+                    const maxV = Math.max(...analytics.trend.map((x) => x.visits), 1);
+                    const pct = Math.max(12, Math.round((t.visits / maxV) * 100));
+                    return (
+                      <Box key={idx} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                        <Typography variant="caption" sx={{ fontSize: '0.65rem', fontWeight: 700, mb: 0.5, color: 'text.secondary' }}>
+                          {t.visits}
+                        </Typography>
+                        <Box
+                          sx={{
+                            width: '100%',
+                            maxWidth: 32,
+                            height: `${pct}%`,
+                            borderRadius: '4px 4px 0 0',
+                            bgcolor: (th) => th.palette.mode === 'dark' ? '#818CF8' : '#4338CA',
+                            transition: 'height 0.3s ease',
+                          }}
+                        />
+                        <Typography variant="caption" sx={{ fontSize: '0.62rem', color: 'text.secondary', mt: 0.8, whiteSpace: 'nowrap' }}>
+                          {t.label}
+                        </Typography>
+                      </Box>
+                    );
+                  })
+                ) : (
+                  <Typography variant="caption" color="text.secondary" sx={{ mx: 'auto', alignSelf: 'center' }}>
+                    Belum ada riwayat kunjungan dalam 7 hari terakhir.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* Device Breakdown */}
+          <Grid item xs={12} md={5}>
+            <Box sx={{ p: 1.8, border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', mb: 1.5 }}>
+                Perangkat Pengunjung
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <LaptopIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600 }}>Desktop</Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    {analytics?.devices?.desktop ?? 0}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <PhoneIphoneIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600 }}>Mobile</Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    {analytics?.devices?.mobile ?? 0}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TabletMacIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 600 }}>Tablet</Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    {analytics?.devices?.tablet ?? 0}
+                  </Typography>
+                </Box>
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', mt: 1 }}>
+                Rasio perangkat disesuaikan dari header User-Agent pengunjung.
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Audit Trail & Activity Log Section */}
+      <Paper elevation={0} sx={{ borderRadius: 2.5, border: 1, borderColor: 'divider', overflow: 'hidden' }}>
+        <Box
+          sx={{
+            px: 2.5,
+            py: 1.8,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <HistoryIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+              <Typography variant="subtitle2" fontWeight={700}>
+                Audit Trail &amp; Log Aktivitas
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+              Catatan keamanan dan riwayat perubahan data administratif.
+            </Typography>
+          </Box>
+          <Chip
+            label={`${activityMeta?.total ?? 0} Tercatat`}
+            size="small"
+            sx={{ fontWeight: 700, fontSize: '0.68rem' }}
+          />
+        </Box>
+
+        {activityLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, gap: 1.5, alignItems: 'center' }}>
+            <CircularProgress size={20} />
+            <Typography variant="caption" color="text.secondary">Memuat audit log...</Typography>
+          </Box>
+        ) : activityLogs.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Belum ada catatan aktivitas.</Typography>
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead sx={{ bgcolor: 'action.hover' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem', width: 140 }}>Waktu</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem', width: 180 }}>Aksi</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Deskripsi Perubahan</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem', width: 120 }}>IP / Asal</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {activityLogs.map((log) => {
+                  const formatTime = (ts) => {
+                    try {
+                      return new Intl.DateTimeFormat('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }).format(new Date(ts));
+                    } catch {
+                      return ts;
+                    }
+                  };
+                  return (
+                    <TableRow key={log.id} hover>
+                      <TableCell sx={{ fontSize: '0.74rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                        {formatTime(log.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={log.action}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            fontFamily: 'monospace',
+                            bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '0.78rem', fontWeight: 500 }}>
+                        {log.description}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '0.72rem', color: 'text.secondary', fontFamily: 'monospace' }}>
+                        {log.ip_address || '—'}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20]}
+          component="div"
+          count={activityMeta?.total ?? 0}
+          rowsPerPage={activityRowsPerPage}
+          page={activityPage}
+          onPageChange={(e, newP) => setActivityPage(newP)}
+          onRowsPerPageChange={(e) => {
+            setActivityRowsPerPage(parseInt(e.target.value, 10));
+            setActivityPage(0);
           }}
           labelRowsPerPage="Baris:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} dari ${count}`}

@@ -32,7 +32,20 @@ export default function AdminProfileModal({ open, onClose, showToast, onUserUpda
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [revoking, setRevoking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleRevokeOtherTokens = async () => {
+    setRevoking(true);
+    try {
+      const res = await authService.revokeOtherTokens();
+      showToast(res?.message || 'Seluruh sesi perangkat lain berhasil dicabut.', 'success');
+    } catch {
+      showToast('Gagal mencabut sesi perangkat lain.', 'error');
+    } finally {
+      setRevoking(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -262,6 +275,19 @@ export default function AdminProfileModal({ open, onClose, showToast, onUserUpda
                 ),
               }}
             />
+
+            <Box sx={{ pt: 1 }}>
+              <Button
+                variant="outlined"
+                color="warning"
+                size="small"
+                onClick={handleRevokeOtherTokens}
+                disabled={revoking}
+                sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.78rem' }}
+              >
+                {revoking ? 'Mencabut sesi...' : 'Cabut Seluruh Sesi Login di Perangkat Lain'}
+              </Button>
+            </Box>
           </Box>
         </DialogContent>
 

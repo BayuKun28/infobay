@@ -64,6 +64,9 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
     work_status: '',
     terminal_user_host: 'baydev@workstation:~$',
     terminal_lines_text: '',
+    announcement_bar: '',
+    meta_description: '',
+    og_image: '',
   });
 
   // Dynamic social links array of { platform: '', url: '' }
@@ -123,6 +126,9 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
         work_status: biodata.work_status || 'Open for Remote & Hybrid Roles',
         terminal_user_host: biodata.terminal_widget?.user_host || 'baydev@workstation:~$',
         terminal_lines_text: currentTerminalLines,
+        announcement_bar: biodata.announcement_bar || '',
+        meta_description: biodata.meta_description || '',
+        og_image: biodata.og_image || '',
       });
 
       setAvatarPreview(biodata.avatar || '');
@@ -1007,6 +1013,63 @@ export default function BiodataManager({ biodata, onRefresh, showToast, onOpenPr
                       value={formData.terminal_lines_text}
                       onChange={(e) => setFormData({ ...formData, terminal_lines_text: e.target.value })}
                       helperText="Tiap baris teks akan otomatis dieksekusi dalam simulasi console terminal."
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
+
+            {/* SECTION 8: SEO & ANNOUNCEMENT BAR */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 1 }} />
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(15, 23, 42, 0.03)',
+                  borderRadius: 3,
+                  border: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="subtitle1" fontWeight="800" color="text.primary" sx={{ mb: 0.5 }}>
+                  8. Konfigurasi SEO &amp; Pengumuman Publik
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                  Kustomisasi banner pengumuman atas di halaman publik dan informasi meta tags mesin pencari (SEO &amp; Open Graph).
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Banner Pengumuman Atas (Announcement Bar)"
+                      placeholder="Contoh: Membuka Peluang Kolaborasi Proyek & Remote Roles 2026"
+                      value={formData.announcement_bar}
+                      onChange={(e) => setFormData({ ...formData, announcement_bar: e.target.value })}
+                      helperText="Jika diisi, banner pita kuning kontras akan tampil di atas bilah navigasi situs publik."
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Open Graph Image URL (og:image)"
+                      placeholder="https://... atau /storage/..."
+                      value={formData.og_image}
+                      onChange={(e) => setFormData({ ...formData, og_image: e.target.value })}
+                      helperText="Gambar pratinjau thumbnail saat tautan dibagikan ke WhatsApp, LinkedIn, dsb."
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Meta Description SEO"
+                      placeholder="Deskripsi singkat portofolio untuk Google search snippet..."
+                      value={formData.meta_description}
+                      onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                      helperText="Deskripsi ringkas yang diindeks oleh crawler mesin pencari (maks. 160 karakter disarankan)."
                     />
                   </Grid>
                 </Grid>

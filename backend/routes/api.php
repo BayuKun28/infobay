@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ActivityLogController;
+use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\BiodataController;
@@ -34,7 +36,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/testimonials/{id}', [TestimonialController::class, 'show']);
     Route::get('/certifications', [CertificationController::class, 'index']);
     Route::get('/certifications/{id}', [CertificationController::class, 'show']);
-    Route::post('/messages', [MessageController::class, 'store']);
+    Route::post('/messages', [MessageController::class, 'store'])->middleware('throttle:6,1');
+
+    // Privacy-First Anonymous Visitor Analytics Endpoint
+    Route::post('/analytics/visit', [AnalyticsController::class, 'recordVisit'])->middleware('throttle:30,1');
 
     // Health & Homelab Node Status Endpoint (HABIBIE PLAN-20261103-01)
     Route::get('/health', function () {
@@ -55,8 +60,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
     Route::get('/robots.txt', [SeoController::class, 'robots']);
 
-    // Auth
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    // Auth (Brute-force protected)
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
     // =========================================================================
     // Protected Admin Endpoints (Requires Sanctum Token)
@@ -66,6 +71,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
+        Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
+        Route::post('/auth/revoke-other-tokens', [AuthController::class, 'revokeOtherTokens']);
 
         // Admin CRUD
         Route::prefix('admin')->group(function () {
@@ -77,6 +84,12 @@ Route::prefix('v1')->group(function () {
             // System Maintenance & Health
             Route::post('/system/clear-cache', [SystemController::class, 'clearCache']);
             Route::get('/system/health', [SystemController::class, 'getSystemHealth']);
+
+            // Activity Log (Audit Trail)
+            Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+            // Analytics Summary
+            Route::get('/analytics/summary', [AnalyticsController::class, 'summary']);
 
             // Data Governance: Backup & Restore
             Route::get('/backup/export', [BackupController::class, 'export']);
@@ -109,6 +122,7 @@ Route::prefix('v1')->group(function () {
 
             // Messages / Inbox
             Route::get('/messages', [MessageController::class, 'index']);
+            Route::post('/messages/bulk-action', [MessageController::class, 'bulkAction']);
             Route::get('/messages/{id}', [MessageController::class, 'show']);
             Route::put('/messages/{id}/read', [MessageController::class, 'toggleRead']);
             Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
